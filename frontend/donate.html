@@ -1,0 +1,803 @@
+<!doctype html>
+<html lang="en" data-api-base="http://localhost:5000">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Turn your surplus food into meals for people in need. Donate food safely and reduce food waste with FoodBridge." />
+    <title>Donate Food · FoodBridge</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;1,600&display=swap" rel="stylesheet" />
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Global & Page Styles -->
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="animations.css" />
+    <link rel="stylesheet" href="responsive.css" />
+    <link rel="stylesheet" href="features.css" />
+    <link rel="stylesheet" href="css/donate.css" />
+  </head>
+  <body data-required-role="business">
+    <div class="cursor-dot" aria-hidden="true"></div>
+    <div class="cursor-ring" aria-hidden="true"></div>
+    <div class="page-noise" aria-hidden="true"></div>
+
+    <!-- Site Header Navigation -->
+    <header class="site-header" id="top">
+      <a class="brand" href="index.html" aria-label="FoodBridge home">
+        <span class="brand-mark"><i></i><i></i><i></i></span>FoodBridge<sup>®</sup>
+      </a>
+      <button class="menu-toggle" aria-label="Open navigation" aria-expanded="false">
+        <span></span><span></span>
+      </button>
+      <nav class="main-nav" aria-label="Main navigation">
+        <a href="index.html">Home</a>
+        <a href="index.html#about">About</a>
+        <a href="#how-it-works">How It Works</a>
+        <a class="active" href="donate.html">Donate Food</a>
+        <a href="index.html#network">Find NGOs</a>
+        <a href="index.html#volunteer">Volunteer</a>
+        <a href="freshness.html">Freshness Predictor</a>
+      </nav>
+      <div style="display:flex; align-items:center; gap:12px;">
+        <button class="theme-toggle" type="button" aria-label="Toggle dark mode" aria-pressed="false">◐</button>
+        <button type="button" data-action="logout" class="donor-btn-secondary" style="padding: 10px 20px; font-size: 12px;">Sign out</button>
+      </div>
+    </header>
+
+    <main class="donor-app">
+      <!-- 1. HERO SECTION -->
+      <section class="donor-hero">
+        <div class="donor-hero-orb-1"></div>
+        <div class="donor-hero-orb-2"></div>
+        <div class="donor-container">
+          <div class="donor-hero-grid">
+            <div class="donor-hero-copy">
+              <span class="donor-hero-badge"><i data-lucide="sprout"></i> Food Surplus Rescue</span>
+              <h1 class="donor-hero-title">
+                Turn Your Extra Food Into <em>Someone's Next Meal.</em>
+              </h1>
+              <p class="donor-hero-sub">
+                Don't let good food go to waste. Share your surplus food with people and communities who need it most.
+              </p>
+              <div class="donor-hero-actions">
+                <a href="#donate-form-section" class="donor-btn-primary magnetic">
+                  <span>Donate Food Now</span>
+                  <i data-lucide="arrow-right"></i>
+                </a>
+                <a href="#how-it-works" class="donor-btn-secondary magnetic">
+                  <span>How It Works</span>
+                  <i data-lucide="help-circle"></i>
+                </a>
+              </div>
+              <div class="donor-trust-row">
+                <div class="donor-trust-item">
+                  <span class="check">✓</span> Quick &amp; Easy
+                </div>
+                <div class="donor-trust-item">
+                  <span class="check">✓</span> Safe Food Sharing
+                </div>
+                <div class="donor-trust-item">
+                  <span class="check">✓</span> Make a Real Impact
+                </div>
+              </div>
+            </div>
+
+            <!-- Hero Visual Illustration -->
+            <div class="donor-hero-visual">
+              <div class="donor-art-frame">
+                <img src="images/food_rescue_donor.jpg" alt="Food donor handing fresh meal box to volunteer" width="700" height="480" />
+              </div>
+              <div class="donor-float-card donor-float-1">
+                <div class="donor-float-icon orange">🍲</div>
+                <div class="donor-float-text">
+                  <strong>12,500+ Meals</strong>
+                  <small>Rescued &amp; shared</small>
+                </div>
+              </div>
+              <div class="donor-float-card donor-float-2">
+                <div class="donor-float-icon green">
+                  <i data-lucide="truck"></i>
+                </div>
+                <div class="donor-float-text">
+                  <strong>Live Pickup Match</strong>
+                  <small>Volunteers active nearby</small>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 2. HOW IT WORKS SECTION -->
+      <section class="donor-how" id="how-it-works">
+        <div class="donor-container">
+          <div class="donor-section-header">
+            <span class="donor-section-eyebrow">3 Simple Steps</span>
+            <h2 class="donor-section-title">Donating Food Is Simple</h2>
+            <p class="donor-section-sub">Follow three quick steps to turn your surplus inventory into community nourishment.</p>
+          </div>
+
+          <div class="donor-steps-grid">
+            <div class="donor-step-card">
+              <span class="donor-step-number">01</span>
+              <div class="donor-step-icon">
+                <i data-lucide="clipboard-list"></i>
+              </div>
+              <h3 class="donor-step-title">1. Share Food Details</h3>
+              <p class="donor-step-desc">Tell us what food you have, how much is available, and when it can be collected.</p>
+            </div>
+
+            <div class="donor-step-card">
+              <span class="donor-step-number">02</span>
+              <div class="donor-step-icon">
+                <i data-lucide="map-pin"></i>
+              </div>
+              <h3 class="donor-step-title">2. We Find a Match</h3>
+              <p class="donor-step-desc">Our platform connects your donation with nearby verified volunteers or non-profit organizations.</p>
+            </div>
+
+            <div class="donor-step-card">
+              <span class="donor-step-number">03</span>
+              <div class="donor-step-icon">
+                <i data-lucide="heart"></i>
+              </div>
+              <h3 class="donor-step-title">3. Food Gets Rescued</h3>
+              <p class="donor-step-desc">Your food reaches people who need it instead of going to waste. Safe, fast, and transparent.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 3. MAIN FORM & SIDEBAR SECTION -->
+      <section class="donor-form-section" id="donate-form-section">
+        <div class="donor-container">
+          <div class="donor-main-layout">
+            
+            <!-- Left: Main Donation Form Container -->
+            <div class="donor-form-wrap">
+              <!-- Successful Submission Screen (hidden by default) -->
+              <div class="donor-success-view" id="donation-success-view" hidden>
+                <div class="donor-success-icon">🎉</div>
+                <h2 class="donor-success-title">Thank You for Making a Difference!</h2>
+                <p class="donor-success-desc">
+                  Your food donation has been submitted successfully. We'll notify you as soon as a volunteer or partner NGO accepts the request.
+                </p>
+
+                <div class="donor-success-card">
+                  <div class="donor-success-row">
+                    <span>Donation Reference ID:</span>
+                    <strong id="success-donation-id">#FB-84920</strong>
+                  </div>
+                  <div class="donor-success-row">
+                    <span>Food Item:</span>
+                    <strong id="success-food-name">—</strong>
+                  </div>
+                  <div class="donor-success-row">
+                    <span>Status:</span>
+                    <span class="donor-status-pill"><i></i> <span id="success-status-text">Looking for a Match</span></span>
+                  </div>
+                  <div class="donor-success-row">
+                    <span>Estimated Response Time:</span>
+                    <strong>15–30 minutes</strong>
+                  </div>
+                </div>
+
+                <div class="donor-success-actions">
+                  <a href="#activity-section" class="donor-btn-secondary" id="btn-track-donation">
+                    <i data-lucide="list"></i> View My Recent Donations
+                  </a>
+                  <button type="button" class="donor-btn-primary" id="btn-donate-more">
+                    <i data-lucide="plus-circle"></i> Donate More Food
+                  </button>
+                </div>
+              </div>
+
+              <!-- Main Active Form -->
+              <div class="donor-form-card" id="donate-form-container">
+                <div class="donor-form-header">
+                  <h2>Tell Us About Your Food</h2>
+                  <p>Provide a few details and we'll help find the best match for your donation.</p>
+                </div>
+
+                <form class="donation-form" data-api-form="donation" data-freshness-predictor id="main-donation-form" novalidate>
+                  <!-- Draft Action Controls Bar -->
+                  <div style="display:flex; justify-content:space-between; align-items:center; background:#f8fafc; padding:10px 16px; border-radius:12px; margin-bottom:24px; border:1px solid #e2e8f0;">
+                    <span style="font-size:12px; color:#64748b; font-weight:600;"><i data-lucide="save" style="width:14px; vertical-align:middle; margin-right:4px;"></i> Form auto-saves draft</span>
+                    <div>
+                      <button type="button" id="btn-save-draft" class="donor-btn-secondary" style="padding:6px 12px; font-size:11px;">Save Draft</button>
+                      <button type="button" id="btn-clear-draft" class="donor-btn-secondary" style="padding:6px 12px; font-size:11px; color:#ef4444; border-color:#fca5a5;">Clear Draft</button>
+                    </div>
+                  </div>
+
+                  <!-- Food Information -->
+                  <fieldset class="donor-fieldset">
+                    <legend class="donor-legend"><i data-lucide="utensils"></i> Food Information</legend>
+                    
+                    <div class="donor-field-group">
+                      <label class="donor-label">Food Name <span class="req">*</span></label>
+                      <input name="foodName" class="donor-input" required maxlength="160" placeholder="e.g. Freshly prepared vegetable biryani trays" />
+                    </div>
+
+                    <div class="donor-field-row">
+                      <div class="donor-field-group">
+                        <label class="donor-label">Category <span class="req">*</span></label>
+                        <select name="categoryId" class="donor-select" required>
+                          <option value="">Loading categories…</option>
+                        </select>
+                      </div>
+                      <div class="donor-field-group">
+                        <label class="donor-label">Food Type <span class="req">*</span></label>
+                        <select name="foodType" class="donor-select" required>
+                          <option value="veg">Vegetarian</option>
+                          <option value="non_veg">Non-vegetarian</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <div class="donor-field-row">
+                      <div class="donor-field-group">
+                        <label class="donor-label">Quantity <span class="req">*</span></label>
+                        <input name="quantity" class="donor-input" required maxlength="80" placeholder="e.g. 40 meals / 15 kg" />
+                      </div>
+                      <div class="donor-field-group">
+                        <label class="donor-label">Headcount Served (approx. people)</label>
+                        <input name="numberOfMeals" type="number" class="donor-input" min="1" placeholder="e.g. 40" />
+                      </div>
+                    </div>
+                  </fieldset>
+
+                  <!-- Food Details & Timings -->
+                  <fieldset class="donor-fieldset">
+                    <legend class="donor-legend"><i data-lucide="clock"></i> Food Details &amp; Timings</legend>
+                    
+                    <div class="donor-field-row">
+                      <div class="donor-field-group">
+                        <label class="donor-label">Preparation Date &amp; Time <span class="req">*</span></label>
+                        <input name="preparationTime" type="datetime-local" class="donor-input" required />
+                      </div>
+                      <div class="donor-field-group">
+                        <label class="donor-label">Best Before / Expiry Time <span class="req">*</span></label>
+                        <input name="expiryTime" type="datetime-local" class="donor-input" required />
+                      </div>
+                    </div>
+
+                    <div class="donor-field-group">
+                      <label class="donor-label">Storage Condition</label>
+                      <select name="storage" class="donor-select">
+                        <option value="ambient">Ambient / room temperature</option>
+                        <option value="insulated">Insulated container</option>
+                        <option value="chilled">Chilled storage</option>
+                      </select>
+                    </div>
+
+                    <!-- Live Freshness Predictor Output Panel -->
+                    <output class="freshness-panel" data-freshness-result hidden aria-live="polite"></output>
+
+                    <div class="donor-field-group">
+                      <label class="donor-label">Food Description &amp; Allergens (optional)</label>
+                      <textarea name="description" class="donor-textarea" rows="3" maxlength="3000" placeholder="Example: Freshly prepared vegetarian rice, curry, and chapati. Packed securely in foil containers. No common allergens."></textarea>
+                    </div>
+                  </fieldset>
+
+                  <!-- Pickup Information -->
+                  <fieldset class="donor-fieldset">
+                    <legend class="donor-legend"><i data-lucide="map-pin"></i> Pickup Information</legend>
+                    
+                    <div class="donor-field-row">
+                      <div class="donor-field-group">
+                        <label class="donor-label">Preferred Pickup Date <span class="req">*</span></label>
+                        <input name="pickupDate" type="date" class="donor-input" required />
+                      </div>
+                      <div class="donor-field-group">
+                        <label class="donor-label">Preferred Pickup Time <span class="req">*</span></label>
+                        <input name="pickupTime" type="time" class="donor-input" required />
+                      </div>
+                    </div>
+
+                    <div class="donor-field-row">
+                      <div class="donor-field-group">
+                        <label class="donor-label">City <span class="req">*</span></label>
+                        <input name="city" class="donor-input" required maxlength="100" placeholder="e.g. Hyderabad" />
+                      </div>
+                      <div class="donor-field-group">
+                        <label class="donor-label">Pincode</label>
+                        <input name="pincode" class="donor-input" maxlength="20" placeholder="e.g. 500001" />
+                      </div>
+                    </div>
+
+                    <div class="donor-field-group">
+                      <label class="donor-label">Pickup Address <span class="req">*</span></label>
+                      <input name="pickupAddress" class="donor-input" required maxlength="255" placeholder="Full street address, building name, gate landmark" />
+                    </div>
+
+                    <!-- Hidden Lat/Long Fields -->
+                    <input name="latitude" type="hidden" />
+                    <input name="longitude" type="hidden" />
+
+                    <div style="margin-top: 8px;">
+                      <button type="button" class="donor-btn-secondary" data-action="use-location" style="font-size:13px; padding:10px 18px;">
+                        📍 Use My Current Location
+                      </button>
+                      <small id="location-status-badge" style="display:none; margin-left:10px; color:#166534; font-weight:700;">✓ Coords added</small>
+                    </div>
+                  </fieldset>
+
+                  <!-- Food Image Upload -->
+                  <fieldset class="donor-fieldset">
+                    <legend class="donor-legend"><i data-lucide="camera"></i> Food Photos</legend>
+                    
+                    <div class="donor-dropzone" id="donor-dropzone">
+                      <div class="donor-dropzone-icon"><i data-lucide="upload-cloud"></i></div>
+                      <div class="donor-dropzone-text">
+                        <strong>Upload Food Photos</strong>
+                        <small>Clear photos help volunteers understand the food better. (Drag &amp; drop or click to upload)</small>
+                      </div>
+                      <input data-donation-image type="file" accept="image/png,image/jpeg,image/webp" multiple required style="position:absolute; inset:0; opacity:0; cursor:pointer;" />
+                    </div>
+
+                    <!-- Thumbnail Previews Container -->
+                    <div class="donor-previews-grid" id="donor-previews-grid" data-donation-preview-container></div>
+                  </fieldset>
+
+                  <!-- 4. FOOD SAFETY CHECK SECTION -->
+                  <div class="donor-safety-card">
+                    <div class="donor-safety-header">
+                      <span>🛡️</span>
+                      <h4>Quick Food Safety Check</h4>
+                    </div>
+                    <p style="font-size:13px; color:#166534; margin:0 0 14px;">Please confirm all safety standards before submitting your food donation:</p>
+
+                    <div class="donor-checkbox-list">
+                      <label class="donor-checkbox-label">
+                        <input type="checkbox" name="safetyHygiene" value="true" required class="safety-chk" />
+                        The food is safe and suitable for human consumption.
+                      </label>
+                      <label class="donor-checkbox-label">
+                        <input type="checkbox" name="safetyFreshness" value="true" required class="safety-chk" />
+                        The food has been stored properly under hygienic conditions.
+                      </label>
+                      <label class="donor-checkbox-label">
+                        <input type="checkbox" name="safetyPackaging" value="true" required class="safety-chk" />
+                        The food is within its safe consumption period.
+                      </label>
+                      <label class="donor-checkbox-label">
+                        <input type="checkbox" name="safetyAccuracy" value="true" required class="safety-chk" />
+                        I confirm that the information provided is accurate.
+                      </label>
+                    </div>
+
+                    <p class="donor-safety-note">
+                      <strong>Note:</strong> We care deeply about food safety. Please donate only food that is fresh, wholesome, and safe to consume.
+                    </p>
+                  </div>
+
+                  <!-- 6. SUBMIT SECTION -->
+                  <div class="donor-submit-box">
+                    <h3>Ready to Rescue This Food?</h3>
+                    <p>Submit your donation and we'll help connect it with someone who can collect and distribute it.</p>
+                    <button type="submit" class="donor-btn-primary donor-submit-btn" id="btn-submit-donation" disabled>
+                      <span>Submit Food Donation →</span>
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+
+            <!-- Right: Sticky Donation Summary Sidebar -->
+            <aside class="donor-sidebar-sticky">
+              <div class="donor-summary-card">
+                <div class="donor-summary-title">
+                  <span>Your Donation</span>
+                  <span id="summary-progress-text" style="font-size:12px; font-family:var(--donor-mono); color:var(--donor-green-primary);">0% Complete</span>
+                </div>
+
+                <div class="donor-progress-bar">
+                  <div class="donor-progress-fill" id="summary-progress-fill"></div>
+                </div>
+
+                <div class="donor-summary-preview">
+                  <div class="donor-summary-thumb-box" id="summary-thumb-box">
+                    <i data-lucide="image"></i>
+                  </div>
+                  <div class="donor-summary-details">
+                    <div class="donor-summary-item">
+                      <span class="label">Food Name</span>
+                      <span class="val" id="summary-food-name">Not specified yet</span>
+                    </div>
+                    <div class="donor-summary-item">
+                      <span class="label">Category</span>
+                      <span class="val" id="summary-category">Select category</span>
+                    </div>
+                    <div class="donor-summary-item">
+                      <span class="label">Quantity</span>
+                      <span class="val" id="summary-quantity">—</span>
+                    </div>
+                    <div class="donor-summary-item">
+                      <span class="label">Headcount Served</span>
+                      <span class="val" id="summary-serves">—</span>
+                    </div>
+                    <div class="donor-summary-item">
+                      <span class="label">Pickup City</span>
+                      <span class="val" id="summary-city">—</span>
+                    </div>
+                    <div class="donor-summary-item">
+                      <span class="label">Pickup Time</span>
+                      <span class="val" id="summary-time">—</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="donor-impact-badge">
+                  <span style="font-size:16px;">🌱</span>
+                  <div>
+                    <strong>Impact Callout:</strong> Your donation could help feed local families and prevent edible food waste!
+                  </div>
+                </div>
+              </div>
+            </aside>
+          </div>
+        </div>
+      </section>
+
+      <!-- 7. IMPACT SECTION -->
+      <section class="donor-container">
+        <div class="donor-impact-section" id="impact-section">
+          <div class="donor-section-header" style="color:#ffffff;">
+            <span class="donor-section-eyebrow" style="color:#cfe376;">Collective Difference</span>
+            <h2 class="donor-section-title" style="color:#ffffff;">Every Donation Creates an Impact</h2>
+            <p class="donor-section-sub" style="color:#94a3b8;">Together with generous food donors across the region, we are transforming surplus into smiles.</p>
+          </div>
+
+          <div class="donor-impact-grid">
+            <div class="donor-impact-card">
+              <div style="font-size:28px;">🍲</div>
+              <div class="donor-impact-number" data-count-target="12500">12,500+</div>
+              <div class="donor-impact-label">Meals Rescued</div>
+            </div>
+
+            <div class="donor-impact-card">
+              <div style="font-size:28px;">🌱</div>
+              <div class="donor-impact-number" data-count-target="8.4">8.4 Tons</div>
+              <div class="donor-impact-label">Food Waste Reduced</div>
+            </div>
+
+            <div class="donor-impact-card">
+              <div style="font-size:28px;">❤️</div>
+              <div class="donor-impact-number" data-count-target="9000">9,000+</div>
+              <div class="donor-impact-label">People Helped</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 8. RECENT COMMUNITY ACTIVITY & USER RECENT DONATIONS -->
+      <section class="donor-activity-section" id="activity-section">
+        <div class="donor-container">
+          <div class="donor-section-header">
+            <span class="donor-section-eyebrow">Community Movement</span>
+            <h2 class="donor-section-title">Recent Food Rescue Activity</h2>
+            <p class="donor-section-sub">See real-time food rescue activity happening in nearby communities.</p>
+          </div>
+
+          <div class="donor-activity-grid">
+            <div class="donor-activity-card">
+              <div class="donor-activity-icon">🍛</div>
+              <div class="donor-activity-body">
+                <h5>50 Meals Donated</h5>
+                <p>Successfully collected by a nearby volunteer for distribution.</p>
+              </div>
+            </div>
+
+            <div class="donor-activity-card">
+              <div class="donor-activity-icon">📦</div>
+              <div class="donor-activity-body">
+                <h5>Bakery Surplus Rescued</h5>
+                <p>Delivered fresh artisan bread to a local community center.</p>
+              </div>
+            </div>
+
+            <div class="donor-activity-card">
+              <div class="donor-activity-icon">🥬</div>
+              <div class="donor-activity-body">
+                <h5>Fresh Vegetables Shared</h5>
+                <p>Matched with a food distribution partner within 20 minutes.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- User's Recent Donations Section -->
+          <div class="donor-form-card" style="margin-top:40px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #f1f5f9; padding-bottom:16px; margin-bottom:20px;">
+              <h3 style="margin:0; font-size:20px; font-weight:800;">Your Recent Donations</h3>
+              <button type="button" class="donor-btn-secondary" data-action="load-donations" style="font-size:12px; padding:8px 16px;">
+                <i data-lucide="refresh-cw"></i> Refresh List
+              </button>
+            </div>
+            <div id="donation-results" class="donation-list">
+              Click refresh to load your previous donations.
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Footer -->
+    <footer style="background:#1e1e1e; color:#fff; padding:60px 0 30px;">
+      <div class="donor-container" style="display:grid; grid-template-columns:1fr 1fr; gap:30px; align-items:center;">
+        <div>
+          <a class="brand" href="index.html" style="color:#fff;"><span class="brand-mark"><i></i><i></i><i></i></span>FoodBridge<sup>®</sup></a>
+          <p style="font-size:14px; color:#94a3b8; margin:10px 0 0;">Connecting food surplus with people in need. Zero waste. Full hearts.</p>
+        </div>
+        <div style="text-align:right; font-size:12px; color:#64748b;">
+          &copy; 2026 FoodBridge Inc. All rights reserved.
+        </div>
+      </div>
+    </footer>
+
+    <!-- App Module Scripts -->
+    <script type="module" src="js/app.js"></script>
+    <script type="module">
+      import { request } from './js/api.js';
+      import { escapeHtml, toast } from './js/utils.js';
+
+      // Initialize Lucide icons
+      if (window.lucide) {
+        window.lucide.createIcons();
+      }
+
+      // Load Categories from Backend API
+      (async () => {
+        const select = document.querySelector('select[name="categoryId"]');
+        if (!select) return;
+        try {
+          const { categories } = await request('/api/categories', { auth: false });
+          const categoryOptions = [
+            'Cooked Food',
+            'Bakery Items',
+            'Fruits & Vegetables',
+            'Packaged Food',
+            'Other'
+          ];
+          
+          let optionsHtml = '<option value="">Select a category…</option>';
+          if (categories && categories.length > 0) {
+            optionsHtml += categories.map(cat => `<option value="${cat.id}">${escapeHtml(cat.name)}</option>`).join('');
+          } else {
+            optionsHtml += categoryOptions.map((name, i) => `<option value="${i + 1}">${name}</option>`).join('');
+          }
+          select.innerHTML = optionsHtml;
+        } catch {
+          select.innerHTML = `
+            <option value="">Select a category…</option>
+            <option value="1">Cooked Food</option>
+            <option value="2">Bakery Items</option>
+            <option value="3">Fruits & Vegetables</option>
+            <option value="4">Packaged Food</option>
+            <option value="5">Other</option>
+          `;
+        }
+      })();
+
+      // Geolocation Action
+      document.querySelector('[data-action="use-location"]')?.addEventListener('click', () => {
+        if (!navigator.geolocation) return toast('Geolocation is not supported by your browser.', 'error');
+        toast('Fetching your location…');
+        navigator.geolocation.getCurrentPosition(
+          position => {
+            const lat = position.coords.latitude.toFixed(6);
+            const lng = position.coords.longitude.toFixed(6);
+            const latInput = document.querySelector('input[name="latitude"]');
+            const lngInput = document.querySelector('input[name="longitude"]');
+            if (latInput) latInput.value = lat;
+            if (lngInput) lngInput.value = lng;
+
+            const badge = document.getElementById('location-status-badge');
+            if (badge) { badge.style.display = 'inline-block'; }
+
+            toast(`Location added (${lat}, ${lng}).`, 'success');
+          },
+          () => toast('Could not get your location. Please enter your address manually.', 'error')
+        );
+      });
+
+      // Interactive Safety Checkbox Handler
+      const safetyCheckboxes = document.querySelectorAll('.safety-chk');
+      const submitBtn = document.getElementById('btn-submit-donation');
+      
+      const updateSubmitState = () => {
+        const allChecked = Array.from(safetyCheckboxes).every(chk => chk.checked);
+        if (submitBtn) {
+          submitBtn.disabled = !allChecked;
+        }
+      };
+
+      safetyCheckboxes.forEach(chk => {
+        chk.addEventListener('change', updateSubmitState);
+      });
+
+      // Live Summary Sidebar & Progress Bar Updates
+      const formElement = document.getElementById('main-donation-form');
+      const requiredFieldNames = ['foodName', 'categoryId', 'quantity', 'preparationTime', 'expiryTime', 'pickupDate', 'pickupTime', 'city', 'pickupAddress'];
+
+      const updateSummary = () => {
+        if (!formElement) return;
+
+        const foodNameVal = formElement.querySelector('[name="foodName"]')?.value || 'Not specified yet';
+        const categorySelect = formElement.querySelector('[name="categoryId"]');
+        const categoryVal = categorySelect && categorySelect.options[categorySelect.selectedIndex]?.text !== 'Select a category…' 
+          ? categorySelect.options[categorySelect.selectedIndex]?.text 
+          : 'Select category';
+        const quantityVal = formElement.querySelector('[name="quantity"]')?.value || '—';
+        const servesVal = formElement.querySelector('[name="numberOfMeals"]')?.value || '—';
+        const cityVal = formElement.querySelector('[name="city"]')?.value || '—';
+        const pickupTimeVal = formElement.querySelector('[name="pickupTime"]')?.value || '—';
+
+        // Update Summary DOM
+        const nameEl = document.getElementById('summary-food-name');
+        const catEl = document.getElementById('summary-category');
+        const qtyEl = document.getElementById('summary-quantity');
+        const srvEl = document.getElementById('summary-serves');
+        const cityEl = document.getElementById('summary-city');
+        const timeEl = document.getElementById('summary-time');
+
+        if (nameEl) nameEl.textContent = foodNameVal;
+        if (catEl) catEl.textContent = categoryVal;
+        if (qtyEl) qtyEl.textContent = quantityVal;
+        if (srvEl) srvEl.textContent = servesVal ? `${servesVal} people` : '—';
+        if (cityEl) cityEl.textContent = cityVal;
+        if (timeEl) timeEl.textContent = pickupTimeVal;
+
+        // Calculate progress percentage
+        let filledCount = 0;
+        requiredFieldNames.forEach(fieldName => {
+          const el = formElement.querySelector(`[name="${fieldName}"]`);
+          if (el && el.value.trim() !== '') filledCount++;
+        });
+
+        const percent = Math.round((filledCount / requiredFieldNames.length) * 100);
+        const fillEl = document.getElementById('summary-progress-fill');
+        const textEl = document.getElementById('summary-progress-text');
+        if (fillEl) fillEl.style.width = `${percent}%`;
+        if (textEl) textEl.textContent = `${percent}% Complete`;
+      };
+
+      if (formElement) {
+        formElement.addEventListener('input', updateSummary);
+        formElement.addEventListener('change', updateSummary);
+      }
+
+      // Drag and drop photo upload handling with thumbnail grid & removal
+      const dropzone = document.getElementById('donor-dropzone');
+      const fileInput = document.querySelector('[data-donation-image]');
+      const previewGrid = document.getElementById('donor-previews-grid');
+
+      if (dropzone && fileInput) {
+        ['dragenter', 'dragover'].forEach(eventName => {
+          dropzone.addEventListener(eventName, e => {
+            e.preventDefault();
+            dropzone.classList.add('drag-over');
+          });
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+          dropzone.addEventListener(eventName, e => {
+            e.preventDefault();
+            dropzone.classList.remove('drag-over');
+          });
+        });
+
+        dropzone.addEventListener('drop', e => {
+          if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+            fileInput.files = e.dataTransfer.files;
+            renderPreviews(e.dataTransfer.files);
+          }
+        });
+
+        fileInput.addEventListener('change', () => {
+          if (fileInput.files) renderPreviews(fileInput.files);
+        });
+      }
+
+      function renderPreviews(files) {
+        if (!previewGrid) return;
+        previewGrid.innerHTML = '';
+        const summaryThumbBox = document.getElementById('summary-thumb-box');
+
+        Array.from(files).forEach((file, index) => {
+          if (!file.type.startsWith('image/')) return;
+          const reader = new FileReader();
+          reader.onload = e => {
+            const thumb = document.createElement('div');
+            thumb.className = 'donor-preview-thumb';
+            thumb.innerHTML = `
+              <img src="${e.target.result}" alt="Preview ${index + 1}" />
+              <button type="button" class="donor-thumb-remove" title="Remove image">&times;</button>
+            `;
+
+            thumb.querySelector('.donor-thumb-remove').addEventListener('click', () => {
+              if (confirm('Are you sure you want to remove this photo?')) {
+                thumb.remove();
+                toast('Photo removed.', 'warning');
+                if (previewGrid.children.length === 0 && summaryThumbBox) {
+                  summaryThumbBox.innerHTML = '<i data-lucide="image"></i>';
+                  if (window.lucide) window.lucide.createIcons();
+                }
+              }
+            });
+
+            previewGrid.appendChild(thumb);
+
+            // Update sidebar first image preview
+            if (index === 0 && summaryThumbBox) {
+              summaryThumbBox.innerHTML = `<img src="${e.target.result}" alt="Food thumbnail" />`;
+            }
+          };
+          reader.readAsDataURL(file);
+        });
+      }
+
+      // Draft Save & Restore Functionality
+      const DRAFT_KEY = 'foodbridge_donation_draft';
+
+      document.getElementById('btn-save-draft')?.addEventListener('click', () => {
+        if (!formElement) return;
+        const formData = new FormData(formElement);
+        const dataObj = {};
+        formData.forEach((value, key) => {
+          if (typeof value === 'string') dataObj[key] = value;
+        });
+        localStorage.setItem(DRAFT_KEY, JSON.stringify(dataObj));
+        toast('Draft saved to local storage.', 'success');
+      });
+
+      document.getElementById('btn-clear-draft')?.addEventListener('click', () => {
+        localStorage.removeItem(DRAFT_KEY);
+        toast('Draft cleared.', 'warning');
+      });
+
+      // Restore draft if exists on load
+      (() => {
+        const saved = localStorage.getItem(DRAFT_KEY);
+        if (saved && formElement) {
+          try {
+            const dataObj = JSON.parse(saved);
+            Object.entries(dataObj).forEach(([key, val]) => {
+              const field = formElement.querySelector(`[name="${key}"]`);
+              if (field && field.type !== 'file' && field.type !== 'checkbox') {
+                field.value = val;
+              }
+            });
+            updateSummary();
+            toast('Draft restored from previous session.', 'info');
+          } catch (e) {
+            console.error('Draft restore error:', e);
+          }
+        }
+      })();
+
+      // Reset & Donate More action buttons on Success Screen
+      document.getElementById('btn-donate-more')?.addEventListener('click', () => {
+        const successView = document.getElementById('donation-success-view');
+        const formContainer = document.getElementById('donate-form-container');
+        if (successView) successView.hidden = true;
+        if (formContainer) formContainer.hidden = false;
+        if (formElement) formElement.reset();
+        updateSummary();
+        updateSubmitState();
+        window.scrollTo({ top: formContainer.offsetTop - 100, behavior: 'smooth' });
+      });
+
+      document.getElementById('btn-track-donation')?.addEventListener('click', () => {
+        const activitySec = document.getElementById('activity-section');
+        if (activitySec) {
+          activitySec.scrollIntoView({ behavior: 'smooth' });
+        }
+      });
+    </script>
+  </body>
+</html>

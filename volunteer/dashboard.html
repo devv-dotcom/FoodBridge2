@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en" data-api-base="http://localhost:5000">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Volunteer Dashboard · FoodBridge</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;1,600&display=swap" rel="stylesheet" />
+    
+    <!-- Shared Role Dashboard Styles -->
+    <link rel="stylesheet" href="/frontend/css/role-dashboard.css" />
+    <link rel="stylesheet" href="../frontend/css/role-dashboard.css" />
+  </head>
+  <body class="role-dashboard-body" data-required-role="volunteer" data-dashboard="volunteer">
+    <!-- Navbar Header -->
+    <header class="dash-navbar">
+      <a class="dash-brand" href="../frontend/index.html">
+        <span class="mark">FB</span>FoodBridge
+      </a>
+      <div class="dash-user-bar">
+        <span class="dash-user-name">Welcome, <span data-api-value="user.full_name">Volunteer Hero</span></span>
+        <button type="button" class="dash-btn-logout" data-action="logout">Logout</button>
+      </div>
+    </header>
+
+    <!-- Main Volunteer Dashboard -->
+    <main class="dash-main">
+      <!-- 1. DISTINCTIVE VOLUNTEER WELCOME BANNER -->
+      <section class="dash-banner-hero" style="background: linear-gradient(135deg, #15803d 0%, #166534 50%, #064e3b 100%);">
+        <div class="dash-hero-content">
+          <div class="dash-hero-badge" style="color:#fef08a;">⚡ Volunteer Hero</div>
+          <h1>Hey, <em data-api-value="user.full_name">Volunteer Hero</em> 👋</h1>
+          <p>Ready to turn a little time into a big difference? Connect local food donors with communities in need.</p>
+          <div class="dash-hero-callout">
+            <span>🤝</span>
+            <span><strong id="hero-vol-count">0</strong> food rescue opportunities are waiting for heroes like you.</span>
+          </div>
+        </div>
+
+        <div class="dash-hero-art">
+          <div class="dash-art-card">
+            <div class="dash-art-icon">🚚</div>
+            <div class="dash-art-text">
+              <strong>Nearby Pickups Active</strong>
+              <small>Real-time route match</small>
+            </div>
+          </div>
+          <div class="dash-art-card">
+            <div class="dash-art-icon">🔥</div>
+            <div class="dash-art-text">
+              <strong>Fast Delivery Match</strong>
+              <small>Community Action</small>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 2. MODERN ACTIVITY GRID -->
+      <section class="dash-section-title-wrap">
+        <h2>Your Rescue Activity</h2>
+        <p>Overview of available tasks and your community contributions.</p>
+      </section>
+
+      <div class="dash-metrics-grid">
+        <div class="dash-metric-card">
+          <div class="dash-metric-header">
+            <div class="dash-metric-icon">🚀</div>
+          </div>
+          <div class="dash-metric-value" id="count-vol-available">0</div>
+          <div class="dash-metric-label">Available Opportunities</div>
+          <div class="dash-metric-sub">Open pickup tasks</div>
+        </div>
+
+        <div class="dash-metric-card">
+          <div class="dash-metric-header">
+            <div class="dash-metric-icon">🔥</div>
+          </div>
+          <div class="dash-metric-value" id="count-vol-active">0</div>
+          <div class="dash-metric-label">Active Mission</div>
+          <div class="dash-metric-sub">Currently in progress</div>
+        </div>
+
+        <div class="dash-metric-card">
+          <div class="dash-metric-header">
+            <div class="dash-metric-icon">✓</div>
+          </div>
+          <div class="dash-metric-value" id="count-vol-completed">0</div>
+          <div class="dash-metric-label">Completed Rescues</div>
+          <div class="dash-metric-sub">Finished routes</div>
+        </div>
+
+        <div class="dash-metric-card">
+          <div class="dash-metric-header">
+            <div class="dash-metric-icon">❤️</div>
+          </div>
+          <div class="dash-metric-value" id="count-vol-impact">0</div>
+          <div class="dash-metric-label">Your Impact</div>
+          <div class="dash-metric-sub">Meals delivered</div>
+        </div>
+      </div>
+
+      <!-- 3. FEATURED RESCUE OPPORTUNITIES -->
+      <section class="dash-section">
+        <div class="dash-section-header">
+          <div>
+            <h2>Rescue Opportunities</h2>
+            <p>Choose an opportunity and help make sure good food reaches the people who need it.</p>
+          </div>
+          <button type="button" class="dash-btn-logout" data-action="load-pickups" style="color:var(--dash-green); border-color:#bbf7d0; background:#f0fdf4;">
+            Refresh Opportunities
+          </button>
+        </div>
+        <div id="assigned-pickups" class="dash-cards-grid">
+          <div class="dash-empty-state">
+            <div class="dash-empty-icon">🤝</div>
+            <strong>No Rescue Missions Available Yet</strong>
+            <p>When new food donations are ready for pickup, they'll appear here.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- 4. ACTIVE RESCUE & PROOF UPLOAD -->
+      <section class="dash-section" style="background:#ffffff;">
+        <div class="dash-section-header">
+          <div>
+            <h2>Your Current Mission 🚀</h2>
+            <p>Upload a confirmation photo when delivering food to an NGO partner.</p>
+          </div>
+        </div>
+        <form data-api-form="delivery-proof" style="display:grid; gap:16px; max-width:500px;" novalidate>
+          <div style="display:grid; gap:6px;">
+            <label style="font-size:13px; font-weight:700; color:#334155;">Delivery Proof Photo</label>
+            <input type="file" accept="image/png,image/jpeg,image/webp" required style="border:1.5px solid #cbd5e1; border-radius:12px; padding:10px; font-size:13px;" />
+            <img data-proof-preview hidden style="width:120px; height:120px; object-fit:cover; border-radius:12px; border:1px solid #cbd5e1; margin-top:8px;" alt="Delivery proof preview" />
+          </div>
+          <button type="submit" class="btn-action" style="max-width:240px;">Upload Delivery Proof</button>
+        </form>
+      </section>
+
+      <!-- 5. COMPLETED RESCUES & HISTORY -->
+      <section class="dash-section">
+        <div class="dash-section-header">
+          <div>
+            <h2>Your Completed Rescues &amp; History</h2>
+            <p>Review your completed food rescue routes and community impact achievements.</p>
+          </div>
+        </div>
+        <div id="pickup-history" class="dash-cards-grid">
+          <div class="dash-empty-state">
+            <div class="dash-empty-icon">📦</div>
+            <strong>Loading pickup history…</strong>
+            <p>Fetching your past completed deliveries.</p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- App Module Script -->
+    <script type="module" src="/frontend/js/app.js"></script>
+  </body>
+</html>

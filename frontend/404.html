@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Page not found — FoodBridge" />
+    <title>Page not found · FoodBridge</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;1,600&display=swap" rel="stylesheet" />
+    <style>
+      *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+      :root {
+        --green-deep:  #1b472a;
+        --green-mid:   #1d6638;
+        --green-light: #cfe9ce;
+        --amber:       #f4aa45;
+        --cream:       #f5f2ea;
+        --cream-card:  #fffdf8;
+        --text-dark:   #172519;
+        --text-muted:  #657166;
+        font-family: Manrope, system-ui, sans-serif;
+        color: var(--text-dark);
+      }
+
+      body {
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        padding: 2rem 1rem;
+        background:
+          radial-gradient(circle at 10% 10%, var(--green-light), transparent 26rem),
+          radial-gradient(circle at 92% 88%, #ffe2b1,            transparent 22rem),
+          var(--cream);
+      }
+
+      .card {
+        width: min(100%, 560px);
+        background: var(--cream-card);
+        border: 1px solid rgba(23,37,25,.09);
+        border-radius: 28px;
+        box-shadow: 0 24px 70px rgba(32,57,35,.14);
+        padding: clamp(2.5rem, 8vw, 4rem) clamp(2rem, 7vw, 3.5rem);
+        text-align: center;
+      }
+
+      /* ── Animated illustration ── */
+      .illustration {
+        width: 140px;
+        height: 140px;
+        margin: 0 auto 2rem;
+        position: relative;
+      }
+
+      .plate {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        background: var(--green-deep);
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        display: grid;
+        place-items: center;
+        box-shadow: 0 8px 24px rgba(27,71,42,.35);
+        animation: float 3.2s ease-in-out infinite;
+      }
+
+      .plate-emoji {
+        font-size: 3.4rem;
+        line-height: 1;
+        filter: grayscale(0);
+        animation: wobble 3.2s ease-in-out infinite;
+      }
+
+      .badge {
+        position: absolute;
+        top: 4px;
+        right: 4px;
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: var(--amber);
+        display: grid;
+        place-items: center;
+        font-size: .75rem;
+        font-weight: 800;
+        color: var(--green-deep);
+        box-shadow: 0 4px 10px rgba(0,0,0,.18);
+        animation: pulse 2s ease-in-out infinite;
+      }
+
+      @keyframes float {
+        0%, 100% { transform: translate(-50%, -50%) translateY(0);    }
+        50%       { transform: translate(-50%, -50%) translateY(-8px); }
+      }
+      @keyframes wobble {
+        0%, 100% { rotate: 0deg;  }
+        25%       { rotate: -8deg; }
+        75%       { rotate:  8deg; }
+      }
+      @keyframes pulse {
+        0%, 100% { transform: scale(1);    }
+        50%       { transform: scale(1.15); }
+      }
+
+      /* ── Error code ── */
+      .code {
+        font: 800 5.5rem/1 Manrope, sans-serif;
+        letter-spacing: -.06em;
+        background: linear-gradient(135deg, var(--green-deep) 30%, #2d7a47);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: .5rem;
+      }
+
+      h1 {
+        font: 600 1.7rem/1.2 'Playfair Display', serif;
+        letter-spacing: -.04em;
+        margin-bottom: .75rem;
+        color: var(--text-dark);
+      }
+
+      .sub {
+        color: var(--text-muted);
+        font-size: .94rem;
+        line-height: 1.6;
+        max-width: 36ch;
+        margin: 0 auto 2rem;
+      }
+
+      /* ── Navigation links ── */
+      .links {
+        display: flex;
+        flex-wrap: wrap;
+        gap: .75rem;
+        justify-content: center;
+        margin-bottom: 2rem;
+      }
+
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: .45rem;
+        border-radius: .75rem;
+        padding: .75rem 1.35rem;
+        font: 700 .875rem Manrope, sans-serif;
+        text-decoration: none;
+        transition: transform .15s, box-shadow .15s, background .15s;
+      }
+      .btn:hover { transform: translateY(-2px); }
+
+      .btn-primary {
+        background: var(--green-mid);
+        color: #fff;
+        box-shadow: 0 4px 14px rgba(29,102,56,.35);
+      }
+      .btn-primary:hover { background: #15532c; box-shadow: 0 6px 18px rgba(29,102,56,.45); }
+
+      .btn-ghost {
+        background: rgba(27,71,42,.07);
+        color: var(--green-deep);
+        border: 1px solid rgba(27,71,42,.14);
+      }
+      .btn-ghost:hover { background: rgba(27,71,42,.12); }
+
+      /* ── Quick-links row ── */
+      .quick {
+        display: flex;
+        flex-wrap: wrap;
+        gap: .5rem 1.2rem;
+        justify-content: center;
+      }
+
+      .quick a {
+        font-size: .8rem;
+        font-weight: 700;
+        color: var(--green-mid);
+        text-decoration: none;
+        border-bottom: 1.5px solid transparent;
+        transition: border-color .15s;
+      }
+      .quick a:hover { border-color: var(--green-mid); }
+
+      /* ── Brand header ── */
+      .brand {
+        display: inline-flex;
+        align-items: center;
+        gap: .45rem;
+        text-decoration: none;
+        font-size: 1.15rem;
+        font-weight: 800;
+        letter-spacing: -.05em;
+        color: var(--green-deep);
+        margin-bottom: 2rem;
+      }
+      .mark {
+        display: inline-grid;
+        place-items: center;
+        width: 1.8rem;
+        height: 1.8rem;
+        border-radius: .55rem;
+        background: var(--amber);
+        color: var(--green-deep);
+        font-size: .8rem;
+      }
+    </style>
+  </head>
+  <body>
+    <article class="card" role="main">
+      <a class="brand" href="/index.html">
+        <span class="mark">FB</span>FoodBridge
+      </a>
+
+      <div class="illustration" aria-hidden="true">
+        <div class="plate">
+          <span class="plate-emoji">🍽️</span>
+        </div>
+        <div class="badge">?</div>
+      </div>
+
+      <p class="code" aria-label="Error 404">404</p>
+      <h1>Page not found</h1>
+      <p class="sub">
+        The page you're looking for doesn't exist or may have been moved.
+        Let's get you back on track.
+      </p>
+
+      <div class="links">
+        <a class="btn btn-primary" href="/index.html">
+          ⬅ Go home
+        </a>
+        <a class="btn btn-ghost" href="javascript:history.back()">
+          ↩ Go back
+        </a>
+      </div>
+
+      <nav class="quick" aria-label="Quick links">
+        <a href="/login.html">Sign in</a>
+        <a href="/register.html">Create account</a>
+        <a href="/donate.html">Donate food</a>
+        <a href="/index.html#contact">Contact us</a>
+      </nav>
+    </article>
+  </body>
+</html>

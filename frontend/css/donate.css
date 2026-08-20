@@ -1,0 +1,1030 @@
+/* ============================================================
+   FoodBridge · Modern Food Donor Page Styles (2026)
+   ============================================================ */
+
+:root {
+  --donor-bg: #f8f9f5;
+  --donor-card-bg: rgba(255, 255, 255, 0.95);
+  --donor-green-primary: #166534;
+  --donor-green-accent: #22c55e;
+  --donor-green-light: #f0fdf4;
+  --donor-green-border: #bbf7d0;
+  --donor-orange-primary: #ed6a00;
+  --donor-orange-light: #fff7ed;
+  --donor-orange-border: #ffedd5;
+  --donor-ink: #1e1e1e;
+  --donor-muted: #64748b;
+  --donor-line: rgba(30, 30, 30, 0.08);
+  --donor-radius-lg: 24px;
+  --donor-radius-md: 16px;
+  --donor-radius-sm: 10px;
+  --donor-shadow-soft: 0 16px 40px rgba(30, 45, 25, 0.06);
+  --donor-shadow-hover: 0 24px 50px rgba(30, 45, 25, 0.12);
+  --donor-sans: "Manrope", sans-serif;
+  --donor-serif: "Playfair Display", serif;
+  --donor-mono: "DM Mono", monospace;
+}
+
+/* Base resets & layout */
+.donor-app {
+  background: var(--donor-bg);
+  color: var(--donor-ink);
+  font-family: var(--donor-sans);
+  line-height: 1.6;
+  min-height: 100vh;
+  padding-bottom: 90px;
+}
+
+.donor-container {
+  width: min(1340px, calc(100% - 48px));
+  margin: 0 auto;
+}
+
+/* ------------------------------------------------------------
+   1. HERO SECTION
+   ------------------------------------------------------------ */
+.donor-hero {
+  position: relative;
+  padding: 130px 0 70px;
+  overflow: hidden;
+  background: linear-gradient(135deg, #f8f9f5 0%, #f1f4e6 50%, #faf8f2 100%);
+}
+
+.donor-hero-orb-1 {
+  position: absolute;
+  top: -100px;
+  right: -80px;
+  width: 450px;
+  height: 450px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(220, 237, 178, 0.6) 0%, rgba(220, 237, 178, 0) 70%);
+  pointer-events: none;
+}
+
+.donor-hero-orb-2 {
+  position: absolute;
+  bottom: -60px;
+  left: -80px;
+  width: 380px;
+  height: 380px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(254, 226, 204, 0.5) 0%, rgba(254, 226, 204, 0) 70%);
+  pointer-events: none;
+}
+
+.donor-hero-grid {
+  display: grid;
+  grid-template-columns: 1.05fr 0.95fr;
+  gap: 50px;
+  align-items: center;
+  position: relative;
+  z-index: 2;
+}
+
+.donor-hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 14px;
+  background: rgba(22, 101, 52, 0.08);
+  border: 1px solid rgba(22, 101, 52, 0.18);
+  border-radius: 100px;
+  color: var(--donor-green-primary);
+  font: 700 11px var(--donor-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  margin-bottom: 24px;
+}
+
+.donor-hero-badge i {
+  width: 14px;
+  height: 14px;
+}
+
+.donor-hero-title {
+  font-size: clamp(38px, 4.2vw, 64px);
+  line-height: 1.06;
+  letter-spacing: -0.04em;
+  font-weight: 800;
+  margin: 0 0 20px;
+  color: var(--donor-ink);
+}
+
+.donor-hero-title em {
+  font-family: var(--donor-serif);
+  font-weight: 600;
+  color: var(--donor-green-primary);
+  font-style: italic;
+}
+
+.donor-hero-sub {
+  font-size: clamp(16px, 1.2vw, 19px);
+  line-height: 1.65;
+  color: #4b5563;
+  margin: 0 0 32px;
+  max-width: 540px;
+}
+
+.donor-hero-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 36px;
+}
+
+.donor-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: var(--donor-green-primary);
+  color: #ffffff;
+  padding: 16px 28px;
+  border-radius: 100px;
+  font: 800 14px var(--donor-sans);
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 10px 24px rgba(22, 101, 52, 0.25);
+  transition: all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+  text-decoration: none;
+}
+
+.donor-btn-primary:hover {
+  background: #125229;
+  transform: translateY(-2px);
+  box-shadow: 0 14px 28px rgba(22, 101, 52, 0.32);
+}
+
+.donor-btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: rgba(255, 255, 255, 0.8);
+  color: var(--donor-ink);
+  padding: 16px 26px;
+  border-radius: 100px;
+  font: 700 14px var(--donor-sans);
+  border: 1.5px solid rgba(30, 30, 30, 0.16);
+  cursor: pointer;
+  backdrop-filter: blur(10px);
+  transition: all 0.25s ease;
+  text-decoration: none;
+}
+
+.donor-btn-secondary:hover {
+  border-color: var(--donor-green-primary);
+  color: var(--donor-green-primary);
+  background: #ffffff;
+  transform: translateY(-2px);
+}
+
+.donor-trust-row {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+  padding-top: 16px;
+  border-top: 1px solid var(--donor-line);
+}
+
+.donor-trust-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #374151;
+}
+
+.donor-trust-item span.check {
+  display: inline-grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #dcfce7;
+  color: #15803d;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+/* Hero Art Frame */
+.donor-hero-visual {
+  position: relative;
+  width: 100%;
+}
+
+.donor-art-frame {
+  position: relative;
+  width: 100%;
+  border-radius: 32px;
+  overflow: hidden;
+  box-shadow: 0 24px 60px rgba(30, 45, 25, 0.14);
+  border: 4px solid #ffffff;
+}
+
+.donor-art-frame img {
+  display: block;
+  width: 100%;
+  height: 480px;
+  object-fit: cover;
+}
+
+.donor-float-card {
+  position: absolute;
+  z-index: 4;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.95);
+  box-shadow: 0 16px 36px rgba(30, 45, 25, 0.12);
+  border-radius: 18px;
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  animation: floatBounce 4s ease-in-out infinite;
+}
+
+@keyframes floatBounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+.donor-float-1 {
+  top: 24px;
+  left: -20px;
+}
+
+.donor-float-2 {
+  bottom: 28px;
+  right: -16px;
+  animation-delay: 2s;
+}
+
+.donor-float-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.donor-float-icon.orange {
+  background: #ffedd5;
+  color: #ea580c;
+}
+
+.donor-float-icon.green {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.donor-float-text strong {
+  display: block;
+  font-size: 14px;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.donor-float-text small {
+  display: block;
+  font: 10px var(--donor-mono);
+  color: #6b7280;
+  margin-top: 2px;
+}
+
+/* ------------------------------------------------------------
+   2. HOW IT WORKS SECTION
+   ------------------------------------------------------------ */
+.donor-how {
+  padding: 80px 0;
+  position: relative;
+}
+
+.donor-section-header {
+  text-align: center;
+  max-width: 620px;
+  margin: 0 auto 50px;
+}
+
+.donor-section-eyebrow {
+  font: 700 11px var(--donor-mono);
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  color: var(--donor-green-primary);
+  margin-bottom: 10px;
+  display: inline-block;
+}
+
+.donor-section-title {
+  font-size: clamp(28px, 3.2vw, 44px);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  margin: 0 0 12px;
+}
+
+.donor-section-sub {
+  color: #64748b;
+  font-size: 15px;
+  margin: 0;
+}
+
+.donor-steps-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 28px;
+  position: relative;
+}
+
+.donor-step-card {
+  position: relative;
+  background: var(--donor-card-bg);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  border-radius: var(--donor-radius-lg);
+  padding: 36px 28px;
+  box-shadow: var(--donor-shadow-soft);
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+.donor-step-card:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--donor-shadow-hover);
+  border-color: rgba(34, 197, 94, 0.4);
+}
+
+.donor-step-number {
+  position: absolute;
+  top: 20px;
+  right: 24px;
+  font: 800 32px var(--donor-mono);
+  color: rgba(30, 30, 30, 0.08);
+}
+
+.donor-step-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 18px;
+  background: var(--donor-green-light);
+  color: var(--donor-green-primary);
+  border: 1px solid var(--donor-green-border);
+  display: grid;
+  place-items: center;
+  font-size: 24px;
+  margin-bottom: 22px;
+}
+
+.donor-step-card:nth-child(2) .donor-step-icon {
+  background: var(--donor-orange-light);
+  color: var(--donor-orange-primary);
+  border-color: var(--donor-orange-border);
+}
+
+.donor-step-title {
+  font-size: 19px;
+  font-weight: 800;
+  margin: 0 0 10px;
+  letter-spacing: -0.02em;
+}
+
+.donor-step-desc {
+  font-size: 14px;
+  color: #64748b;
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* ------------------------------------------------------------
+   3. FORM & STICKY SUMMARY LAYOUT
+   ------------------------------------------------------------ */
+.donor-form-section {
+  padding: 40px 0 90px;
+}
+
+.donor-main-layout {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 36px;
+  align-items: start;
+}
+
+/* Main Form Card */
+.donor-form-card {
+  background: #ffffff;
+  border: 1px solid rgba(30, 30, 30, 0.08);
+  border-radius: var(--donor-radius-lg);
+  box-shadow: 0 20px 60px rgba(30, 45, 25, 0.08);
+  padding: clamp(24px, 4vw, 44px);
+}
+
+.donor-form-header {
+  border-bottom: 1px solid #f1f5f9;
+  padding-bottom: 24px;
+  margin-bottom: 32px;
+}
+
+.donor-form-header h2 {
+  font-size: clamp(24px, 2.5vw, 32px);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  margin: 0 0 6px;
+  color: var(--donor-ink);
+}
+
+.donor-form-header p {
+  color: #64748b;
+  font-size: 14px;
+  margin: 0;
+}
+
+.donor-fieldset {
+  border: none;
+  padding: 0;
+  margin: 0 0 32px;
+  display: grid;
+  gap: 18px;
+}
+
+.donor-fieldset + .donor-fieldset {
+  padding-top: 32px;
+  border-top: 1px solid #f1f5f9;
+}
+
+.donor-legend {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--donor-green-primary);
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.donor-field-group {
+  display: grid;
+  gap: 6px;
+}
+
+.donor-field-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.donor-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: #334155;
+}
+
+.donor-label span.req {
+  color: #ef4444;
+  margin-left: 3px;
+}
+
+.donor-input,
+.donor-select,
+.donor-textarea {
+  width: 100%;
+  border: 1.5px solid #cbd5e1;
+  border-radius: var(--donor-radius-md);
+  padding: 12px 16px;
+  font: 500 14px var(--donor-sans);
+  color: var(--donor-ink);
+  background: #ffffff;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.donor-input:focus,
+.donor-select:focus,
+.donor-textarea:focus {
+  border-color: var(--donor-green-primary);
+  box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.15);
+}
+
+.donor-textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+/* Drag and Drop Zone */
+.donor-dropzone {
+  border: 2px dashed #cbd5e1;
+  border-radius: var(--donor-radius-md);
+  background: #f8fafc;
+  padding: 32px 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  position: relative;
+}
+
+.donor-dropzone.drag-over,
+.donor-dropzone:hover {
+  border-color: var(--donor-green-primary);
+  background: var(--donor-green-light);
+}
+
+.donor-dropzone-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  display: grid;
+  place-items: center;
+  margin: 0 auto 12px;
+  color: var(--donor-green-primary);
+  font-size: 20px;
+}
+
+.donor-dropzone-text strong {
+  display: block;
+  font-size: 14px;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.donor-dropzone-text small {
+  display: block;
+  font-size: 12px;
+  color: #64748b;
+  margin-top: 4px;
+}
+
+.donor-previews-grid {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 14px;
+}
+
+.donor-preview-thumb {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid #e2e8f0;
+}
+
+.donor-preview-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.donor-thumb-remove {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: rgba(239, 68, 68, 0.9);
+  color: #ffffff;
+  border: none;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  font-size: 12px;
+}
+
+/* Safety Check Card */
+.donor-safety-card {
+  background: var(--donor-green-light);
+  border: 1.5px solid var(--donor-green-border);
+  border-radius: var(--donor-radius-md);
+  padding: 24px;
+  margin-bottom: 32px;
+}
+
+.donor-safety-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.donor-safety-header h4 {
+  font-size: 17px;
+  font-weight: 800;
+  color: #14532d;
+  margin: 0;
+}
+
+.donor-checkbox-list {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.donor-checkbox-label {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #166534;
+  cursor: pointer;
+  user-select: none;
+}
+
+.donor-checkbox-label input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--donor-green-primary);
+  margin-top: 2px;
+  cursor: pointer;
+}
+
+.donor-safety-note {
+  font-size: 12px;
+  color: #15803d;
+  background: rgba(255, 255, 255, 0.7);
+  padding: 10px 14px;
+  border-radius: 8px;
+  margin: 0;
+}
+
+/* Submit Action Bar */
+.donor-submit-box {
+  background: #f8fafc;
+  border-radius: var(--donor-radius-md);
+  padding: 28px;
+  text-align: center;
+  border: 1px solid #e2e8f0;
+}
+
+.donor-submit-box h3 {
+  font-size: 20px;
+  font-weight: 800;
+  margin: 0 0 6px;
+}
+
+.donor-submit-box p {
+  font-size: 13px;
+  color: #64748b;
+  margin: 0 0 20px;
+}
+
+.donor-submit-btn {
+  width: 100%;
+  max-width: 340px;
+  padding: 16px 28px;
+  font-size: 16px;
+}
+
+.donor-submit-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+/* ------------------------------------------------------------
+   4. STICKY SUMMARY SIDEBAR
+   ------------------------------------------------------------ */
+.donor-sidebar-sticky {
+  position: sticky;
+  top: 100px;
+}
+
+.donor-summary-card {
+  background: #ffffff;
+  border: 1px solid rgba(30, 30, 30, 0.08);
+  border-radius: var(--donor-radius-lg);
+  box-shadow: 0 16px 40px rgba(30, 45, 25, 0.08);
+  padding: 24px;
+}
+
+.donor-summary-title {
+  font-size: 18px;
+  font-weight: 800;
+  margin: 0 0 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.donor-progress-bar {
+  height: 6px;
+  border-radius: 10px;
+  background: #e2e8f0;
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+
+.donor-progress-fill {
+  height: 100%;
+  width: 0%;
+  background: var(--donor-green-primary);
+  border-radius: 10px;
+  transition: width 0.3s ease;
+}
+
+.donor-summary-preview {
+  background: #f8fafc;
+  border-radius: var(--donor-radius-md);
+  border: 1px solid #e2e8f0;
+  padding: 16px;
+  margin-bottom: 20px;
+}
+
+.donor-summary-thumb-box {
+  width: 100%;
+  height: 140px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #e2e8f0;
+  margin-bottom: 14px;
+  display: grid;
+  place-items: center;
+  color: #94a3b8;
+  font-size: 28px;
+}
+
+.donor-summary-thumb-box img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.donor-summary-details {
+  display: grid;
+  gap: 10px;
+}
+
+.donor-summary-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+  border-bottom: 1px dashed #e2e8f0;
+  padding-bottom: 8px;
+}
+
+.donor-summary-item span.label {
+  color: #64748b;
+  font-weight: 600;
+}
+
+.donor-summary-item span.val {
+  font-weight: 700;
+  color: #1e293b;
+  text-align: right;
+}
+
+.donor-impact-badge {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 12px;
+  padding: 12px 14px;
+  font-size: 12px;
+  color: #166534;
+  line-height: 1.5;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+/* ------------------------------------------------------------
+   5. SUCCESS SCREEN VIEW
+   ------------------------------------------------------------ */
+.donor-success-view {
+  background: #ffffff;
+  border: 1.5px solid #bbf7d0;
+  border-radius: var(--donor-radius-lg);
+  box-shadow: 0 24px 70px rgba(34, 197, 94, 0.12);
+  padding: clamp(32px, 5vw, 60px);
+  text-align: center;
+  max-width: 680px;
+  margin: 0 auto;
+}
+
+.donor-success-icon {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: #dcfce7;
+  color: #166534;
+  display: grid;
+  place-items: center;
+  font-size: 36px;
+  margin: 0 auto 24px;
+  box-shadow: 0 0 0 12px rgba(220, 252, 231, 0.5);
+}
+
+.donor-success-title {
+  font-size: 30px;
+  font-weight: 800;
+  margin: 0 0 10px;
+  color: #14532d;
+}
+
+.donor-success-desc {
+  font-size: 15px;
+  color: #4b5563;
+  margin: 0 0 32px;
+  line-height: 1.6;
+}
+
+.donor-success-card {
+  background: #f8fafc;
+  border-radius: 16px;
+  padding: 20px 24px;
+  text-align: left;
+  display: grid;
+  gap: 12px;
+  margin-bottom: 32px;
+  border: 1px solid #e2e8f0;
+}
+
+.donor-success-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 14px;
+}
+
+.donor-success-row strong {
+  font-weight: 800;
+}
+
+.donor-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #ffedd5;
+  color: #c2410c;
+  padding: 4px 12px;
+  border-radius: 100px;
+  font: 700 11px var(--donor-mono);
+  text-transform: uppercase;
+}
+
+.donor-status-pill i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #ea580c;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+.donor-success-actions {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+/* ------------------------------------------------------------
+   6. IMPACT COUNTERS SECTION
+   ------------------------------------------------------------ */
+.donor-impact-section {
+  padding: 70px 0;
+  background: #1e1e1e;
+  color: #ffffff;
+  border-radius: 32px;
+  margin: 40px 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.donor-impact-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 30px;
+  position: relative;
+  z-index: 2;
+}
+
+.donor-impact-card {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 20px;
+  padding: 32px 24px;
+  text-align: center;
+  backdrop-filter: blur(10px);
+}
+
+.donor-impact-number {
+  font-size: clamp(36px, 3.8vw, 54px);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  color: #c7df66;
+  margin: 10px 0 4px;
+  font-family: var(--donor-mono);
+}
+
+.donor-impact-label {
+  font-size: 14px;
+  font-weight: 700;
+  color: #e2e8f0;
+}
+
+/* ------------------------------------------------------------
+   7. RECENT COMMUNITY ACTIVITY
+   ------------------------------------------------------------ */
+.donor-activity-section {
+  padding: 60px 0 90px;
+}
+
+.donor-activity-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  margin-bottom: 50px;
+}
+
+.donor-activity-card {
+  background: #ffffff;
+  border: 1px solid rgba(30, 30, 30, 0.08);
+  border-radius: 18px;
+  padding: 20px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.03);
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.donor-activity-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: #f1f5f9;
+  display: grid;
+  place-items: center;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.donor-activity-body h5 {
+  font-size: 15px;
+  font-weight: 800;
+  margin: 0 0 4px;
+}
+
+.donor-activity-body p {
+  font-size: 13px;
+  color: #64748b;
+  margin: 0;
+}
+
+/* ------------------------------------------------------------
+   RESPONSIVE MOBILE BREAKPOINTS
+   ------------------------------------------------------------ */
+@media (max-width: 1024px) {
+  .donor-hero-grid {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+
+  .donor-main-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .donor-sidebar-sticky {
+    position: static;
+  }
+
+  .donor-steps-grid,
+  .donor-impact-grid,
+  .donor-activity-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .donor-hero {
+    padding: 100px 0 40px;
+  }
+
+  .donor-field-row {
+    grid-template-columns: 1fr;
+  }
+
+  .donor-float-card {
+    display: none;
+  }
+
+  .donor-art-frame img {
+    height: 300px;
+  }
+
+  .donor-trust-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+}

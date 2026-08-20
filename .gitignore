@@ -1,0 +1,30 @@
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-store/
+
+# Environment variables (keep secrets safe!)
+.env
+.env.local
+.env.*.local
+
+# Uploads (user-generated files, usually large)
+uploads/
+
+# Logs
+logs/
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Build output
+dist/
+build/

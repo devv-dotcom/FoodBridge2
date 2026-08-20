@@ -1,0 +1,14 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="refresh" content="0;url=/frontend/admin/dashboard.html">
+  <title>Redirecting to Admin Dashboard...</title>
+  <script>
+    location.replace(location.pathname.startsWith('/frontend/') ? location.pathname : '/frontend' + location.pathname + location.search);
+  </script>
+</head>
+<body>
+  <p>Redirecting to <a href="/frontend/admin/dashboard.html">Admin Dashboard</a>...</p>
+</body>
+</html>

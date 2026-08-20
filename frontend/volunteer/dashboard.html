@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="en" data-api-base="http://localhost:5000">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Volunteer dashboard — manage your food rescue pickups and deliveries." />
+    <title>Volunteer Dashboard · FoodBridge</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="dashboard.css" />
+  </head>
+  <body data-required-role="volunteer">
+
+    <!-- ─── Top bar ─────────────────────────────────────────────────────── -->
+    <nav class="topbar shell">
+      <a class="brand" href="../index.html">
+        <i>FB</i>FoodBridge
+      </a>
+      <nav aria-label="Volunteer navigation">
+        <a href="#pickups">Pickups</a>
+        <a href="#history">History</a>
+      </nav>
+      <div class="top-actions">
+        <span class="availability" id="availability">Online</span>
+        <button class="signout" type="button" data-action="logout">Sign out</button>
+      </div>
+    </nav>
+
+    <!-- ─── Hero / Active Route ──────────────────────────────────────────── -->
+    <section class="shell">
+      <div class="hero">
+        <div>
+          <p class="eyebrow">ACTIVE RESCUE</p>
+          <h1 id="task-title">No active pickup yet.</h1>
+          <p id="task-description">Accept a nearby rescue below to begin your FoodBridge route.</p>
+          <div class="task-actions" id="task-actions">
+            <a class="primary" href="#pickups">FIND A PICKUP</a>
+          </div>
+          <div class="timeline">
+            <div class="timeline-step">Accepted</div>
+            <div class="timeline-step">Dispatched</div>
+            <div class="timeline-step">At pickup</div>
+            <div class="timeline-step">Collected</div>
+            <div class="timeline-step">Delivered</div>
+            <div class="timeline-step">Done</div>
+          </div>
+        </div>
+        <aside class="hero-route">
+          <div class="route-stop">
+            <i>P</i>
+            <div>
+              <b id="hero-pickup">Choose your next pickup</b>
+              <span id="hero-pickup-sub">Nearby requests appear below</span>
+            </div>
+          </div>
+          <div class="route-stop">
+            <i>D</i>
+            <div>
+              <b id="hero-drop">Deliver safely</b>
+              <span id="hero-drop-sub">The receiver is ready when you are</span>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ─── Stats ────────────────────────────────────────────────────────── -->
+    <section class="shell">
+      <div class="stats">
+        <div class="stat">
+          <i>✓</i>
+          <strong id="stat-completed">—</strong>
+          <span>Rescues completed</span>
+        </div>
+        <div class="stat">
+          <i>🔥</i>
+          <strong id="stat-active">—</strong>
+          <span>Active now</span>
+        </div>
+        <div class="stat">
+          <i>🍲</i>
+          <strong id="stat-meals">—</strong>
+          <span>Meals moved</span>
+        </div>
+        <div class="stat">
+          <i>⏱</i>
+          <strong id="stat-hours">—</strong>
+          <span>Hours volunteered</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── Task + Route Cards ───────────────────────────────────────────── -->
+    <section class="shell task-grid">
+      <div class="task-card">
+        <div class="task-top">
+          <span class="chip" id="task-status">Ready to help</span>
+        </div>
+        <h3 id="task-time">—</h3>
+        <p>Your active mission details appear here as soon as you accept a rescue.</p>
+      </div>
+      <div class="route-card">
+        <h3 id="route-title">Your next route</h3>
+        <div class="mini-map" aria-hidden="true">
+          <div class="map-line"></div>
+          <div class="pin pickup" title="Pickup point">P</div>
+          <div class="pin drop" title="Drop-off point">D</div>
+        </div>
+        <div class="route-meta">
+          <div>
+            <span>Pickup</span>
+            <b id="route-pickup">Choose a mission</b>
+          </div>
+          <div>
+            <span>Delivery</span>
+            <b id="route-delivery">Receiver location</b>
+          </div>
+          <div>
+            <span>Distance</span>
+            <b id="route-distance">—</b>
+          </div>
+        </div>
+        <a class="primary" id="navigate-link" href="#pickups" style="margin-top:14px; font-size:.72rem;">OPEN MAP</a>
+      </div>
+    </section>
+
+    <!-- ─── Available Pickups ─────────────────────────────────────────────── -->
+    <section class="shell" id="pickups">
+      <div class="section-head">
+        <div>
+          <h2>Available pickups</h2>
+          <p>Food waiting to be rescued near you</p>
+        </div>
+        <button class="action-link" type="button" id="refresh-pickups">↻ Refresh</button>
+      </div>
+      <div class="pickups">
+        <div class="pickup-rail" id="pickup-rail">
+          <p class="empty">Loading available pickups…</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── History ────────────────────────────────────────────────────────── -->
+    <section class="shell" id="history">
+      <div class="section-head">
+        <div>
+          <h2>Your rescue history</h2>
+          <p>Past completed deliveries</p>
+        </div>
+      </div>
+      <div class="history" id="history-list">
+        <p class="empty" style="padding:28px 18px;">Loading your rescue history…</p>
+      </div>
+    </section>
+
+    <!-- ─── Accept Pickup Modal ───────────────────────────────────────────── -->
+    <div class="modal" id="pickup-modal" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="modal-title">
+      <div class="sheet">
+        <h2 id="modal-title">Accept this pickup?</h2>
+        <p>Review the rescue details before committing to pick up and deliver this food.</p>
+        <div class="sheet-details" id="modal-details"></div>
+        <div class="sheet-actions">
+          <button class="close" type="button" data-close-modal>CANCEL</button>
+          <button class="primary" type="button" id="accept-pickup">ACCEPT PICKUP</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── Delivery Proof Modal ──────────────────────────────────────────── -->
+    <div class="modal" id="proof-modal" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="proof-modal-title">
+      <div class="sheet">
+        <h2 id="proof-modal-title">Upload delivery proof</h2>
+        <p>Take a clear photo showing the food being handed over at the delivery location.</p>
+        <form class="proof-form" id="proof-form" novalidate>
+          <label>
+            Proof photo
+            <input type="file" id="proof-image" accept="image/png,image/jpeg,image/webp" required />
+          </label>
+          <img class="proof-preview" id="proof-preview" alt="Delivery proof preview" hidden />
+          <label>
+            Notes (optional)
+            <textarea id="proof-notes" rows="2" placeholder="Any notes about the delivery…"></textarea>
+          </label>
+          <div class="sheet-actions">
+            <button class="close" type="button" data-close-proof>CANCEL</button>
+            <button class="primary" type="submit">UPLOAD PROOF</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- ─── Mobile bottom dock ───────────────────────────────────────────── -->
+    <nav class="mobile-dock" aria-label="Mobile navigation">
+      <a href="#pickups">🚗 Pickups</a>
+      <a href="#history">📋 History</a>
+    </nav>
+
+    <script type="module" src="volunteer-dashboard.js"></script>
+  </body>
+</html>

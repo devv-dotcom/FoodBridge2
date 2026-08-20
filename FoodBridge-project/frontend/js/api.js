@@ -1,0 +1,54 @@
+import { toast } from './utils.js';
+
+const configuredBase = document.documentElement.dataset.apiBase || window.FOODBRIDGE_API_BASE;
+export const API_BASE = (configuredBase || `${location.protocol}//${location.hostname || 'localhost'}:5000`).replace(/\/$/, '');
+export const TOKEN_KEY = 'foodbridge.token';
+export const USER_KEY = 'foodbridge.user';
+
+export class ApiError extends Error {
+  constructor(message, status, payload = {}) { super(message); this.name = 'ApiError'; this.status = status; this.payload = payload; }
+}
+
+export const getSession = () => {
+  try { return { token: localStorage.getItem(TOKEN_KEY), user: JSON.parse(localStorage.getItem(USER_KEY) || 'null') }; } catch { return { token: null, user: null }; }
+};
+export const saveSession = ({ token, user }) => { localStorage.setItem(TOKEN_KEY, token); localStorage.setItem(USER_KEY, JSON.stringify(user)); };
+export const clearSession = () => { localStorage.removeItem(TOKEN_KEY); localStorage.removeItem(USER_KEY); };
+
+const parseResponse = async response => {
+  const type = response.headers.get('content-type') || '';
+  const payload = type.includes('application/json') ? await response.json() : { message: await response.text() };
+  if (!response.ok || payload.success === false) throw new ApiError(payload.message || `Request failed (${response.status}).`, response.status, payload);
+  return payload;
+};
+
+export const request = async (path, { method = 'GET', body, auth = true, headers = {}, signal } = {}) => {
+  const { token } = getSession();
+  const isForm = body instanceof FormData;
+  const response = await fetch(`${API_BASE}${path}`, {
+    method, signal, headers: { Accept: 'application/json', ...(body && !isForm ? { 'Content-Type': 'application/json' } : {}), ...(auth && token ? { Authorization: `Bearer ${token}` } : {}), ...headers },
+    body: body ? (isForm ? body : JSON.stringify(body)) : undefined
+  });
+  try { return await parseResponse(response); } catch (error) {
+    if (error.status === 401) {
+      clearSession();
+      window.dispatchEvent(new CustomEvent('foodbridge:unauthorized'));
+    }
+    throw error;
+  }
+};
+
+export const notifyError = error => {
+  const messages = { 400: 'Please check the information you entered.', 401: 'Your session has expired. Please sign in again.', 403: 'You do not have permission for this action.', 404: 'The requested item was not found.', 500: 'The server had a problem. Please try again shortly.' };
+  if (!error?.status && (error instanceof TypeError || /fetch|network/i.test(error?.message || ''))) return toast('Cannot reach the FoodBridge API. Start the backend and MySQL, then try again.', 'error');
+  toast(error?.message || messages[error?.status] || 'Something went wrong. Please try again.', 'error');
+};
+
+export const login = (credentials, endpoint = '/api/auth/login') => request(endpoint, { method: 'POST', body: credentials, auth: false });
+export const register = (details, endpoint = '/api/auth/register') => request(endpoint, { method: 'POST', body: details, auth: false });
+export const fetchProfile = endpoint => request(endpoint);
+export const getDonations = () => request('/api/donations');
+export const createDonation = data => request('/api/donations', { method: 'POST', body: data });
+export const acceptDonation = id => request(`/api/ngo/accept/${id}`, { method: 'POST' });
+export const acceptPickup = id => request(`/api/pickups/accept/${id}`, { method: 'POST' });
+export const uploadImage = (path, data) => request(path, { method: 'POST', body: data });

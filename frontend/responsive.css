@@ -1,0 +1,51 @@
+/* Keeps the landing-page narrative cinematic without excessive blank scroll space. */
+@media (min-width: 961px) {
+  /* Remove the multi-screen pinned gap before the Food Categories section. */
+  .story-flow { min-height: 0; padding-bottom: 72px; }
+  .story-flow .story-intro { min-height: auto; padding: 118px 0 58px; }
+  .story-flow .story-progress { display: none; }
+  .story-flow .story-scenes { height: auto; position: relative; display: grid; gap: 34px; }
+  .story-flow .story-scene { position: relative; inset: auto; min-height: 500px; padding: 30px 0; opacity: 1; visibility: visible; pointer-events: auto; }
+
+  .volunteer-experience,
+  .success-stories,
+  .faq-section { padding-top: 108px; padding-bottom: 92px; }
+
+  .volunteer-journey,
+  .stories-stage,
+  .faq-layout { margin-top: 58px; }
+
+  .volunteer-benefits,
+  .ngo-highlight,
+  .achievement-row,
+  .volunteer-cta,
+  .video-story,
+  .impact-gallery,
+  .stories-cta { margin-top: 96px; }
+
+  .final-cta { padding-top: 112px; padding-bottom: 112px; }
+}
+
+@media (max-width: 960px) {
+  .volunteer-experience,
+  .success-stories,
+  .faq-section { padding-top: 88px; padding-bottom: 72px; }
+
+  .final-cta { padding-top: 92px; padding-bottom: 92px; }
+}
+
+@media (max-width: 600px) {
+  .volunteer-experience,
+  .success-stories,
+  .faq-section { padding-top: 72px; padding-bottom: 58px; }
+
+  .volunteer-benefits,
+  .ngo-highlight,
+  .achievement-row,
+  .volunteer-cta,
+  .video-story,
+  .impact-gallery,
+  .stories-cta { margin-top: 64px; }
+
+  .final-cta { padding-top: 78px; padding-bottom: 78px; }
+}

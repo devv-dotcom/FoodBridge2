@@ -1,0 +1,1657 @@
+<!doctype html>
+<html lang="en" data-api-base="http://localhost:5000">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="FoodBridge Food Receiver – Discover surplus food near you, accept donations, and distribute meals to those in need." />
+  <title>Discover Food · FoodBridge Receiver</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,600;0,700;0,800;0,900;1,600;1,800&display=swap" rel="stylesheet" />
+  <style>
+    /* ═══════════════════════════════════════════════════════════════
+       DESIGN TOKENS
+    ═══════════════════════════════════════════════════════════════ */
+    :root {
+      --bg:           #f4f1e8;
+      --bg2:          #ede9dc;
+      --surface:      #fdfaf3;
+      --card:         #ffffff;
+      --green-dark:   #0d3d20;
+      --green:        #1a5c32;
+      --green-mid:    #247340;
+      --green-light:  #e4f2ea;
+      --green-glow:   rgba(26,92,50,.18);
+      --orange:       #e85d04;
+      --orange-light: #fff3eb;
+      --amber:        #f4b942;
+      --red:          #c0392b;
+      --red-light:    #fdf0ef;
+      --purple:       #6d28d9;
+      --charcoal:     #141a16;
+      --ink:          #253228;
+      --muted:        #5e6e62;
+      --border:       rgba(20,26,22,.1);
+      --border-mid:   rgba(20,26,22,.16);
+      --radius-xl:    32px;
+      --radius-lg:    24px;
+      --radius-md:    16px;
+      --radius-pill:  999px;
+      --shadow-sm:    0 4px 16px rgba(0,0,0,.05);
+      --shadow-md:    0 10px 36px rgba(0,0,0,.09);
+      --shadow-lg:    0 20px 60px rgba(0,0,0,.13);
+      --shadow-green: 0 12px 40px rgba(26,92,50,.22);
+      --f-body:       'Outfit', system-ui, sans-serif;
+      --f-display:    'Playfair Display', Georgia, serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--f-body);
+      background: var(--bg);
+      color: var(--charcoal);
+      min-height: 100vh;
+      padding-bottom: 80px;
+      overflow-x: hidden;
+    }
+
+    /* ─── SCROLLBAR ─── */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(26,92,50,.25); border-radius: 99px; }
+
+    /* ─── SKIP TO MAIN ─── */
+    .skip-link { position: absolute; top: -99px; left: 0; background: var(--green); color: #fff; padding: 8px 16px; border-radius: 0 0 8px 0; font-size: .85rem; font-weight: 700; text-decoration: none; z-index: 9999; }
+    .skip-link:focus { top: 0; }
+
+    /* ─── SHARED UTILITIES ─── */
+    .container { max-width: 1360px; margin: 0 auto; padding: 0 20px; width: 100%; }
+    .section-gap { margin-bottom: 56px; }
+    .hide { display: none !important; }
+
+    /* ═══════════════════════════════════════════════════════════════
+       1. FLOATING NAVIGATION
+    ═══════════════════════════════════════════════════════════════ */
+    .float-nav {
+      position: sticky; top: 14px; z-index: 1000;
+      width: min(1360px, calc(100% - 28px));
+      margin: 0 auto 28px;
+      height: 62px;
+      border-radius: var(--radius-pill);
+      background: rgba(253,250,243,.93);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-md);
+      backdrop-filter: blur(18px) saturate(160%);
+      -webkit-backdrop-filter: blur(18px) saturate(160%);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 12px 0 22px;
+      transition: box-shadow .3s ease, top .3s ease;
+    }
+    .float-nav.scrolled {
+      box-shadow: 0 16px 48px rgba(0,0,0,.14);
+      top: 8px;
+    }
+
+    .nav-brand {
+      display: flex; align-items: center; gap: 9px;
+      font-family: var(--f-display); font-size: 1.22rem; font-weight: 800;
+      color: var(--green-dark); text-decoration: none; letter-spacing: -.02em;
+    }
+    .brand-mark {
+      width: 32px; height: 32px; border-radius: 10px;
+      background: linear-gradient(135deg, #1a5c32, #0d3d20);
+      display: grid; place-items: center;
+      box-shadow: 0 4px 12px rgba(26,92,50,.35);
+      font-size: .9rem;
+    }
+
+    .nav-links {
+      display: flex; align-items: center; gap: 2px;
+    }
+    .nav-links a {
+      font-size: .83rem; font-weight: 700; color: var(--ink);
+      text-decoration: none; padding: 7px 16px; border-radius: var(--radius-pill);
+      transition: all .2s ease; white-space: nowrap;
+    }
+    .nav-links a:hover { background: var(--green-light); color: var(--green-dark); }
+    .nav-links a.active {
+      background: var(--green); color: #fff;
+      box-shadow: 0 4px 16px var(--green-glow);
+    }
+
+    .nav-right { display: flex; align-items: center; gap: 10px; }
+
+    .notif-wrap { position: relative; }
+    .notif-btn {
+      width: 36px; height: 36px; border-radius: 50%;
+      border: 1px solid var(--border); background: var(--card);
+      display: grid; place-items: center; cursor: pointer; font-size: 1rem;
+      transition: background .2s; position: relative;
+    }
+    .notif-btn:hover { background: var(--green-light); }
+    .notif-badge {
+      position: absolute; top: -2px; right: -2px;
+      min-width: 17px; height: 17px; padding: 0 4px;
+      background: #e74c3c; color: #fff; border-radius: var(--radius-pill);
+      font-size: .62rem; font-weight: 800; border: 2px solid var(--surface);
+      display: grid; place-items: center;
+      animation: badgePop .35s cubic-bezier(.4,2,.5,1);
+    }
+    .notif-badge.hidden { display: none; }
+    @keyframes badgePop { from { transform: scale(0); } to { transform: scale(1); } }
+
+    .notif-panel {
+      position: absolute; top: calc(100% + 12px); right: 0;
+      width: 340px; background: var(--card);
+      border: 1px solid var(--border); border-radius: 22px;
+      box-shadow: var(--shadow-lg); z-index: 2000;
+      display: none; overflow: hidden;
+    }
+    .notif-panel.open { display: block; animation: panelIn .2s ease; }
+    @keyframes panelIn { from { opacity:0; transform:translateY(-8px); } to { opacity:1; transform:translateY(0); } }
+    .notif-head {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 18px; border-bottom: 1px solid var(--border);
+    }
+    .notif-head strong { font-size: .88rem; display: flex; align-items: center; gap: 6px; }
+    .notif-mark-all { border: 0; background: 0; color: var(--green); font: 700 .76rem var(--f-body); cursor: pointer; }
+    .notif-items { max-height: 300px; overflow-y: auto; }
+    .notif-item {
+      display: flex; gap: 10px; padding: 11px 16px;
+      border-bottom: 1px solid var(--border); cursor: pointer;
+      transition: background .15s; font-size: .83rem;
+    }
+    .notif-item:hover { background: var(--green-light); }
+    .notif-item.unread { background: #f0fdf5; }
+    .notif-ico { font-size: 1.1rem; flex-shrink: 0; margin-top: 1px; }
+
+    .user-chip {
+      display: flex; align-items: center; gap: 8px;
+      padding: 5px 14px 5px 6px;
+      background: var(--green-light); border: 1px solid rgba(26,92,50,.2);
+      border-radius: var(--radius-pill);
+      font-size: .8rem; font-weight: 700; color: var(--green-dark);
+    }
+    .user-chip-avatar {
+      width: 26px; height: 26px; border-radius: 50%;
+      background: var(--green); color: #fff;
+      display: grid; place-items: center; font-size: .72rem; font-weight: 800;
+    }
+
+    .btn-signout {
+      border: 1px solid var(--border); background: var(--card);
+      border-radius: var(--radius-pill); padding: 7px 16px;
+      font: 700 .78rem var(--f-body); color: var(--muted); cursor: pointer;
+      transition: all .2s;
+    }
+    .btn-signout:hover { border-color: #f5c6c4; background: #fdf4f4; color: #a93226; }
+
+    /* ═══════════════════════════════════════════════════════════════
+       2. TOAST NOTIFICATION
+    ═══════════════════════════════════════════════════════════════ */
+    #fb-toast {
+      position: fixed; bottom: 88px; right: 22px; z-index: 9999;
+      background: var(--green-dark); color: #fff; border-radius: 18px;
+      padding: 13px 18px; display: flex; gap: 11px; align-items: flex-start;
+      max-width: 320px; box-shadow: var(--shadow-green);
+      transform: translateY(20px); opacity: 0; transition: all .35s cubic-bezier(.2,.9,.2,1);
+      pointer-events: none;
+    }
+    #fb-toast.show { transform: translateY(0); opacity: 1; pointer-events: auto; }
+    #fb-toast .t-ico { font-size: 1.4rem; }
+
+    /* ═══════════════════════════════════════════════════════════════
+       3. HERO
+    ═══════════════════════════════════════════════════════════════ */
+    .hero {
+      border-radius: 36px;
+      background: linear-gradient(140deg, #0d3d20 0%, #1a5c32 45%, #247340 100%);
+      padding: clamp(40px, 6vw, 72px) clamp(28px, 5vw, 64px);
+      margin-bottom: 28px; position: relative; overflow: hidden;
+      display: grid; grid-template-columns: 1.2fr .8fr; gap: 32px; align-items: center;
+      box-shadow: var(--shadow-green);
+    }
+    /* decorative rings */
+    .hero::before, .hero::after {
+      content: ''; position: absolute; border-radius: 50%;
+      border: 1px solid rgba(255,255,255,.08);
+    }
+    .hero::before { width: 560px; height: 560px; top: -180px; right: -100px; }
+    .hero::after  { width: 320px; height: 320px; bottom: -120px; left: -60px; }
+
+    .hero-left { position: relative; z-index: 1; }
+    .hero-eyebrow {
+      display: inline-flex; align-items: center; gap: 7px;
+      background: rgba(255,255,255,.14); backdrop-filter: blur(8px);
+      border: 1px solid rgba(255,255,255,.18); border-radius: var(--radius-pill);
+      padding: 5px 16px; font-size: .76rem; font-weight: 700; color: rgba(255,255,255,.88);
+      margin-bottom: 20px; letter-spacing: .04em; text-transform: uppercase;
+    }
+    .hero-eyebrow-dot {
+      width: 7px; height: 7px; border-radius: 50%; background: #5af77a;
+      box-shadow: 0 0 0 3px rgba(90,247,122,.25);
+    }
+
+    .hero-headline {
+      font-family: var(--f-display);
+      font-size: clamp(2.6rem, 5.5vw, 4.8rem);
+      font-weight: 900; line-height: .96; color: #fff;
+      letter-spacing: -.04em; margin-bottom: 18px;
+    }
+    .hero-headline em { font-style: italic; color: var(--amber); }
+
+    .hero-sub {
+      font-size: clamp(.95rem, 1.4vw, 1.12rem); color: rgba(255,255,255,.72);
+      line-height: 1.65; margin-bottom: 32px; max-width: 460px;
+    }
+
+    .hero-cta-row { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+
+    .btn-hero-cta {
+      background: var(--orange); color: #fff; border: 0;
+      border-radius: var(--radius-pill); padding: 15px 34px;
+      font: 800 .9rem var(--f-body); letter-spacing: .02em; cursor: pointer;
+      text-decoration: none; display: inline-flex; align-items: center; gap: 8px;
+      box-shadow: 0 8px 28px rgba(232,93,4,.4); transition: all .22s;
+    }
+    .btn-hero-cta:hover { transform: translateY(-2px); box-shadow: 0 12px 36px rgba(232,93,4,.52); }
+
+    .btn-hero-ghost {
+      background: transparent; color: rgba(255,255,255,.82);
+      border: 1px solid rgba(255,255,255,.28); border-radius: var(--radius-pill);
+      padding: 14px 26px; font: 700 .88rem var(--f-body); cursor: pointer;
+      text-decoration: none; display: inline-flex; align-items: center; gap: 7px;
+      transition: all .2s;
+    }
+    .btn-hero-ghost:hover { background: rgba(255,255,255,.12); border-color: rgba(255,255,255,.45); }
+
+    /* hero right – info cards */
+    .hero-right {
+      position: relative; z-index: 1;
+      display: flex; flex-direction: column; gap: 14px;
+    }
+    .hero-info-card {
+      background: rgba(255,255,255,.1); backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,.18); border-radius: 20px;
+      padding: 16px 20px; display: flex; align-items: center; gap: 14px;
+      transition: transform .2s;
+    }
+    .hero-info-card:hover { transform: translateY(-2px); }
+    .hic-ico { font-size: 1.5rem; }
+    .hic-text strong {
+      display: block; font-size: .92rem; font-weight: 800; color: #fff; margin-bottom: 1px;
+    }
+    .hic-text small { font-size: .74rem; color: rgba(255,255,255,.62); }
+
+    /* ═══════════════════════════════════════════════════════════════
+       4. STORY HIGHLIGHTS
+    ═══════════════════════════════════════════════════════════════ */
+    .highlights-wrap {
+      overflow-x: auto; margin-bottom: 28px;
+      -webkit-overflow-scrolling: touch; scrollbar-width: none;
+    }
+    .highlights-wrap::-webkit-scrollbar { display: none; }
+    .highlights-track {
+      display: flex; align-items: center; gap: 12px;
+      width: max-content; padding: 4px 2px 8px;
+    }
+    .story-chip {
+      display: flex; align-items: center; gap: 9px;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius-pill); padding: 7px 18px 7px 8px;
+      font-size: .82rem; font-weight: 700; color: var(--ink); cursor: pointer;
+      white-space: nowrap;
+      box-shadow: var(--shadow-sm);
+      transition: transform .2s, border-color .2s, box-shadow .2s;
+    }
+    .story-chip:hover {
+      transform: translateY(-2px); border-color: var(--green);
+      box-shadow: 0 8px 24px rgba(26,92,50,.12);
+    }
+    .story-chip-avatar {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: var(--green-light); border: 2px solid var(--green);
+      display: grid; place-items: center; font-size: .92rem;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       5. DISCOVERY TOOLBAR (Search + Category + Filters)
+    ═══════════════════════════════════════════════════════════════ */
+    .toolbar {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 28px; padding: 20px 24px; margin-bottom: 36px;
+      display: flex; flex-direction: column; gap: 16px;
+      box-shadow: var(--shadow-sm);
+    }
+    .search-row { display: flex; align-items: center; gap: 10px; }
+    .search-field {
+      flex: 1; display: flex; align-items: center; gap: 9px;
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: var(--radius-pill); padding: 10px 20px;
+      transition: border-color .2s, box-shadow .2s;
+    }
+    .search-field:focus-within {
+      border-color: var(--green);
+      box-shadow: 0 0 0 3px rgba(26,92,50,.1);
+    }
+    .search-field input {
+      border: 0; outline: none; background: transparent;
+      font: 500 .9rem var(--f-body); width: 100%; color: var(--charcoal);
+    }
+    .search-field input::placeholder { color: var(--muted); }
+    .search-ico { font-size: 1rem; color: var(--muted); }
+
+    .btn-refresh {
+      border: 1px solid var(--border); background: var(--card);
+      border-radius: var(--radius-pill); padding: 10px 18px;
+      font: 700 .82rem var(--f-body); color: var(--muted); cursor: pointer;
+      transition: all .2s; white-space: nowrap;
+    }
+    .btn-refresh:hover { border-color: var(--green); color: var(--green); background: var(--green-light); }
+
+    .cats-scroll, .filters-scroll {
+      display: flex; gap: 8px; overflow-x: auto;
+      -webkit-overflow-scrolling: touch; scrollbar-width: none;
+      padding-bottom: 2px;
+    }
+    .cats-scroll::-webkit-scrollbar, .filters-scroll::-webkit-scrollbar { display: none; }
+
+    .cat-pill {
+      border: 1px solid var(--border); background: var(--card);
+      border-radius: var(--radius-pill); padding: 8px 20px;
+      font: 700 .83rem var(--f-body); color: var(--muted); cursor: pointer;
+      white-space: nowrap; transition: all .2s;
+    }
+    .cat-pill:hover { border-color: var(--green); color: var(--green-dark); background: var(--green-light); }
+    .cat-pill.active {
+      background: var(--green); border-color: var(--green); color: #fff;
+      box-shadow: 0 4px 16px var(--green-glow);
+    }
+
+    .filter-chip {
+      border: 1px solid var(--border); background: #faf8f2;
+      border-radius: var(--radius-pill); padding: 6px 14px;
+      font: 600 .78rem var(--f-body); color: var(--muted); cursor: pointer;
+      white-space: nowrap; transition: all .2s;
+    }
+    .filter-chip:hover, .filter-chip.active {
+      border-color: var(--green); color: var(--green-dark); background: var(--green-light);
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       6. MASONRY FEED
+    ═══════════════════════════════════════════════════════════════ */
+    .feed-section { margin-bottom: 52px; }
+    .feed-header {
+      display: flex; align-items: baseline; justify-content: space-between;
+      margin-bottom: 24px;
+    }
+    .feed-header h2 {
+      font-family: var(--f-display); font-size: clamp(1.4rem, 2.5vw, 2rem);
+      font-weight: 800; letter-spacing: -.03em; color: var(--charcoal);
+    }
+    .feed-count {
+      font-size: .82rem; font-weight: 600; color: var(--muted);
+    }
+
+    .masonry-grid {
+      columns: 3 320px; column-gap: 22px;
+    }
+    @media (max-width: 960px) { .masonry-grid { columns: 2 260px; } }
+    @media (max-width: 600px) { .masonry-grid { columns: 1; } }
+
+    /* FOOD CARD */
+    .food-card {
+      break-inside: avoid; margin-bottom: 22px;
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 28px; overflow: hidden;
+      display: flex; flex-direction: column;
+      box-shadow: 0 4px 18px rgba(0,0,0,.04);
+      transition: transform .32s cubic-bezier(.2,.8,.2,1), box-shadow .32s ease;
+      position: relative;
+    }
+    .food-card:hover {
+      transform: translateY(-7px);
+      box-shadow: 0 22px 52px rgba(0,0,0,.13);
+    }
+
+    /* varied heights for masonry effect */
+    .food-card.h-tall  .card-img { height: 290px; }
+    .food-card.h-short .card-img { height: 180px; }
+    .food-card.h-hero  .card-img { height: 340px; }
+    .food-card.h-mid   .card-img { height: 224px; }
+
+    .card-img {
+      position: relative; overflow: hidden;
+      background: linear-gradient(120deg, #d4e8d8, #c3dac9);
+      flex-shrink: 0;
+    }
+    .card-img img {
+      width: 100%; height: 100%; object-fit: cover;
+      transition: transform .5s cubic-bezier(.2,.8,.2,1);
+      display: block;
+    }
+    .food-card:hover .card-img img { transform: scale(1.09); }
+
+    /* overlay on hover */
+    .card-img-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(13,61,32,.6) 0%, transparent 55%);
+      opacity: 0; transition: opacity .3s ease;
+    }
+    .food-card:hover .card-img-overlay { opacity: 1; }
+
+    .badge-dist {
+      position: absolute; top: 14px; left: 14px;
+      background: rgba(255,255,255,.95); backdrop-filter: blur(6px);
+      padding: 4px 12px; border-radius: var(--radius-pill);
+      font-size: .72rem; font-weight: 800; color: #0369a1;
+      box-shadow: 0 4px 10px rgba(0,0,0,.1);
+    }
+    .badge-urgency {
+      position: absolute; top: 14px; right: 14px;
+      padding: 4px 12px; border-radius: var(--radius-pill);
+      font-size: .72rem; font-weight: 800;
+    }
+    .urg-high { background: var(--red-light); color: var(--red); border: 1px solid rgba(192,57,43,.25); }
+    .urg-low  { background: #f0fdf5; color: #16693a; border: 1px solid rgba(22,105,58,.25); }
+
+    /* hover revealed info bar */
+    .card-hover-bar {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      padding: 12px 16px 14px;
+      transform: translateY(100%); transition: transform .3s cubic-bezier(.2,.8,.2,1);
+      color: #fff; font-size: .78rem;
+    }
+    .food-card:hover .card-hover-bar { transform: translateY(0); }
+    .card-hover-bar .hb-name {
+      font-family: var(--f-display); font-size: 1rem; font-weight: 800; margin-bottom: 2px;
+    }
+    .card-hover-bar small { opacity: .78; }
+
+    .card-body { padding: 18px 22px 22px; display: flex; flex-direction: column; gap: 10px; }
+
+    .card-title {
+      font-family: var(--f-display); font-size: 1.18rem; font-weight: 800;
+      color: var(--charcoal); cursor: pointer; line-height: 1.2;
+      transition: color .2s;
+    }
+    .card-title:hover { color: var(--green); }
+
+    .card-meta { display: flex; flex-direction: column; gap: 5px; }
+    .card-meta-row {
+      display: flex; align-items: center; justify-content: space-between;
+      font-size: .82rem; color: var(--muted);
+    }
+    .card-meta-row b { color: var(--charcoal); font-weight: 700; }
+
+    .card-tag-row { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 2px; }
+    .tag {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 3px 10px; border-radius: var(--radius-pill);
+      font-size: .7rem; font-weight: 700; border: 1px solid var(--border);
+      background: var(--bg2); color: var(--ink);
+    }
+
+    .btn-accept {
+      margin-top: 8px; border: 0; border-radius: var(--radius-pill);
+      padding: 11px 22px; background: var(--green); color: #fff;
+      font: 800 .86rem var(--f-body); cursor: pointer; width: 100%;
+      box-shadow: 0 6px 18px var(--green-glow);
+      transition: background .2s, transform .15s;
+    }
+    .btn-accept:hover { background: var(--green-dark); transform: translateY(-1px); }
+    .btn-accept:active { transform: translateY(0); }
+
+    /* empty state */
+    .empty-state {
+      column-span: all; text-align: center; padding: 64px 20px;
+      color: var(--muted);
+    }
+    .empty-state .e-ico { font-size: 3rem; margin-bottom: 14px; }
+    .empty-state h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 6px; color: var(--ink); }
+    .empty-state p { font-size: .88rem; line-height: 1.6; }
+
+    /* ═══════════════════════════════════════════════════════════════
+       7. ACTIVE MISSION TRACKER
+    ═══════════════════════════════════════════════════════════════ */
+    .mission-wrap {
+      background: var(--surface); border: 2px solid var(--green);
+      border-radius: 34px; padding: 34px;
+      box-shadow: var(--shadow-green); margin-bottom: 52px;
+    }
+    .mission-head {
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 12px; margin-bottom: 28px;
+    }
+    .mission-title {
+      font-family: var(--f-display); font-size: 1.45rem; font-weight: 800;
+      color: var(--green-dark); display: flex; align-items: center; gap: 10px;
+    }
+    .live-pill {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: #dcfce7; color: #16a34a;
+      border: 1px solid #86efac; border-radius: var(--radius-pill);
+      padding: 4px 14px; font-size: .74rem; font-weight: 800;
+    }
+    .live-dot { width: 7px; height: 7px; background: #16a34a; border-radius: 50%; animation: pulse 1.5s infinite; }
+    @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:.4; } }
+
+    .mission-pipeline {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;
+      margin-bottom: 28px;
+    }
+    @media (max-width: 640px) { .mission-pipeline { grid-template-columns: 1fr 1fr; } }
+
+    .m-step {
+      background: var(--bg); border: 1.5px solid var(--border);
+      border-radius: 22px; padding: 20px 14px; text-align: center;
+      position: relative; transition: all .28s;
+    }
+    .m-step.active {
+      background: var(--green-light); border-color: var(--green);
+      transform: translateY(-3px); box-shadow: 0 8px 22px var(--green-glow);
+    }
+    .m-step.done { background: #f0fdf5; border-color: #86efac; opacity: .7; }
+    .m-step-ico { font-size: 1.6rem; display: block; margin-bottom: 6px; }
+    .m-step-label { font-size: .78rem; font-weight: 800; text-transform: uppercase; letter-spacing: .04em; }
+    .m-step.active .m-step-label { color: var(--green); }
+    .m-step-connector {
+      position: absolute; right: -7px; top: 50%; transform: translateY(-50%);
+      font-size: .8rem; color: var(--muted); z-index: 1;
+    }
+    .m-step:last-child .m-step-connector { display: none; }
+
+    #mission-content { min-height: 80px; }
+    .mission-donation-card {
+      background: var(--green-light); border: 1px solid rgba(26,92,50,.2);
+      border-radius: 22px; padding: 22px 24px;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 16px;
+    }
+    .mdc-info strong {
+      font-family: var(--f-display); font-size: 1.15rem; font-weight: 800;
+      color: var(--green-dark); display: block; margin-bottom: 4px;
+    }
+    .mdc-info small { font-size: .82rem; color: var(--muted); }
+
+    .btn-stage {
+      border: 0; border-radius: var(--radius-pill);
+      padding: 12px 28px; font: 800 .86rem var(--f-body); cursor: pointer;
+      transition: all .2s;
+    }
+    .btn-collect { background: var(--orange); color: #fff; box-shadow: 0 6px 20px rgba(232,93,4,.3); }
+    .btn-collect:hover { background: #c85103; transform: translateY(-1px); }
+    .btn-distribute { background: var(--purple); color: #fff; box-shadow: 0 6px 20px rgba(109,40,217,.3); }
+    .btn-distribute:hover { background: #5b21b6; transform: translateY(-1px); }
+    .btn-complete { background: var(--green); color: #fff; box-shadow: 0 6px 20px var(--green-glow); }
+    .btn-complete:hover { background: var(--green-dark); transform: translateY(-1px); }
+    .mission-empty {
+      text-align: center; padding: 20px; color: var(--muted); font-size: .88rem;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       8. EDITORIAL IMPACT SECTION
+    ═══════════════════════════════════════════════════════════════ */
+    .impact-section {
+      background: var(--green-dark);
+      border-radius: 36px; padding: clamp(44px, 5vw, 72px);
+      margin-bottom: 52px; position: relative; overflow: hidden;
+      display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: center;
+      box-shadow: 0 22px 56px rgba(13,61,32,.3);
+    }
+    .impact-section::before {
+      content: ''; position: absolute;
+      width: 480px; height: 480px; border-radius: 50%;
+      background: rgba(255,255,255,.04);
+      top: -200px; right: -100px;
+    }
+    @media (max-width: 860px) { .impact-section { grid-template-columns: 1fr; gap: 32px; } }
+
+    .impact-headline {
+      font-family: var(--f-display);
+      font-size: clamp(2.4rem, 4.5vw, 4rem);
+      font-weight: 900; line-height: .98; color: #fff; letter-spacing: -.04em;
+      margin-bottom: 14px;
+    }
+    .impact-headline em { font-style: italic; color: var(--amber); }
+    .impact-sub {
+      font-size: 1rem; color: rgba(255,255,255,.6); line-height: 1.7;
+    }
+
+    .impact-numbers {
+      background: rgba(255,255,255,.09); backdrop-filter: blur(12px);
+      border: 1px solid rgba(255,255,255,.16); border-radius: 28px;
+      padding: 32px; display: grid; grid-template-columns: 1fr 1fr; gap: 28px;
+    }
+    .impact-num strong {
+      display: block; font-size: clamp(2rem, 4vw, 2.8rem); font-weight: 900;
+      color: #fff; line-height: 1; margin-bottom: 4px;
+    }
+    .impact-num span {
+      font-size: .76rem; font-weight: 700; color: rgba(255,255,255,.55);
+      text-transform: uppercase; letter-spacing: .06em;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       9. ACTIVITY + HISTORY (Two-col)
+    ═══════════════════════════════════════════════════════════════ */
+    .two-col { display: grid; grid-template-columns: 1fr 1.15fr; gap: 28px; margin-bottom: 52px; }
+    @media (max-width: 860px) { .two-col { grid-template-columns: 1fr; } }
+
+    .panel-box {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 28px; padding: 28px;
+    }
+    .panel-box h3 {
+      font-family: var(--f-display); font-size: 1.1rem; font-weight: 800;
+      color: var(--charcoal); margin-bottom: 20px; display: flex; align-items: center; gap: 8px;
+    }
+
+    .activity-feed { display: flex; flex-direction: column; gap: 14px; }
+    .act-item {
+      display: flex; align-items: center; gap: 12px;
+      padding-bottom: 13px; border-bottom: 1px solid var(--border);
+    }
+    .act-item:last-child { border-bottom: none; padding-bottom: 0; }
+    .act-ico {
+      width: 38px; height: 38px; border-radius: 50%;
+      background: var(--green-light); color: var(--green);
+      display: grid; place-items: center; font-size: 1rem; flex-shrink: 0;
+    }
+    .act-text strong { font-size: .86rem; display: block; font-weight: 700; }
+    .act-text small { font-size: .76rem; color: var(--muted); }
+
+    .hist-list { display: flex; flex-direction: column; gap: 12px; }
+    .hist-item {
+      background: var(--card); border: 1px solid var(--border); border-radius: 18px;
+      padding: 14px 18px; display: flex; align-items: center;
+      justify-content: space-between; gap: 14px;
+      transition: box-shadow .2s;
+    }
+    .hist-item:hover { box-shadow: var(--shadow-sm); }
+    .hist-left { display: flex; align-items: center; gap: 12px; }
+    .hist-thumb {
+      width: 46px; height: 46px; border-radius: 12px; overflow: hidden;
+      background: var(--green-light); flex-shrink: 0;
+    }
+    .hist-thumb img { width: 100%; height: 100%; object-fit: cover; }
+    .hist-name { font-size: .88rem; font-weight: 700; display: block; }
+    .hist-sub  { font-size: .75rem; color: var(--muted); }
+    .status-pill {
+      padding: 4px 12px; border-radius: var(--radius-pill);
+      font-size: .7rem; font-weight: 800; white-space: nowrap;
+      background: var(--green-light); color: var(--green-dark);
+      border: 1px solid rgba(26,92,50,.2);
+    }
+    .status-pill.completed { background: #f0fdf5; color: #16693a; }
+    .status-pill.accepted  { background: var(--orange-light); color: var(--orange); border-color: rgba(232,93,4,.2); }
+    .status-pill.collected { background: #faf5ff; color: var(--purple); border-color: rgba(109,40,217,.2); }
+
+    /* ═══════════════════════════════════════════════════════════════
+       10. PROFILE SECTION
+    ═══════════════════════════════════════════════════════════════ */
+    .profile-section { margin-bottom: 52px; }
+    .profile-card {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 32px; padding: 32px 36px;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 24px;
+      box-shadow: var(--shadow-sm);
+    }
+    .prof-left { display: flex; align-items: center; gap: 20px; }
+    .prof-avatar {
+      width: 70px; height: 70px; border-radius: 50%; background: var(--green); color: #fff;
+      display: grid; place-items: center; font-size: 1.9rem; font-weight: 800;
+      border: 4px solid var(--green-light); flex-shrink: 0;
+    }
+    .prof-name {
+      font-family: var(--f-display); font-size: 1.3rem; font-weight: 800;
+      color: var(--charcoal); margin-bottom: 3px;
+    }
+    .prof-role { font-size: .83rem; color: var(--muted); font-weight: 600; }
+    .prof-stats { display: flex; gap: 12px; flex-wrap: wrap; }
+    .prof-stat {
+      background: var(--green-light); border: 1px solid rgba(26,92,50,.18);
+      border-radius: 16px; padding: 12px 20px; text-align: center; min-width: 110px;
+    }
+    .prof-stat strong { display: block; font-size: 1.3rem; font-weight: 800; color: var(--green-dark); }
+    .prof-stat small { font-size: .72rem; color: var(--muted); font-weight: 600; }
+
+    /* ═══════════════════════════════════════════════════════════════
+       11. DONATION DETAIL MODAL
+    ═══════════════════════════════════════════════════════════════ */
+    .modal-backdrop {
+      position: fixed; inset: 0; z-index: 3000;
+      background: rgba(13,26,16,.7); backdrop-filter: blur(10px);
+      display: none; place-items: center; padding: 20px;
+    }
+    .modal-backdrop.open { display: grid; animation: fadeIn .22s ease; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+    .modal-box {
+      background: var(--card); border-radius: 32px; max-width: 620px; width: 100%;
+      overflow: hidden; box-shadow: 0 28px 70px rgba(0,0,0,.35);
+      animation: modalRise .26s cubic-bezier(.2,.8,.2,1);
+      max-height: 90vh; display: flex; flex-direction: column;
+    }
+    @keyframes modalRise { from { opacity:0; transform:translateY(18px) scale(.97); } to { opacity:1; transform:translateY(0) scale(1); } }
+
+    .modal-img { height: 240px; position: relative; overflow: hidden; background: var(--green-light); flex-shrink: 0; }
+    .modal-img img { width: 100%; height: 100%; object-fit: cover; }
+    .modal-close-btn {
+      position: absolute; top: 14px; right: 14px; width: 36px; height: 36px;
+      background: rgba(0,0,0,.5); color: #fff; border: 0; border-radius: 50%;
+      font-size: 1.1rem; cursor: pointer; display: grid; place-items: center;
+      transition: background .2s;
+    }
+    .modal-close-btn:hover { background: rgba(0,0,0,.75); }
+
+    .modal-body { padding: 24px 28px; overflow-y: auto; flex: 1; }
+    .modal-food-name {
+      font-family: var(--f-display); font-size: 1.4rem; font-weight: 800;
+      margin-bottom: 16px; color: var(--charcoal);
+    }
+    .modal-row {
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: .88rem; padding: 9px 0; border-bottom: 1px solid var(--border);
+    }
+    .modal-row:last-child { border-bottom: none; }
+    .modal-row .key { color: var(--muted); font-weight: 600; }
+    .modal-row .val { font-weight: 700; color: var(--charcoal); text-align: right; max-width: 60%; }
+    .modal-desc { margin-top: 14px; font-size: .86rem; color: var(--muted); line-height: 1.65; }
+
+    .modal-footer {
+      padding: 18px 28px 24px; background: var(--surface);
+      border-top: 1px solid var(--border); display: flex; gap: 10px;
+      flex-shrink: 0;
+    }
+    .btn-accept-modal {
+      flex: 1; border: 0; border-radius: var(--radius-pill);
+      padding: 14px; background: var(--green); color: #fff;
+      font: 800 .9rem var(--f-body); cursor: pointer;
+      box-shadow: 0 8px 24px var(--green-glow); transition: all .2s;
+    }
+    .btn-accept-modal:hover { background: var(--green-dark); transform: translateY(-1px); }
+    .btn-view-loc {
+      border: 1px solid var(--border); background: var(--card);
+      border-radius: var(--radius-pill); padding: 14px 20px;
+      font: 700 .86rem var(--f-body); color: var(--muted); cursor: pointer; transition: all .2s;
+    }
+    .btn-view-loc:hover { border-color: var(--green); color: var(--green-dark); }
+
+    /* ═══════════════════════════════════════════════════════════════
+       12. MOBILE BOTTOM NAV
+    ═══════════════════════════════════════════════════════════════ */
+    .mobile-nav {
+      display: none; position: fixed; bottom: 0; left: 0; right: 0;
+      height: 64px; background: rgba(253,250,243,.96);
+      border-top: 1px solid var(--border); backdrop-filter: blur(16px);
+      z-index: 2000; justify-content: space-around; align-items: center;
+    }
+    .mobile-nav a {
+      display: flex; flex-direction: column; align-items: center; gap: 3px;
+      font-size: .64rem; font-weight: 700; color: var(--muted); text-decoration: none;
+    }
+    .mobile-nav a.active { color: var(--green); }
+    .mobile-nav .mn-ico { font-size: 1.25rem; }
+
+    @media (max-width: 860px) { .mobile-nav { display: flex; } .nav-links { display: none !important; } }
+
+    /* ═══════════════════════════════════════════════════════════════
+       ANIMATIONS
+    ═══════════════════════════════════════════════════════════════ */
+    @keyframes countUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    .card-reveal { animation: cardIn .4s ease both; }
+    @keyframes cardIn { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+    }
+
+    /* ─── HERO MOBILE ─── */
+    @media (max-width: 860px) {
+      .hero { grid-template-columns: 1fr; }
+      .hero-right { display: none; }
+    }
+    @media (max-width: 640px) {
+      .hero { border-radius: 24px; }
+      .toolbar { border-radius: 22px; }
+    }
+  </style>
+</head>
+<body data-required-role="ngo" data-dashboard="ngo">
+
+<a class="skip-link" href="#main-content">Skip to main content</a>
+
+<!-- ══════════════════════════════════════════════════════
+     1. FLOATING NAVIGATION
+══════════════════════════════════════════════════════ -->
+<header class="float-nav" id="float-nav" role="banner">
+  <a class="nav-brand" href="index.html">
+    <span class="brand-mark">🌿</span>
+    FoodBridge
+  </a>
+
+  <nav class="nav-links" aria-label="Main navigation">
+    <a href="#discover-section" class="active" id="nav-discover">Discover</a>
+    <a href="#mission-section"  id="nav-mission">My Missions</a>
+    <a href="#impact-section"   id="nav-impact">Impact</a>
+    <a href="#activity-section" id="nav-activity">Activity</a>
+    <a href="#profile-section"  id="nav-profile">Profile</a>
+  </nav>
+
+  <div class="nav-right">
+    <!-- Notification Bell -->
+    <div class="notif-wrap">
+      <button class="notif-btn" id="notif-bell" aria-label="Notifications" aria-haspopup="true" aria-expanded="false">
+        🔔
+        <span class="notif-badge hidden" id="notif-badge" aria-live="polite">0</span>
+      </button>
+
+      <div class="notif-panel" id="notif-panel" role="dialog" aria-label="Notifications">
+        <div class="notif-head">
+          <strong>🔔 Food Rescue Alerts <span id="notif-count-label" style="background:#dcfce7;color:#15803d;font-size:.7rem;padding:2px 8px;border-radius:999px;margin-left:4px;">0 new</span></strong>
+          <button class="notif-mark-all" id="notif-mark-all">Mark all read</button>
+        </div>
+        <div class="notif-items" id="notif-list">
+          <div style="padding:28px;text-align:center;color:var(--muted);font-size:.84rem;">🎉 No new food alerts.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="user-chip">
+      <span class="user-chip-avatar" id="user-initial">R</span>
+      <span id="user-name">Receiver</span>
+    </div>
+    <button class="btn-signout" data-action="logout">Sign out</button>
+  </div>
+</header>
+
+<!-- Toast -->
+<div id="fb-toast" role="alert" aria-live="polite">
+  <span class="t-ico">🍱</span>
+  <div>
+    <strong id="toast-title" style="display:block;font-size:.9rem;">Food Alert</strong>
+    <span id="toast-body" style="font-size:.77rem;opacity:.85;">A donor uploaded surplus food near you.</span>
+  </div>
+</div>
+
+<main id="main-content" class="container">
+
+  <!-- ══════════════════════════════════════════════════════
+       2. HERO
+  ══════════════════════════════════════════════════════ -->
+  <section class="hero" aria-labelledby="hero-heading">
+    <div class="hero-left">
+      <div class="hero-eyebrow">
+        <span class="hero-eyebrow-dot"></span>
+        FoodBridge · Food Discovery
+      </div>
+      <h1 class="hero-headline" id="hero-heading">
+        FOOD IS WAITING.<br/>
+        <em>LET'S MOVE IT.</em>
+      </h1>
+      <p class="hero-sub">
+        Discover surplus food near you and help turn it into meaningful meals for families, shelters, and communities.
+      </p>
+      <div class="hero-cta-row">
+        <a class="btn-hero-cta" href="#discover-section">
+          DISCOVER FOOD
+          <span>↓</span>
+        </a>
+        <a class="btn-hero-ghost" href="#mission-section">
+          My Missions
+        </a>
+      </div>
+    </div>
+
+    <div class="hero-right">
+      <div class="hero-info-card">
+        <span class="hic-ico">🍱</span>
+        <div class="hic-text">
+          <strong id="hero-meal-count">Loading nearby meals...</strong>
+          <small>Available for immediate claim</small>
+        </div>
+      </div>
+      <div class="hero-info-card">
+        <span class="hic-ico">📍</span>
+        <div class="hic-text">
+          <strong>Within 3 km</strong>
+          <small>Closest donor kitchen location</small>
+        </div>
+      </div>
+      <div class="hero-info-card">
+        <span class="hic-ico">⏱️</span>
+        <div class="hic-text">
+          <strong>Pickup Today</strong>
+          <small>Freshness &amp; hygiene verified</small>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════
+       3. STORY HIGHLIGHTS
+  ══════════════════════════════════════════════════════ -->
+  <div class="highlights-wrap" aria-label="Quick highlights">
+    <div class="highlights-track" id="highlights-track">
+      <div class="story-chip"><span class="story-chip-avatar">🟢</span> Live Feed Active</div>
+      <div class="story-chip"><span class="story-chip-avatar">🍲</span> Meals Available</div>
+      <div class="story-chip"><span class="story-chip-avatar">🏪</span> Local Donors</div>
+      <div class="story-chip"><span class="story-chip-avatar">⚡</span> Accept Instantly</div>
+      <div class="story-chip"><span class="story-chip-avatar">💚</span> Community Impact</div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════
+       4. DISCOVERY TOOLBAR
+  ══════════════════════════════════════════════════════ -->
+  <section class="toolbar" id="discover-section" aria-label="Search and filter food">
+    <div class="search-row">
+      <div class="search-field">
+        <span class="search-ico">🔍</span>
+        <input type="search" id="search-food" placeholder="Search food, location or donor..." aria-label="Search food, location or donor" />
+      </div>
+      <button class="btn-refresh" id="btn-refresh" aria-label="Refresh donation feed">↻ Refresh</button>
+    </div>
+
+    <div class="cats-scroll" role="tablist" aria-label="Food categories">
+      <button class="cat-pill active" data-cat="all"      role="tab" aria-selected="true">All</button>
+      <button class="cat-pill"        data-cat="meals"    role="tab" aria-selected="false">🍽️ Meals</button>
+      <button class="cat-pill"        data-cat="bakery"   role="tab" aria-selected="false">🥖 Bakery</button>
+      <button class="cat-pill"        data-cat="prepared" role="tab" aria-selected="false">🍲 Prepared Food</button>
+      <button class="cat-pill"        data-cat="fruits"   role="tab" aria-selected="false">🍎 Fruits</button>
+      <button class="cat-pill"        data-cat="packaged" role="tab" aria-selected="false">📦 Packaged</button>
+      <button class="cat-pill"        data-cat="catering" role="tab" aria-selected="false">🎪 Catering</button>
+    </div>
+
+    <div class="filters-scroll" aria-label="Quick filters">
+      <button class="filter-chip active" data-filter="all">All Listings</button>
+      <button class="filter-chip" data-filter="nearby">📍 Nearby</button>
+      <button class="filter-chip" data-filter="veg">🟢 Vegetarian</button>
+      <button class="filter-chip" data-filter="non_veg">🔴 Non-Veg</button>
+      <button class="filter-chip" data-filter="high">⚡ Expiring Soon</button>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════
+       5. MASONRY FEED
+  ══════════════════════════════════════════════════════ -->
+  <section class="feed-section" aria-labelledby="feed-heading">
+    <div class="feed-header">
+      <h2 id="feed-heading">FOOD WAITING TO BE RESCUED</h2>
+      <span class="feed-count" id="feed-count" aria-live="polite">Loading...</span>
+    </div>
+
+    <div class="masonry-grid" id="donations-feed" role="feed" aria-label="Available food donations" aria-busy="true">
+      <div class="empty-state">
+        <div class="e-ico">⏳</div>
+        <h3>Loading discovery feed…</h3>
+        <p>Fetching surplus food near you.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════
+       6. ACTIVE MISSION TRACKER
+  ══════════════════════════════════════════════════════ -->
+  <section class="mission-wrap" id="mission-section" aria-labelledby="mission-heading">
+    <div class="mission-head">
+      <h2 class="mission-title" id="mission-heading">
+        📍 YOUR CURRENT IMPACT
+      </h2>
+      <span class="live-pill">
+        <span class="live-dot"></span>
+        Direct Receiver Route
+      </span>
+    </div>
+
+    <div class="mission-pipeline" role="list" aria-label="Mission stages">
+      <div class="m-step active" id="ms-1" role="listitem">
+        <span class="m-step-ico">🤝</span>
+        <span class="m-step-label">Accepted</span>
+        <span class="m-step-connector">→</span>
+      </div>
+      <div class="m-step" id="ms-2" role="listitem">
+        <span class="m-step-ico">📦</span>
+        <span class="m-step-label">Collected</span>
+        <span class="m-step-connector">→</span>
+      </div>
+      <div class="m-step" id="ms-3" role="listitem">
+        <span class="m-step-ico">🍲</span>
+        <span class="m-step-label">Distributed</span>
+        <span class="m-step-connector">→</span>
+      </div>
+      <div class="m-step" id="ms-4" role="listitem">
+        <span class="m-step-ico">⭐</span>
+        <span class="m-step-label">Impact</span>
+      </div>
+    </div>
+
+    <div id="mission-content">
+      <div class="mission-empty">Accept an available food listing above to activate your rescue mission.</div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════
+       7. EDITORIAL IMPACT SECTION
+  ══════════════════════════════════════════════════════ -->
+  <section class="impact-section" id="impact-section" aria-labelledby="impact-heading">
+    <div>
+      <h2 class="impact-headline" id="impact-heading">
+        EVERY MEAL<br/>RESCUED<br/><em>MATTERS.</em>
+      </h2>
+      <p class="impact-sub">
+        Turning food surplus into community nourishment — one rescue at a time.
+      </p>
+    </div>
+
+    <div class="impact-numbers">
+      <div class="impact-num">
+        <strong id="stat-meals">0</strong>
+        <span>Meals Rescued</span>
+      </div>
+      <div class="impact-num">
+        <strong id="stat-people">0</strong>
+        <span>People Served</span>
+      </div>
+      <div class="impact-num">
+        <strong id="stat-kg">0 kg</strong>
+        <span>Food Saved</span>
+      </div>
+      <div class="impact-num">
+        <strong id="stat-score">0 pts</strong>
+        <span>Impact Score</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════
+       8. ACTIVITY FEED + HISTORY
+  ══════════════════════════════════════════════════════ -->
+  <section class="two-col" id="activity-section">
+    <div class="panel-box" aria-labelledby="activity-heading">
+      <h3 id="activity-heading">⚡ LIVE ACTIVITY FEED</h3>
+      <div class="activity-feed" id="activity-feed" aria-live="polite">
+        <div class="act-item">
+          <div class="act-ico">🍱</div>
+          <div class="act-text">
+            <strong>Waiting for activity…</strong>
+            <small>Your actions will appear here</small>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel-box" aria-labelledby="history-heading">
+      <h3 id="history-heading">📜 RESCUE HISTORY</h3>
+      <div class="hist-list" id="rescue-history">
+        <div class="empty-state" style="padding:32px 10px;">
+          <div class="e-ico">📦</div>
+          <h3>No past rescues yet</h3>
+          <p>Your completed donations will appear here.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════════════════════
+       9. PROFILE SECTION
+  ══════════════════════════════════════════════════════ -->
+  <section class="profile-section" id="profile-section" aria-labelledby="profile-heading">
+    <div class="profile-card">
+      <div class="prof-left">
+        <div class="prof-avatar" id="prof-avatar">R</div>
+        <div>
+          <div class="prof-name" id="prof-name">Community Receiver</div>
+          <div class="prof-role" id="prof-role">Verified Food Rescue Partner</div>
+        </div>
+      </div>
+
+      <div class="prof-stats">
+        <div class="prof-stat">
+          <strong id="prof-rescues">0</strong>
+          <small>Rescues</small>
+        </div>
+        <div class="prof-stat">
+          <strong id="prof-people">0</strong>
+          <small>People Served</small>
+        </div>
+        <div class="prof-stat">
+          <strong id="prof-score">0</strong>
+          <small>Impact Score</small>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ══════════════════════════════════════════════════════
+     DONATION DETAIL MODAL
+══════════════════════════════════════════════════════ -->
+<div class="modal-backdrop" id="detail-modal" role="dialog" aria-modal="true" aria-labelledby="modal-food-name">
+  <div class="modal-box">
+    <div class="modal-img">
+      <img id="modal-img" src="" alt="Food photo" />
+      <button class="modal-close-btn" id="modal-close" aria-label="Close modal">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-food-name" id="modal-food-name">Food Details</div>
+      <div class="modal-row"><span class="key">Quantity / Portions</span><span class="val" id="m-qty">—</span></div>
+      <div class="modal-row"><span class="key">Food Type</span><span class="val" id="m-type">—</span></div>
+      <div class="modal-row"><span class="key">Donor Kitchen</span><span class="val" id="m-donor">—</span></div>
+      <div class="modal-row"><span class="key">Pickup Address</span><span class="val" id="m-address">—</span></div>
+      <div class="modal-row"><span class="key">Preparation Time</span><span class="val" id="m-prep">—</span></div>
+      <div class="modal-row"><span class="key">Expiry Window</span><span class="val" id="m-expiry">—</span></div>
+      <div class="modal-row"><span class="key">Safety Verification</span><span class="val" style="color:var(--green);">🛡️ Hygiene Verified</span></div>
+      <p class="modal-desc" id="m-desc"></p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-accept-modal" id="modal-accept-btn">ACCEPT DONATION NOW</button>
+      <button class="btn-view-loc" id="modal-loc-btn">📍 View Location</button>
+    </div>
+  </div>
+</div>
+
+<!-- Mobile Bottom Nav -->
+<nav class="mobile-nav" aria-label="Mobile navigation">
+  <a href="#discover-section" class="active"><span class="mn-ico">🔍</span>Discover</a>
+  <a href="#mission-section"><span class="mn-ico">📍</span>Missions</a>
+  <a href="#impact-section"><span class="mn-ico">💚</span>Impact</a>
+  <a href="#activity-section"><span class="mn-ico">⚡</span>Activity</a>
+  <a href="#profile-section"><span class="mn-ico">👤</span>Profile</a>
+</nav>
+
+<!-- JS Module loaded by app.js for auth/routing -->
+<script type="module" src="js/app.js"></script>
+
+<!-- Main receiver JS -->
+<script type="module">
+  import { request, notifyError, getSession } from './js/api.js';
+  import { escapeHtml } from './js/utils.js';
+
+  /* ─── UTIL: simple toast ─── */
+  function showToast(title, body = '') {
+    const el = document.getElementById('fb-toast');
+    document.getElementById('toast-title').textContent = title;
+    document.getElementById('toast-body').textContent = body;
+    el.classList.add('show');
+    setTimeout(() => el.classList.remove('show'), 3800);
+  }
+
+  /* ─── NAV SCROLL SHRINK ─── */
+  window.addEventListener('scroll', () => {
+    document.getElementById('float-nav')?.classList.toggle('scrolled', window.scrollY > 40);
+  }, { passive: true });
+
+  /* ─── SESSION PERSONALIZATION ─── */
+  const { user } = getSession();
+  if (user) {
+    const initChar = (user.name || user.email || 'R')[0].toUpperCase();
+    const isNGO = user.role === 'ngo';
+    const displayName = user.ngoName || user.name || (isNGO ? 'Your NGO' : user.email || 'Receiver');
+
+    document.getElementById('user-initial').textContent  = initChar;
+    document.getElementById('user-name').textContent     = displayName;
+    document.getElementById('prof-avatar').textContent   = initChar;
+    document.getElementById('prof-name').textContent     = displayName;
+    document.getElementById('prof-role').textContent     = isNGO
+      ? 'Verified NGO · Food Rescue Partner'
+      : 'Community Volunteer · Food Rescuer';
+  }
+
+  /* ─── STATE ─── */
+  let allDonations = [];
+  let activeDonationId = null;
+
+  /* ─── FOOD IMAGE POOL (varied heights for masonry) ─── */
+  const IMG_POOL = [
+    { url: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=700&q=80', h: 'h-tall' },
+    { url: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=700&q=80', h: 'h-short' },
+    { url: 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&w=700&q=80', h: 'h-hero' },
+    { url: 'https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?auto=format&fit=crop&w=700&q=80', h: 'h-tall' },
+    { url: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=700&q=80', h: 'h-mid' },
+    { url: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=700&q=80', h: 'h-short' },
+    { url: 'https://images.unsplash.com/photo-1476224203421-9ac39bcb3327?auto=format&fit=crop&w=700&q=80', h: 'h-hero' },
+    { url: 'https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?auto=format&fit=crop&w=700&q=80', h: 'h-mid' },
+    { url: 'https://images.unsplash.com/photo-1490645935967-10de6ba17061?auto=format&fit=crop&w=700&q=80', h: 'h-tall' },
+    { url: 'https://images.unsplash.com/photo-1473093226795-af9932fe5856?auto=format&fit=crop&w=700&q=80', h: 'h-short' },
+  ];
+
+  function imgFor(idx) { return IMG_POOL[idx % IMG_POOL.length]; }
+
+  /* ─── URGENCY LOGIC ─── */
+  function urgency(expiryStr) {
+    if (!expiryStr) return { cls: 'urg-low', text: '🟢 FRESH' };
+    const hrs = (new Date(expiryStr) - Date.now()) / 36e5;
+    if (hrs <= 0)  return { cls: 'urg-high', text: '🔴 EXPIRED' };
+    if (hrs <= 3)  return { cls: 'urg-high', text: `🔴 ${Math.ceil(hrs)}h left` };
+    return { cls: 'urg-low', text: `🟢 ${Math.ceil(hrs)}h left` };
+  }
+
+  /* ─── RENDER MASONRY CARDS ─── */
+  function renderFeed(list) {
+    const feed  = document.getElementById('donations-feed');
+    const count = document.getElementById('feed-count');
+    feed.setAttribute('aria-busy', 'false');
+
+    if (!list || list.length === 0) {
+      count.textContent = '0 listings';
+      feed.innerHTML = `
+        <div class="empty-state" style="column-span:all;">
+          <div class="e-ico">🌿</div>
+          <h3>No surplus food nearby right now.</h3>
+          <p>Check back shortly — local restaurants post excess meals after service hours.</p>
+        </div>`;
+      return;
+    }
+
+    count.textContent = `${list.length} listing${list.length === 1 ? '' : 's'}`;
+    // update hero count
+    document.getElementById('hero-meal-count').textContent = `${list.length} Surplus Meals Nearby`;
+
+    feed.innerHTML = list.map((d, i) => {
+      const urg  = urgency(d.expiry_time);
+      const img  = imgFor(i);
+      const dist = (0.5 + i * 0.4).toFixed(1);
+      const type = (d.food_type || 'veg') === 'non_veg' ? '🔴 Non-Veg' : '🟢 Veg';
+
+      return `
+        <article class="food-card ${img.h} card-reveal" style="animation-delay:${i * 60}ms">
+          <div class="card-img">
+            <img src="${img.url}" alt="${escapeHtml(d.food_name || 'Food')}" loading="lazy" />
+            <div class="card-img-overlay"></div>
+            <span class="badge-dist">📍 ${dist} km</span>
+            <span class="badge-urgency ${urg.cls}">${urg.text}</span>
+            <div class="card-hover-bar">
+              <div class="hb-name">${escapeHtml(d.food_name || 'Surplus Food')}</div>
+              <small>${escapeHtml(d.business_name || d.donor_name || 'Partner Kitchen')} · ${escapeHtml(d.city || 'Nearby')}</small>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="card-title" tabindex="0" role="button" aria-label="View details for ${escapeHtml(d.food_name)}" data-action="view-modal" data-id="${d.id}">
+              ${escapeHtml(d.food_name || 'Surplus Meal')}
+            </div>
+            <div class="card-meta">
+              <div class="card-meta-row"><span>Quantity</span><b>${escapeHtml(d.quantity || 'Bulk')}</b></div>
+              <div class="card-meta-row"><span>Kitchen</span><b>${escapeHtml(d.business_name || d.donor_name || 'Partner Kitchen')}</b></div>
+              ${d.city ? `<div class="card-meta-row"><span>Location</span><b>${escapeHtml(d.city)}</b></div>` : ''}
+            </div>
+            <div class="card-tag-row">
+              <span class="tag">${type}</span>
+              ${d.food_category ? `<span class="tag">${escapeHtml(d.food_category)}</span>` : ''}
+            </div>
+            <button class="btn-accept" data-action="accept" data-id="${d.id}" aria-label="Accept donation: ${escapeHtml(d.food_name)}">
+              ACCEPT DONATION
+            </button>
+          </div>
+        </article>`;
+    }).join('');
+
+    // bind view-modal triggers
+    feed.querySelectorAll('[data-action="view-modal"]').forEach(el => {
+      el.addEventListener('click', () => {
+        const d = allDonations.find(x => x.id == el.dataset.id);
+        if (d) openModal(d, Number(el.dataset.id) % IMG_POOL.length);
+      });
+      el.addEventListener('keydown', e => {
+        if (e.key === 'Enter' || e.key === ' ') el.click();
+      });
+    });
+  }
+
+  /* ─── RENDER HISTORY + MISSION ─── */
+  function renderHistoryAndMission(history) {
+    const histEl    = document.getElementById('rescue-history');
+    const missionEl = document.getElementById('mission-content');
+
+    if (!history || history.length === 0) {
+      histEl.innerHTML = `
+        <div class="empty-state" style="padding:32px 10px;">
+          <div class="e-ico">📦</div><h3>No past rescues yet</h3>
+          <p>Completed donations appear here.</p>
+        </div>`;
+      missionEl.innerHTML = '<div class="mission-empty">Accept an available food listing above to activate your rescue mission.</div>';
+      updateStats(0, 0, 0);
+      return;
+    }
+
+    // stats
+    const totalRescues = history.length;
+    const totalPeople  = totalRescues * 35;
+    const score        = totalRescues * 100;
+    updateStats(totalRescues, totalPeople, score);
+
+    // mission: first active
+    const active = history.find(h => ['accepted','collected','picked_up','distributed','delivered'].includes(h.status?.toLowerCase()));
+    if (active) {
+      const st = (active.status || 'accepted').toLowerCase();
+
+      // pipeline highlight
+      ['ms-1','ms-2','ms-3','ms-4'].forEach((id, i) => {
+        const el = document.getElementById(id);
+        el.classList.remove('active', 'done');
+        const stageActive = (i === 0 && st === 'accepted') ||
+                            (i === 1 && (st === 'collected' || st === 'picked_up')) ||
+                            (i === 2 && (st === 'distributed' || st === 'delivered')) ||
+                            (i === 3);
+        const stageDone   = (i === 0 && st !== 'accepted') ||
+                            (i === 1 && (st === 'distributed' || st === 'delivered'));
+        if (stageActive) el.classList.add('active');
+        if (stageDone)   el.classList.add('done');
+      });
+
+      let btnHtml = '';
+      if (st === 'accepted')
+        btnHtml = `<button class="btn-stage btn-collect" data-action="stage" data-id="${active.id}" data-next="collected">MARK AS COLLECTED</button>`;
+      else if (st === 'collected' || st === 'picked_up')
+        btnHtml = `<button class="btn-stage btn-distribute" data-action="stage" data-id="${active.id}" data-next="distributed">MARK AS DISTRIBUTED</button>`;
+      else if (st === 'distributed' || st === 'delivered')
+        btnHtml = `<button class="btn-stage btn-complete" data-action="stage" data-id="${active.id}" data-next="completed">COMPLETE DONATION</button>`;
+
+      missionEl.innerHTML = `
+        <div class="mission-donation-card">
+          <div class="mdc-info">
+            <strong>${escapeHtml(active.food_name || 'Food Rescue')}</strong>
+            <small>
+              Qty: <b>${escapeHtml(active.quantity || '—')}</b> &bull;
+              From: <b>${escapeHtml(active.business_name || active.donor_name || 'Donor Kitchen')}</b> &bull;
+              Pickup: <b>${escapeHtml(active.pickup_address || active.city || 'Nearby')}</b>
+            </small>
+          </div>
+          <div>${btnHtml}</div>
+        </div>`;
+
+      // bind stage buttons
+      missionEl.querySelectorAll('[data-action="stage"]').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          const id   = btn.dataset.id;
+          const next = btn.dataset.next;
+          try {
+            if (next === 'completed') {
+              await request(`/api/ngo/confirm-delivery/${id}`, { method: 'POST' });
+            } else {
+              await request(`/api/ngo/status/${id}`, { method: 'PUT', body: { status: next } });
+            }
+            showToast(`Status: ${next.replace('_',' ')}`, 'Mission stage updated!');
+            pushActivityItem(`Mission stage: ${next}`, 'Donation status advanced');
+            await loadAll();
+          } catch (e) { notifyError(e); }
+        });
+      });
+    } else {
+      missionEl.innerHTML = '<div class="mission-empty">🎉 All missions complete! Accept a new donation to start.</div>';
+      ['ms-1','ms-2','ms-3','ms-4'].forEach(id => {
+        document.getElementById(id).classList.remove('active','done');
+      });
+      document.getElementById('ms-1').classList.add('active');
+    }
+
+    // history list
+    histEl.innerHTML = history.map((d, i) => {
+      const img    = imgFor(i);
+      const stCls  = d.status === 'completed' ? 'completed' : (d.status === 'accepted' ? 'accepted' : (d.status === 'collected' || d.status === 'picked_up' ? 'collected' : ''));
+      return `
+        <div class="hist-item">
+          <div class="hist-left">
+            <div class="hist-thumb"><img src="${img.url}" alt="${escapeHtml(d.food_name)}" loading="lazy" /></div>
+            <div>
+              <span class="hist-name">${escapeHtml(d.food_name || 'Food Batch')}</span>
+              <span class="hist-sub">${escapeHtml(d.quantity || '—')} &bull; ${escapeHtml(d.city || 'Local')}</span>
+            </div>
+          </div>
+          <span class="status-pill ${stCls}">${escapeHtml(d.status || 'pending')}</span>
+        </div>`;
+    }).join('');
+  }
+
+  /* ─── STATS ─── */
+  function updateStats(rescues, people, score) {
+    animateCount('stat-meals',  rescues);
+    animateCount('stat-people', people);
+    document.getElementById('stat-kg').textContent    = `${rescues * 12} kg`;
+    document.getElementById('stat-score').textContent = `${score} pts`;
+    animateCount('prof-rescues', rescues);
+    animateCount('prof-people',  people);
+    document.getElementById('prof-score').textContent = score;
+  }
+
+  function animateCount(id, target) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const start = Date.now();
+    const dur = 1000;
+    const frame = () => {
+      const progress = Math.min((Date.now() - start) / dur, 1);
+      el.textContent = Math.round(target * progress);
+      if (progress < 1) requestAnimationFrame(frame);
+    };
+    requestAnimationFrame(frame);
+  }
+
+  /* ─── ACTIVITY FEED ─── */
+  const activityItems = [
+    { ico: '🍱', text: 'Feed loaded — surplus meals nearby', sub: 'Just now' },
+  ];
+  function renderActivity() {
+    const el = document.getElementById('activity-feed');
+    el.innerHTML = activityItems.slice(0, 6).map(a => `
+      <div class="act-item">
+        <div class="act-ico">${a.ico}</div>
+        <div class="act-text">
+          <strong>${escapeHtml(a.text)}</strong>
+          <small>${escapeHtml(a.sub)}</small>
+        </div>
+      </div>`).join('');
+  }
+
+  function pushActivityItem(text, sub, ico = '✅') {
+    activityItems.unshift({ ico, text, sub: sub || new Date().toLocaleTimeString() });
+    renderActivity();
+  }
+
+  /* ─── MODAL ─── */
+  const modal = document.getElementById('detail-modal');
+  let   modalDonationId = null;
+
+  function openModal(d, imgIdx) {
+    modalDonationId = d.id;
+    const img = imgFor(imgIdx !== undefined ? imgIdx : d.id % IMG_POOL.length);
+    document.getElementById('modal-img').src       = img.url;
+    document.getElementById('modal-food-name').textContent = d.food_name || 'Food Details';
+    document.getElementById('m-qty').textContent   = d.quantity || 'Bulk';
+    document.getElementById('m-type').textContent  = (d.food_type || 'veg') === 'non_veg' ? '🔴 Non-Vegetarian' : '🟢 Vegetarian';
+    document.getElementById('m-donor').textContent = d.business_name || d.donor_name || 'Partner Kitchen';
+    document.getElementById('m-address').textContent = d.pickup_address || d.city || 'Provided upon claim';
+    document.getElementById('m-prep').textContent  = d.preparation_time ? new Date(d.preparation_time).toLocaleString() : 'Today';
+    document.getElementById('m-expiry').textContent = d.expiry_time ? new Date(d.expiry_time).toLocaleString() : 'Fresh';
+    document.getElementById('m-desc').textContent  = d.description || 'Packaged securely in clean, food-grade containers. Ready for immediate pickup.';
+    modal.classList.add('open');
+    document.getElementById('modal-accept-btn').focus();
+  }
+  function closeModal() { modal.classList.remove('open'); modalDonationId = null; }
+
+  document.getElementById('modal-close').addEventListener('click', closeModal);
+  modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+  document.getElementById('modal-accept-btn').addEventListener('click', async () => {
+    if (!modalDonationId) return;
+    try {
+      await request(`/api/ngo/accept/${modalDonationId}`, { method: 'POST' });
+      showToast('Donation Accepted! 🎉', 'Check your Missions section.');
+      pushActivityItem(`Accepted: ${allDonations.find(d=>d.id===modalDonationId)?.food_name || 'Donation'}`, 'Rescue mission started', '🤝');
+      closeModal();
+      await loadAll();
+    } catch (e) { notifyError(e); }
+  });
+
+  document.getElementById('modal-loc-btn').addEventListener('click', () => {
+    const d = allDonations.find(x => x.id === modalDonationId);
+    if (d?.pickup_address || d?.city) {
+      window.open(`https://maps.google.com?q=${encodeURIComponent(d.pickup_address || d.city)}`, '_blank');
+    } else {
+      showToast('Location not specified', 'Contact the donor directly.');
+    }
+  });
+
+  /* ─── ACCEPT INLINE ─── */
+  document.getElementById('donations-feed').addEventListener('click', async e => {
+    const btn = e.target.closest('[data-action="accept"]');
+    if (!btn) return;
+    const id = Number(btn.dataset.id);
+    const d  = allDonations.find(x => x.id === id);
+    try {
+      await request(`/api/ngo/accept/${id}`, { method: 'POST' });
+      showToast('Donation Accepted! 🎉', 'Mission activated in your tracker.');
+      pushActivityItem(`Accepted: ${d?.food_name || 'Donation'}`, 'Rescue mission started', '🤝');
+      await loadAll();
+    } catch (e) { notifyError(e); }
+  });
+
+  /* ─── FILTERS ─── */
+  function applyFilters() {
+    const q      = (document.getElementById('search-food').value || '').toLowerCase();
+    const filter = document.querySelector('.filter-chip.active')?.dataset.filter || 'all';
+
+    const filtered = allDonations.filter(d => {
+      const matchQ = !q ||
+        (d.food_name || '').toLowerCase().includes(q) ||
+        (d.business_name || '').toLowerCase().includes(q) ||
+        (d.city || '').toLowerCase().includes(q);
+      let matchF = true;
+      if (filter === 'veg')     matchF = (d.food_type || 'veg') === 'veg';
+      if (filter === 'non_veg') matchF = (d.food_type) === 'non_veg';
+      if (filter === 'high')    matchF = urgency(d.expiry_time).cls === 'urg-high';
+      return matchQ && matchF;
+    });
+    renderFeed(filtered);
+  }
+
+  document.getElementById('search-food').addEventListener('input', applyFilters);
+  document.getElementById('btn-refresh').addEventListener('click', loadAll);
+
+  document.querySelectorAll('.cat-pill').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.cat-pill').forEach(b => { b.classList.remove('active'); b.setAttribute('aria-selected','false'); });
+      btn.classList.add('active'); btn.setAttribute('aria-selected','true');
+      applyFilters();
+    });
+  });
+
+  document.querySelectorAll('.filter-chip').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.filter-chip').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      applyFilters();
+    });
+  });
+
+  /* ─── NOTIFICATIONS ─── */
+  async function loadNotifications() {
+    try {
+      const res = await request('/api/notifications');
+      const notifs = res.notifications || [];
+      const badge  = document.getElementById('notif-badge');
+      const list   = document.getElementById('notif-list');
+      const label  = document.getElementById('notif-count-label');
+      const count  = notifs.filter(n => !n.read).length;
+
+      if (count > 0) {
+        badge.textContent = count; badge.classList.remove('hidden');
+        label.textContent = `${count} new`;
+      } else {
+        badge.classList.add('hidden');
+        label.textContent = '0 new';
+      }
+
+      list.innerHTML = notifs.length === 0
+        ? '<div style="padding:28px;text-align:center;color:var(--muted);font-size:.83rem;">🎉 No new food alerts.</div>'
+        : notifs.slice(0, 20).map(n => `
+          <div class="notif-item ${n.read ? '' : 'unread'}" data-notif-id="${n.id}">
+            <span class="notif-ico">🍱</span>
+            <div>
+              <div style="font-weight:700;font-size:.83rem;">${escapeHtml(n.title || n.message || 'Food Alert')}</div>
+              <small style="color:var(--muted)">${n.createdAt ? new Date(n.createdAt).toLocaleTimeString() : 'Just now'}</small>
+            </div>
+          </div>`).join('');
+    } catch { /* silent */ }
+  }
+
+  // Bell toggle
+  document.getElementById('notif-bell').addEventListener('click', e => {
+    e.stopPropagation();
+    const panel = document.getElementById('notif-panel');
+    const open  = panel.classList.toggle('open');
+    document.getElementById('notif-bell').setAttribute('aria-expanded', String(open));
+    if (open) loadNotifications();
+  });
+  document.addEventListener('click', e => {
+    if (!e.target.closest('.notif-wrap')) {
+      document.getElementById('notif-panel').classList.remove('open');
+      document.getElementById('notif-bell').setAttribute('aria-expanded', 'false');
+    }
+  });
+
+  document.getElementById('notif-mark-all').addEventListener('click', async () => {
+    try { await request('/api/notifications/read-all', { method: 'POST' }); loadNotifications(); } catch { /* silent */ }
+  });
+
+  /* ─── HIGHLIGHTS (dynamic) ─── */
+  function updateHighlights(donations) {
+    if (!donations.length) return;
+    const track = document.getElementById('highlights-track');
+    const items = [
+      { ico: '🟢', text: `${donations.length} Meals Available` },
+      { ico: '🍽️', text: donations[0]?.food_name || 'Fresh Meals' },
+      { ico: '📍', text: 'Local Kitchens' },
+      { ico: '⚡', text: 'Accept Instantly' },
+      { ico: '💚', text: 'Community Impact' },
+    ];
+    track.innerHTML = items.map(h => `
+      <div class="story-chip">
+        <span class="story-chip-avatar">${h.ico}</span>
+        ${escapeHtml(h.text)}
+      </div>`).join('');
+  }
+
+  /* ─── MAIN DATA LOAD ─── */
+  async function loadAll() {
+    try {
+      const [donRes, histRes] = await Promise.all([
+        request('/api/ngo/donations'),
+        request('/api/ngo/history'),
+      ]);
+
+      allDonations = donRes.donations || [];
+      const history = histRes.donations || [];
+
+      applyFilters();
+      renderHistoryAndMission(history);
+      updateHighlights(allDonations);
+      loadNotifications();
+
+      // push activity based on history
+      if (history.length > 0 && activityItems.length <= 1) {
+        history.slice(0, 4).forEach(h => {
+          const ico = h.status === 'completed' ? '⭐' : (h.status === 'accepted' ? '🤝' : '📦');
+          pushActivityItem(`${h.food_name}: ${h.status}`, h.city || 'Rescue completed', ico);
+        });
+      }
+    } catch (e) { notifyError(e); }
+  }
+
+  /* ─── BOOT ─── */
+  renderActivity();
+  loadAll();
+
+  // Poll every 60s for new donations
+  setInterval(loadAll, 60_000);
+</script>
+</body>
+</html>

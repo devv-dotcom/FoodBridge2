@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en" data-api-base="http://localhost:5000">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Create a FoodBridge account." />
+    <title>Create account · FoodBridge</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;1,600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="auth.css" />
+    <style>select { display: block; width: 100%; margin-top: 0.5rem; }</style>
+  </head>
+  <body data-guest-only="true">
+    <main class="register-main">
+      <section class="intro" aria-label="FoodBridge introduction">
+        <a class="brand" href="index.html"><span class="mark">FB</span>FoodBridge</a>
+        <div><h1>Make every<br /><em>meal matter.</em></h1><p>Create an account to donate food, coordinate distribution, or support a pickup.</p></div>
+        <small>Reducing food waste. Feeding communities.</small>
+      </section>
+      <section class="card">
+        <h2>Create your account</h2>
+        <p class="sub">Choose how you will help FoodBridge.</p>
+        <form data-api-form="register" novalidate>
+          <label>Account type
+            <select name="role" id="reg-role" required>
+              <option value="restaurant">Restaurant</option>
+              <option value="hotel">Hotel</option>
+              <option value="bakery">Bakery</option>
+              <option value="supermarket">Supermarket</option>
+              <option value="catering">Catering service</option>
+              <option value="marriage_hall">Marriage hall</option>
+              <option value="ngo">NGO</option>
+              <option value="volunteer">Volunteer</option>
+            </select>
+          </label>
+          <label>Full name<input name="fullName" autocomplete="name" required maxlength="120" placeholder="Your full name" /></label>
+          <label>Email address<input name="email" type="email" autocomplete="email" required placeholder="you@example.com" /></label>
+
+          <!-- Phone — name switches between mobile (business/ngo) and phone (volunteer) via JS -->
+          <label id="phone-label">Phone number
+            <input name="mobile" id="reg-mobile" type="tel" autocomplete="tel" placeholder="9876543210" />
+            <input name="phone"  id="reg-phone"  type="tel" autocomplete="tel" placeholder="9876543210" style="display:none" disabled />
+          </label>
+
+          <label>Address<input name="address" autocomplete="street-address" required maxlength="255" placeholder="Street address" /></label>
+          <label>City<input name="city" autocomplete="address-level2" required maxlength="100" placeholder="Your city" /></label>
+          <label>State<input name="state" autocomplete="address-level1" required maxlength="100" placeholder="Your state" /></label>
+          <label>Pincode<input name="pincode" autocomplete="postal-code" required maxlength="12" placeholder="Pincode" /></label>
+
+          <!-- Business-only -->
+          <div id="field-business" class="role-fields" hidden>
+            <label>Business name<input name="businessName" maxlength="160" placeholder="Business name" /></label>
+          </div>
+
+          <!-- NGO-only -->
+          <div id="field-ngo" class="role-fields" hidden>
+            <label>NGO / organisation name<input name="ngoName" maxlength="160" placeholder="Organisation name" /></label>
+          </div>
+
+          <!-- Volunteer-only -->
+          <div id="field-volunteer" class="role-fields" hidden>
+            <label>Vehicle type<input name="vehicleType" maxlength="60" placeholder="Bike, car, van, etc." /></label>
+            <label>Driving licence number (optional)<input name="drivingLicenseNumber" maxlength="100" placeholder="Licence number" /></label>
+          </div>
+
+          <label>Password<input name="password" type="password" autocomplete="new-password" required minlength="8" placeholder="At least 8 characters" /></label>
+          <label>Confirm password<input name="confirmPassword" type="password" autocomplete="new-password" required minlength="8" placeholder="Repeat your password" /></label>
+          <button type="submit" id="btn-register">Create account</button>
+        </form>
+        <p class="note">Already registered? <a href="login.html">Sign in.</a></p>
+      </section>
+    </main>
+
+    <script>
+      // Role-based field visibility — plain script so it runs before the module
+      (function () {
+        const BUSINESS_ROLES = new Set(['restaurant','hotel','bakery','supermarket','catering','marriage_hall']);
+        const roleEl        = document.getElementById('reg-role');
+        const fieldBusiness = document.getElementById('field-business');
+        const fieldNgo      = document.getElementById('field-ngo');
+        const fieldVolunteer= document.getElementById('field-volunteer');
+        const mobileInput   = document.getElementById('reg-mobile');
+        const phoneInput    = document.getElementById('reg-phone');
+
+        function applyRole(role) {
+          const isBusiness  = BUSINESS_ROLES.has(role);
+          const isNgo       = role === 'ngo';
+          const isVolunteer = role === 'volunteer';
+
+          fieldBusiness.hidden  = !isBusiness;
+          fieldNgo.hidden       = !isNgo;
+          fieldVolunteer.hidden = !isVolunteer;
+
+          // Volunteer backend expects field name 'phone'; everyone else expects 'mobile'
+          mobileInput.style.display = isVolunteer ? 'none' : '';
+          mobileInput.disabled      = isVolunteer;
+          phoneInput.style.display  = isVolunteer ? ''     : 'none';
+          phoneInput.disabled       = !isVolunteer;
+
+          // Toggle required on conditional inputs
+          const businessNameInput = fieldBusiness.querySelector('[name="businessName"]');
+          const ngoNameInput      = fieldNgo.querySelector('[name="ngoName"]');
+          const vehicleInput      = fieldVolunteer.querySelector('[name="vehicleType"]');
+          if (businessNameInput) businessNameInput.required = isBusiness;
+          if (ngoNameInput)      ngoNameInput.required      = isNgo;
+          if (vehicleInput)      vehicleInput.required      = isVolunteer;
+        }
+
+        applyRole(roleEl.value);
+        roleEl.addEventListener('change', function () { applyRole(this.value); });
+      })();
+    </script>
+    <script type="module" src="js/app.js"></script>
+  </body>
+</html>

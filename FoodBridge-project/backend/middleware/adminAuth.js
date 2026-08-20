@@ -1,0 +1,13 @@
+const Admin = require('../models/Admin');
+
+const requireActiveAdmin = async (req, res, next) => {
+  try {
+    if (req.user?.role !== 'admin') return res.status(403).json({ success: false, message: 'Administrator access is required.' });
+    const admin = await Admin.findByUserId(req.user.id);
+    if (!admin || admin.account_status !== 'active') return res.status(403).json({ success: false, message: 'Your administrator account is not active.' });
+    req.admin = admin;
+    next();
+  } catch (error) { next(error); }
+};
+
+module.exports = { requireActiveAdmin };
