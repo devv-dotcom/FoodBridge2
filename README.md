@@ -13,3 +13,5 @@ FoodBridge/
 2. Configure `backend/.env`.
 3. Start the API with `cd backend` then `pnpm start`.
 4. Serve the `frontend/` directory through a static server. The browser client is configured for `http://localhost:5000` by default.
+
+<!-- Last pushed: 2026-08-20 12:15:15 -->
