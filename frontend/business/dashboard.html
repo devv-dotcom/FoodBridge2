@@ -1,1 +1,241 @@
-<!doctype html><html lang="en" data-api-base="http://localhost:5000"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Business Dashboard · FoodBridge</title><link rel="stylesheet" href="../dashboard.css"></head><body data-required-role="business" data-dashboard="business"><main class="dashboard"><header><a href="../index.html">FoodBridge</a><button data-action="logout">Logout</button></header><h1>Business Dashboard</h1><p>Manage your donations and see your impact.</p><section class="cards"><article class="card">Business<strong data-api-value="businessName">—</strong></article><article class="card">Total donations<strong data-api-value="statistics.totalDonations">—</strong></article></section><section id="donation-history" class="notice">Loading donation history…</section></main><script type="module" src="../js/app.js"></script></body></html>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="FoodBridge Business Partner Portal — List surplus food, monitor live pickups, and download audit certificates." />
+    <title>Business Donor Dashboard · FoodBridge</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500;700&family=Manrope:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;1,600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="../dashboard.css" />
+    <link rel="stylesheet" href="../features.css" />
+    <link rel="stylesheet" href="../css/accessibility.css" />
+    <style>
+      body {
+        margin: 0;
+        background: #f8fafc;
+        color: #0f172a;
+        font-family: 'Manrope', system-ui, sans-serif;
+      }
+      .b-navbar {
+        background: #ffffff;
+        border-bottom: 1px solid #e2e8f0;
+        padding: 16px 28px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+      }
+      .b-brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        text-decoration: none;
+        color: #14532d;
+        font-weight: 800;
+        font-size: 1.25rem;
+      }
+      .b-brand-badge {
+        background: #f59e0b;
+        color: #78350f;
+        font-size: 0.72rem;
+        padding: 3px 8px;
+        border-radius: 6px;
+        font-weight: 800;
+        letter-spacing: .5px;
+      }
+      .b-hero {
+        background: linear-gradient(135deg, #064e3b 0%, #047857 50%, #022c22 100%);
+        color: #ffffff;
+        border-radius: 24px;
+        padding: 36px 40px;
+        margin: 28px 0;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 20px 40px rgba(6, 78, 59, 0.18);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 24px;
+      }
+      .b-hero-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: rgba(255,255,255,0.15);
+        backdrop-filter: blur(10px);
+        padding: 6px 14px;
+        border-radius: 999px;
+        font-size: 0.8rem;
+        font-weight: 800;
+        margin-bottom: 14px;
+        border: 1px solid rgba(255,255,255,0.2);
+      }
+      .b-hero h1 {
+        margin: 0 0 10px;
+        font-size: clamp(1.8rem, 3.2vw, 2.6rem);
+        font-weight: 800;
+      }
+      .b-hero p {
+        margin: 0;
+        max-width: 540px;
+        color: #a7f3d0;
+        font-size: 1.05rem;
+        line-height: 1.6;
+      }
+      .btn-create-donation {
+        background: #f59e0b;
+        color: #14532d;
+        border: none;
+        border-radius: 14px;
+        padding: 14px 24px;
+        font-weight: 800;
+        font-size: 1rem;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        box-shadow: 0 10px 25px rgba(245, 158, 11, 0.35);
+        transition: transform .2s ease;
+      }
+      .btn-create-donation:hover { transform: translateY(-2px); }
+      .b-grid-4 {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 18px;
+        margin-bottom: 32px;
+      }
+      .b-stat-card {
+        background: #ffffff;
+        border-radius: 20px;
+        padding: 22px 24px;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+        transition: transform .2s ease;
+      }
+      .b-stat-card:hover { transform: translateY(-3px); }
+      .b-stat-card .icon {
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        display: grid;
+        place-items: center;
+        font-size: 22px;
+        margin-bottom: 12px;
+      }
+      .b-stat-card .val {
+        font-size: 1.85rem;
+        font-weight: 800;
+        color: #0f172a;
+        margin-bottom: 4px;
+      }
+      .b-stat-card .label {
+        color: #64748b;
+        font-size: 0.86rem;
+        font-weight: 600;
+      }
+    </style>
+  </head>
+  <body data-required-role="business" data-dashboard="business">
+    <!-- Navbar -->
+    <header class="b-navbar">
+      <a class="b-brand" href="../index.html">
+        <span style="display:inline-grid; place-items:center; width:34px; height:34px; border-radius:10px; background:#f59e0b; color:#14532d; font-weight:900;">FB</span>
+        FoodBridge
+        <span class="b-brand-badge">FOOD DONOR</span>
+      </a>
+
+      <div style="display:flex; align-items:center; gap:12px;">
+        <span style="display:inline-flex; align-items:center; gap:6px; background:#f0fdf4; color:#15803d; border:1px solid #bbf7d0; font-weight:800; font-size:.85rem; padding:6px 14px; border-radius:999px;">
+          🏅 <span data-metric="my-badge">Bronze Hero</span> · <span data-metric="my-points">0 pts</span>
+        </span>
+        <button type="button" class="btn-leaderboard-nav" data-action="open-leaderboard" style="background:#f8fafc; border:1px solid #cbd5e1; border-radius:10px; padding:7px 12px; font-weight:700; cursor:pointer;">
+          🏆 Leaderboard
+        </button>
+        <button type="button" class="btn-notification" data-notification-bell aria-label="Notifications" style="background:#f8fafc; border:1px solid #cbd5e1; border-radius:10px; width:38px; height:38px; font-size:16px; cursor:pointer;">
+          🔔
+        </button>
+        <button type="button" data-action="logout" style="background:#fee2e2; color:#b91c1c; border:1px solid #fca5a5; border-radius:10px; padding:7px 14px; font-weight:700; cursor:pointer;">
+          Sign Out
+        </button>
+      </div>
+    </header>
+
+    <!-- Notification Drawer -->
+    <div class="notification-drawer" data-notification-drawer>
+      <header>Live Notifications</header>
+      <ul class="notification-list" data-notification-list>
+        <li class="notification-item">Loading notifications…</li>
+      </ul>
+    </div>
+
+    <!-- Main Content -->
+    <main style="max-width: 1200px; margin: 0 auto; padding: 0 24px 60px;">
+      <!-- Welcome Hero -->
+      <section class="b-hero">
+        <div>
+          <div class="b-hero-badge">🍽️ Verified Business Food Partner</div>
+          <h1>Welcome, <span data-api-value="ownerName">Partner</span> 👋</h1>
+          <p>Turn surplus buffet meals and kitchen portions into verified community impact and official digital certificates.</p>
+        </div>
+        <div>
+          <a class="btn-create-donation" href="../donate.html">
+            <span>➕ List Surplus Food</span>
+          </a>
+        </div>
+      </section>
+
+      <!-- 4 Metric Cards -->
+      <section class="b-grid-4" aria-label="Business impact summary">
+        <div class="b-stat-card">
+          <div class="icon" style="background:#eff6ff; color:#2563eb;">📦</div>
+          <div class="val" data-api-value="statistics.pendingDonations">0</div>
+          <div class="label">Active Donations</div>
+        </div>
+
+        <div class="b-stat-card">
+          <div class="icon" style="background:#f0fdf4; color:#16a34a;">✓</div>
+          <div class="val" data-api-value="statistics.completedDonations">0</div>
+          <div class="label">Completed Rescues</div>
+        </div>
+
+        <div class="b-stat-card">
+          <div class="icon" style="background:#fff7ed; color:#ea580c;">🍲</div>
+          <div class="val" data-api-value="statistics.foodSaved">0</div>
+          <div class="label">Estimated Meals Shared</div>
+        </div>
+
+        <div class="b-stat-card">
+          <div class="icon" style="background:#fefce8; color:#ca8a04;">📜</div>
+          <div class="val" data-api-value="statistics.totalDonations">0</div>
+          <div class="label">Total Published Listings</div>
+        </div>
+      </section>
+
+      <!-- Donation Management & History Section -->
+      <section style="margin-bottom: 40px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+          <div>
+            <h2 style="margin:0; font-size:1.35rem; font-weight:800;">Your Food Donations &amp; Status</h2>
+            <p style="margin:4px 0 0; color:#64748b; font-size:14px;">Track live NGO pickup, dispatch AI recommendations, or download tax certificates.</p>
+          </div>
+          <a class="btn-create-donation" href="../donate.html" style="padding:8px 16px; font-size:13px;">
+            + Post Another Donation
+          </a>
+        </div>
+
+        <div id="donation-history">
+          <div class="notice">Loading your food rescue listings…</div>
+        </div>
+      </section>
+    </main>
+
+    <!-- App Module Scripts -->
+    <script type="module" src="../js/app.js"></script>
+  </body>
+</html>

@@ -10,7 +10,7 @@ export const logout = ({ redirect = true } = {}) => {
 };
 
 const registerEndpoint = role => role === 'ngo' ? '/api/ngo/register' : '/api/auth/register';
-const loginEndpoint = role => role === 'admin' ? '/api/admin/login' : '/api/auth/login';
+const loginEndpoint = () => '/api/auth/login';
 
 export const initAuth = () => {
   window.addEventListener('foodbridge:unauthorized', () => { toast('Your session has expired. Please sign in again.', 'warning'); logout(); });
@@ -122,7 +122,7 @@ export const protectRoute = () => {
 
   // Protected pages: redirect unauthenticated users to login page
   if (requiredRole && (!token || !user)) {
-    location.replace('/login.html');
+    location.replace(location.pathname.includes('/frontend/') ? '/frontend/login.html' : '/login.html');
     return false;
   }
 

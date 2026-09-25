@@ -32,7 +32,13 @@ const DASHBOARD_BY_ROLE = {
   marriage_hall:'/business/dashboard.html',
 };
 
-const dashboardFor = role => DASHBOARD_BY_ROLE[String(role || '').toLowerCase()] || '/index.html';
+const dashboardFor = role => {
+  const target = DASHBOARD_BY_ROLE[String(role || '').toLowerCase()] || '/index.html';
+  if (typeof window !== 'undefined' && window.location.pathname.includes('/frontend/')) {
+    return target.startsWith('/frontend/') ? target : '/frontend' + target;
+  }
+  return target;
+};
 
 // Determine the API base URL
 const isLocal = ['localhost', '127.0.0.1', '::1'].includes(location.hostname);
@@ -153,7 +159,7 @@ if (loginForm) {
     const submit = loginForm.querySelector('[type="submit"]');
     try {
       setLoading(submit, true, 'Verifying credentials…');
-      const endpoint = data.role === 'admin' ? '/api/admin/login' : '/api/auth/login';
+      const endpoint = '/api/auth/login';
       const res = await apiPost(endpoint, { email: data.email, password: data.password, role: data.role });
 
       if (res.requiresOtp) {

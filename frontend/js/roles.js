@@ -14,4 +14,10 @@ export const DASHBOARD_BY_ROLE = Object.freeze({
   marriage_hall: '/business/dashboard.html'
 });
 
-export const dashboardForRole = role => DASHBOARD_BY_ROLE[String(role || '').toLowerCase()] || '/index.html';
+export const dashboardForRole = role => {
+  const target = DASHBOARD_BY_ROLE[String(role || '').toLowerCase()] || '/index.html';
+  if (typeof window !== 'undefined' && window.location.pathname.includes('/frontend/')) {
+    return target.startsWith('/frontend/') ? target : '/frontend' + target;
+  }
+  return target;
+};
