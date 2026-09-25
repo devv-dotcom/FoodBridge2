@@ -1,15 +1,15 @@
 import { clearSession, getSession, login, notifyError, register, request, saveSession } from './api.js';
 import { $, formDataObject, setLoading, toast } from './utils.js';
+import { BUSINESS_ROLES, dashboardForRole } from './roles.js';
 
-const dashboards = { admin: '/admin/dashboard.html', ngo: '/ngo/dashboard.html', volunteer: '/volunteer/dashboard.html', restaurant: '/donate.html', hotel: '/donate.html', bakery: '/donate.html', supermarket: '/donate.html', catering: '/donate.html', marriage_hall: '/donate.html', hostel: '/donate.html', business: '/donate.html' };
-export const dashboardFor = role => dashboards[role] || '/index.html';
+export const dashboardFor = dashboardForRole;
 
 export const logout = ({ redirect = true } = {}) => {
   clearSession();
   if (redirect) location.assign('/login.html');
 };
 
-const registerEndpoint = role => role === 'ngo' ? '/api/ngo/register' : role === 'volunteer' ? '/api/volunteer/register' : '/api/auth/register';
+const registerEndpoint = role => role === 'ngo' ? '/api/ngo/register' : '/api/auth/register';
 const loginEndpoint = role => role === 'admin' ? '/api/admin/login' : '/api/auth/login';
 
 export const initAuth = () => {
@@ -32,15 +32,27 @@ export const initAuth = () => {
         const otpEmailField = $('#otp-email-field');
         const otpHint = $('#otp-hint');
         const otpInput = $('#otp-input');
+        const devOtpBox = $('#dev-otp-box');
+        const devOtpCode = $('#dev-otp-code');
+
         if (otpEmailField) otpEmailField.value = email;
-        if (otpHint) otpHint.textContent = `We sent a 6-digit sign-in code to ${email}. Enter it below.`;
-        if (response.devOtp && otpInput) {
-          otpInput.value = response.devOtp;
+        if (otpHint) otpHint.textContent = `We sent a 6-digit code to ${email}.`;
+
+        if (response.devOtp) {
+          // Dev mode — show the autofill box and pre-fill the input
+          if (devOtpCode) devOtpCode.textContent = response.devOtp;
+          if (devOtpBox) devOtpBox.style.display = 'flex';
+          if (otpInput) otpInput.value = response.devOtp;
+          // Wire autofill button
+          $('#btn-autofill-otp')?.addEventListener('click', () => {
+            if (otpInput && devOtpCode) otpInput.value = devOtpCode.textContent;
+          }, { once: true });
         }
+
         $('#step-credentials')?.setAttribute('hidden', '');
         const stepOtp = $('#step-otp');
-        if (stepOtp) { stepOtp.removeAttribute('hidden'); $('#otp-input')?.focus(); }
-        toast(response.devOtp ? `Sign-in code: ${response.devOtp}` : (response.message || 'Check your email for a sign-in code.'));
+        if (stepOtp) { stepOtp.removeAttribute('hidden'); otpInput?.focus(); }
+        toast(response.devOtp ? `Dev mode: OTP ${response.devOtp} auto-filled below.` : (response.message || 'Check your email for a sign-in code.'));
       } else {
         // Admin login returns token directly (no OTP step)
         saveSession(response);
@@ -100,7 +112,36 @@ export const protectRoute = () => {
   const requiredRole = document.body.dataset.requiredRole;
   const guestOnly = document.body.dataset.guestOnly === 'true';
   const { token, user } = getSession();
-  const isBusinessRole = ['restaurant', 'hotel', 'bakery', 'supermarket', 'catering', 'marriage_hall', 'hostel', 'business'].includes(user?.role);
-  if (requiredRole && (!token || !user || (requiredRole !== 'business' && user.role !== requiredRole) || (requiredRole === 'business' && !isBusinessRole))) { location.replace('/login.html'); return false; }
+  const isBusinessRole = BUSINESS_ROLES.includes(user?.role);
+  const isNgoRole = ['ngo', 'partner'].includes(user?.role);
+
+  // Guest-only pages (login, register): always render the form cleanly
+  if (guestOnly) {
+    return true;
+  }
+
+  // Protected pages: redirect unauthenticated users to login page
+  if (requiredRole && (!token || !user)) {
+    location.replace('/login.html');
+    return false;
+  }
+
+  // Role checks for authenticated users
+  if (requiredRole && token && user) {
+    const userDashboard = dashboardFor(user.role);
+    if ((requiredRole === 'partner' || requiredRole === 'ngo') && !isNgoRole && user?.role !== 'admin') {
+      location.replace(userDashboard);
+      return false;
+    }
+    if (requiredRole === 'business' && !isBusinessRole) {
+      location.replace(userDashboard);
+      return false;
+    }
+    if (requiredRole === 'admin' && user?.role !== 'admin') {
+      location.replace(userDashboard);
+      return false;
+    }
+  }
+
   return true;
 };

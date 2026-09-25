@@ -25,6 +25,11 @@
       input:focus, select:focus { border-color: #2d7a47; box-shadow: 0 0 0 4px rgba(45,122,71,.13); }
       button { margin-top: .4rem; border: 0; border-radius: .75rem; padding: .9rem 1rem; color: #fff; background: #1d6638; cursor: pointer; font: 800 .94rem Manrope, sans-serif; } button:hover { background: #15532c; } button:disabled { cursor: wait; opacity: .72; }
       .note { margin: 1.2rem 0 0; color: #748075; font-size: .8rem; line-height: 1.55; } .note a { color: #1d6638; font-weight: 800; }
+      .demo-bar { margin-top: 1.2rem; padding: 10px 12px; background: #f0f7f1; border: 1px dashed #84b791; border-radius: 12px; font-size: 0.78rem; }
+      .demo-bar span { display: block; font-weight: 800; color: #1b472a; margin-bottom: 6px; }
+      .demo-btns { display: flex; gap: 6px; flex-wrap: wrap; }
+      .demo-btn { margin-top: 0; padding: 5px 10px; font-size: 0.74rem; font-weight: 700; background: #fff; color: #1b472a; border: 1px solid #c2dec9; border-radius: 6px; cursor: pointer; transition: all .15s ease; }
+      .demo-btn:hover { background: #1b472a; color: #fff; }
       @media (max-width: 700px) { main { grid-template-columns: 1fr; min-height: 0; } .intro { min-height: 240px; } .intro p { display: none; } }
     </style>
   </head>
@@ -42,9 +47,9 @@
           <p class="sub">Sign in to continue to your dashboard.</p>
           <form data-api-form="login" novalidate>
             <label>Email address<input id="login-email" name="email" type="email" autocomplete="email" required placeholder="you@example.com" /></label>
-            <label>Password<input name="password" type="password" autocomplete="current-password" required minlength="8" placeholder="Enter your password" /></label>
+            <label>Password<input id="login-password" name="password" type="password" autocomplete="current-password" required minlength="6" placeholder="Enter your password" /></label>
             <label>Account type
-              <select name="role">
+              <select name="role" id="login-role">
                 <option value="restaurant">Restaurant</option>
                 <option value="hotel">Hotel</option>
                 <option value="bakery">Bakery</option>
@@ -52,12 +57,21 @@
                 <option value="catering">Catering Service</option>
                 <option value="marriage_hall">Marriage Hall</option>
                 <option value="ngo">NGO</option>
-                <option value="volunteer">Volunteer</option>
                 <option value="admin">Administrator</option>
               </select>
             </label>
             <button type="submit" id="btn-signin">Sign in</button>
           </form>
+
+          <div class="demo-bar">
+            <span>⚡ Quick Demo Credentials:</span>
+            <div class="demo-btns">
+              <button type="button" class="demo-btn" onclick="document.getElementById('login-email').value='bistro@test.com';document.getElementById('login-password').value='Password@123';document.getElementById('login-role').value='restaurant';">🍽️ Donor</button>
+              <button type="button" class="demo-btn" onclick="document.getElementById('login-email').value='devv305399@gmail.com';document.getElementById('login-password').value='Password@123';document.getElementById('login-role').value='ngo';">🏢 NGO</button>
+              <button type="button" class="demo-btn" onclick="document.getElementById('login-email').value='admin@foodbridge.org';document.getElementById('login-password').value='Admin@123';document.getElementById('login-role').value='admin';">⚡ Admin</button>
+            </div>
+          </div>
+
           <p class="note">New to FoodBridge? <a href="register.html">Create a free account.</a></p>
           <p class="note"><a href="forgot-password.html">Forgot your password?</a></p>
         </div>
@@ -66,6 +80,12 @@
         <div id="step-otp" hidden>
           <h2>Check your email</h2>
           <p class="sub" id="otp-hint">We sent a 6-digit sign-in code to your email address.</p>
+          <!-- Dev-mode OTP autofill box (hidden in production, shown when devOtp is returned) -->
+          <div id="dev-otp-box" style="display:none; align-items:center; gap:8px; margin-bottom:12px; padding:10px 14px; background:#fefce8; border:1px dashed #ca8a04; border-radius:10px; font-size:0.8rem;">
+            <span>🛠️ Dev OTP:</span>
+            <strong id="dev-otp-code" style="font-size:1.1rem; letter-spacing:.2em; color:#1d6638;"></strong>
+            <button type="button" id="btn-autofill-otp" style="margin-top:0; padding:4px 10px; font-size:0.75rem; background:#1d6638; border-radius:6px;">Auto-fill</button>
+          </div>
           <form data-api-form="verify-login-otp" novalidate>
             <input type="hidden" name="email" id="otp-email-field" />
             <label>Sign-in code<input id="otp-input" name="otp" type="text" inputmode="numeric" pattern="\d{6}" maxlength="6" autocomplete="one-time-code" required placeholder="123456" /></label>
