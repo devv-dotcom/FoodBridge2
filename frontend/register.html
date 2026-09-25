@@ -1,116 +1,252 @@
 <!doctype html>
-<html lang="en" data-api-base="http://localhost:5000">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Create a FoodBridge account." />
-    <title>Create account · FoodBridge</title>
+    <meta name="description" content="Join FoodBridge as a Food Donor or NGO Partner." />
+    <title>Create Account · FoodBridge</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;1,600&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="auth.css" />
-    <style>select { display: block; width: 100%; margin-top: 0.5rem; }</style>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500;700&family=Manrope:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;1,600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="css/unified-login.css" />
+    <link rel="stylesheet" href="css/accessibility.css" />
+    <style>
+      .auth-role-selector-3 {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+        margin-bottom: 22px;
+      }
+      .auth-role-card-reg {
+        border: 2px solid #e2e8f0;
+        background: #f8fafc;
+        border-radius: 12px;
+        padding: 12px 10px;
+        text-align: center;
+        cursor: pointer;
+        transition: all .2s ease;
+        font-size: 13px;
+        font-weight: 700;
+        color: #334155;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+        user-select: none;
+      }
+      .auth-role-card-reg span.icon { font-size: 22px; }
+      .auth-role-card-reg.active {
+        border-color: #166534;
+        background: #f0fdf4;
+        color: #166534;
+        box-shadow: 0 4px 14px rgba(22, 101, 52, 0.12);
+      }
+      .form-grid-2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+      }
+      select.auth-input {
+        appearance: auto;
+        padding-left: 14px;
+      }
+      @media (max-width: 600px) {
+        .auth-role-selector-3, .form-grid-2 { grid-template-columns: 1fr; }
+      }
+    </style>
   </head>
-  <body data-guest-only="true">
-    <main class="register-main">
-      <section class="intro" aria-label="FoodBridge introduction">
-        <a class="brand" href="index.html"><span class="mark">FB</span>FoodBridge</a>
-        <div><h1>Make every<br /><em>meal matter.</em></h1><p>Create an account to donate food, coordinate distribution, or support a pickup.</p></div>
-        <small>Reducing food waste. Feeding communities.</small>
-      </section>
-      <section class="card">
-        <h2>Create your account</h2>
-        <p class="sub">Choose how you will help FoodBridge.</p>
-        <form data-api-form="register" novalidate>
-          <label>Account type
-            <select name="role" id="reg-role" required>
-              <option value="restaurant">Restaurant</option>
-              <option value="hotel">Hotel</option>
-              <option value="bakery">Bakery</option>
-              <option value="supermarket">Supermarket</option>
-              <option value="catering">Catering service</option>
-              <option value="marriage_hall">Marriage hall</option>
-              <option value="ngo">NGO</option>
-              <option value="volunteer">Volunteer</option>
-            </select>
-          </label>
-          <label>Full name<input name="fullName" autocomplete="name" required maxlength="120" placeholder="Your full name" /></label>
-          <label>Email address<input name="email" type="email" autocomplete="email" required placeholder="you@example.com" /></label>
+  <body class="unified-login-body" data-guest-only="true">
+    <div class="unified-auth-wrapper">
+      <div class="auth-bg-orb-1" aria-hidden="true"></div>
+      <div class="auth-bg-orb-2" aria-hidden="true"></div>
 
-          <!-- Phone — name switches between mobile (business/ngo) and phone (volunteer) via JS -->
-          <label id="phone-label">Phone number
-            <input name="mobile" id="reg-mobile" type="tel" autocomplete="tel" placeholder="9876543210" />
-            <input name="phone"  id="reg-phone"  type="tel" autocomplete="tel" placeholder="9876543210" style="display:none" disabled />
-          </label>
+      <main class="unified-auth-container" style="max-width: 1080px;">
+        <!-- Left Side: Brand Story & Call to Action -->
+        <section class="auth-brand-side" aria-label="FoodBridge registration intro">
+          <a class="auth-brand-logo" href="index.html">
+            <span style="display:inline-grid; place-items:center; width:34px; height:34px; border-radius:10px; background:#f59e0b; color:#14532d; font-weight:900;">FB</span>
+            FoodBridge
+          </a>
 
-          <label>Address<input name="address" autocomplete="street-address" required maxlength="255" placeholder="Street address" /></label>
-          <label>City<input name="city" autocomplete="address-level2" required maxlength="100" placeholder="Your city" /></label>
-          <label>State<input name="state" autocomplete="address-level1" required maxlength="100" placeholder="Your state" /></label>
-          <label>Pincode<input name="pincode" autocomplete="postal-code" required maxlength="12" placeholder="Pincode" /></label>
+          <div class="auth-brand-content">
+            <h1 class="auth-brand-heading">Make Every<br /><em>Meal Matter.</em></h1>
+            <p class="auth-brand-sub">Join thousands of food donors and community NGOs rescuing quality surplus food daily.</p>
 
-          <!-- Business-only -->
-          <div id="field-business" class="role-fields" hidden>
-            <label>Business name<input name="businessName" maxlength="160" placeholder="Business name" /></label>
+            <div class="auth-impact-highlights">
+
+              <div class="auth-impact-item">
+                <div class="auth-impact-icon">🍽️</div>
+                <div class="auth-impact-text">
+                  <strong>Business Donors</strong>
+                  <small>Turn surplus into tax receipts & verified audit certificates</small>
+                </div>
+              </div>
+
+              <div class="auth-impact-item">
+                <div class="auth-impact-icon">🏢</div>
+                <div class="auth-impact-text">
+                  <strong>NGO Partners</strong>
+                  <small>Receive fresh meals for orphanages, shelters & families</small>
+                </div>
+              </div>
+            </div>
           </div>
 
-          <!-- NGO-only -->
-          <div id="field-ngo" class="role-fields" hidden>
-            <label>NGO / organisation name<input name="ngoName" maxlength="160" placeholder="Organisation name" /></label>
+          <div class="auth-brand-footer">
+            Food Rescue Community · Zero Hunger Initiative
+          </div>
+        </section>
+
+        <!-- Right Side: Registration Form -->
+        <section class="auth-form-side" style="padding: 36px 40px; overflow-y: auto; max-height: 85vh;">
+          <div class="auth-header" style="margin-bottom: 20px;">
+            <h2>Create Your Account</h2>
+            <p>Choose your role to get started with FoodBridge.</p>
           </div>
 
-          <!-- Volunteer-only -->
-          <div id="field-volunteer" class="role-fields" hidden>
-            <label>Vehicle type<input name="vehicleType" maxlength="60" placeholder="Bike, car, van, etc." /></label>
-            <label>Driving licence number (optional)<input name="drivingLicenseNumber" maxlength="100" placeholder="Licence number" /></label>
+          <!-- Role Selector: 2 Core Roles -->
+          <div class="auth-role-selector-3" role="tablist" style="grid-template-columns:1fr 1fr;">
+            <div class="auth-role-card-reg active" data-role="restaurant" role="tab" tabindex="0">
+              <span class="icon">🍽️</span>
+              <span>Food Donor</span>
+            </div>
+            <div class="auth-role-card-reg" data-role="ngo" role="tab" tabindex="0">
+              <span class="icon">🏢</span>
+              <span>NGO Partner</span>
+            </div>
           </div>
 
-          <label>Password<input name="password" type="password" autocomplete="new-password" required minlength="8" placeholder="At least 8 characters" /></label>
-          <label>Confirm password<input name="confirmPassword" type="password" autocomplete="new-password" required minlength="8" placeholder="Repeat your password" /></label>
-          <button type="submit" id="btn-register">Create account</button>
-        </form>
-        <p class="note">Already registered? <a href="login.html">Sign in.</a></p>
-      </section>
-    </main>
+          <form class="auth-form" data-api-form="register" novalidate>
+            <input type="hidden" name="role" id="reg-role" value="restaurant" />
 
+            <div class="form-grid-2">
+              <div class="auth-field">
+                <label class="auth-label" for="reg-fullName">Full Name</label>
+                <input class="auth-input" style="padding-left:14px;" id="reg-fullName" name="fullName" required placeholder="e.g. Rahul Sharma" />
+              </div>
+              <div class="auth-field">
+                <label class="auth-label" for="reg-email">Email Address</label>
+                <input class="auth-input" style="padding-left:14px;" id="reg-email" name="email" type="email" autocomplete="email" required placeholder="you@example.com" />
+              </div>
+            </div>
+
+            <div class="form-grid-2">
+              <div class="auth-field">
+                <label class="auth-label" for="reg-mobile">Phone Number</label>
+                <input class="auth-input" style="padding-left:14px;" id="reg-mobile" name="mobile" type="tel" required placeholder="9876543210" />
+              </div>
+              <div class="auth-field">
+                <label class="auth-label" for="reg-city">City</label>
+                <input class="auth-input" style="padding-left:14px;" id="reg-city" name="city" required placeholder="e.g. Hyderabad" />
+              </div>
+            </div>
+
+            <div class="form-grid-2">
+              <div class="auth-field">
+                <label class="auth-label" for="reg-state">State</label>
+                <input class="auth-input" style="padding-left:14px;" id="reg-state" name="state" required placeholder="e.g. Telangana" />
+              </div>
+              <div class="auth-field">
+                <label class="auth-label" for="reg-pincode">Pincode</label>
+                <input class="auth-input" style="padding-left:14px;" id="reg-pincode" name="pincode" required placeholder="e.g. 500001" />
+              </div>
+            </div>
+
+
+            <!-- Dynamic Role Specific Fields -->
+            <div id="field-donor-type" style="display:none;" class="auth-field">
+              <label class="auth-label" for="reg-donor-subtype">Donor Business Type</label>
+              <select class="auth-input" id="reg-donor-subtype">
+                <option value="restaurant">Restaurant</option>
+                <option value="hotel">Hotel / Banquet</option>
+                <option value="bakery">Artisan Bakery</option>
+                <option value="supermarket">Supermarket / Grocery</option>
+                <option value="catering">Catering Service</option>
+                <option value="marriage_hall">Marriage Hall</option>
+              </select>
+            </div>
+
+            <div id="field-business-name" style="display:none;" class="auth-field">
+              <label class="auth-label" for="reg-businessName">Business / Establishment Name</label>
+              <input class="auth-input" style="padding-left:14px;" id="reg-businessName" name="businessName" placeholder="e.g. Royal Palace Banquet" />
+            </div>
+
+
+            <div id="field-ngo-name" style="display:none;" class="auth-field">
+              <label class="auth-label" for="reg-ngoName">NGO / Foundation Name</label>
+              <input class="auth-input" style="padding-left:14px;" id="reg-ngoName" name="ngoName" placeholder="e.g. Hope Harvest Community Kitchen" />
+            </div>
+
+            <div class="auth-field">
+              <label class="auth-label" for="reg-address">Street Address</label>
+              <input class="auth-input" style="padding-left:14px;" id="reg-address" name="address" required placeholder="Area / Street address" />
+            </div>
+
+
+            <div class="form-grid-2">
+              <div class="auth-field">
+                <label class="auth-label" for="reg-password">Password</label>
+                <input class="auth-input" style="padding-left:14px;" id="reg-password" name="password" type="password" required minlength="8" placeholder="At least 8 chars" />
+              </div>
+              <div class="auth-field">
+                <label class="auth-label" for="reg-confirmPassword">Confirm Password</label>
+                <input class="auth-input" style="padding-left:14px;" id="reg-confirmPassword" name="confirmPassword" type="password" required minlength="8" placeholder="Repeat password" />
+              </div>
+            </div>
+
+            <button type="submit" class="auth-btn-submit" id="btn-register" style="background:#166534; color:#fff; border:none; border-radius:14px; padding:14px; font-weight:800; font-size:15px; cursor:pointer; width:100%; margin-top:8px;">
+              Create Free Account →
+            </button>
+          </form>
+
+          <p style="margin-top:16px; font-size:13px; color:#64748b; text-align:center;">
+            Already have an account? <a href="login.html" style="color:#166534; font-weight:800; text-decoration:none;">Sign in</a>
+          </p>
+        </section>
+      </main>
+    </div>
+
+    <script src="js/login.js"></script>
     <script>
-      // Role-based field visibility — plain script so it runs before the module
-      (function () {
-        const BUSINESS_ROLES = new Set(['restaurant','hotel','bakery','supermarket','catering','marriage_hall']);
-        const roleEl        = document.getElementById('reg-role');
-        const fieldBusiness = document.getElementById('field-business');
-        const fieldNgo      = document.getElementById('field-ngo');
-        const fieldVolunteer= document.getElementById('field-volunteer');
-        const mobileInput   = document.getElementById('reg-mobile');
-        const phoneInput    = document.getElementById('reg-phone');
-
-        function applyRole(role) {
-          const isBusiness  = BUSINESS_ROLES.has(role);
-          const isNgo       = role === 'ngo';
-          const isVolunteer = role === 'volunteer';
-
-          fieldBusiness.hidden  = !isBusiness;
-          fieldNgo.hidden       = !isNgo;
-          fieldVolunteer.hidden = !isVolunteer;
-
-          // Volunteer backend expects field name 'phone'; everyone else expects 'mobile'
-          mobileInput.style.display = isVolunteer ? 'none' : '';
-          mobileInput.disabled      = isVolunteer;
-          phoneInput.style.display  = isVolunteer ? ''     : 'none';
-          phoneInput.disabled       = !isVolunteer;
-
-          // Toggle required on conditional inputs
-          const businessNameInput = fieldBusiness.querySelector('[name="businessName"]');
-          const ngoNameInput      = fieldNgo.querySelector('[name="ngoName"]');
-          const vehicleInput      = fieldVolunteer.querySelector('[name="vehicleType"]');
-          if (businessNameInput) businessNameInput.required = isBusiness;
-          if (ngoNameInput)      ngoNameInput.required      = isNgo;
-          if (vehicleInput)      vehicleInput.required      = isVolunteer;
-        }
-
-        applyRole(roleEl.value);
-        roleEl.addEventListener('change', function () { applyRole(this.value); });
+      // Show donor fields by default (Food Donor is the default active role)
+      (function initRoleFields() {
+        document.getElementById('field-donor-type').style.display = '';
+        document.getElementById('field-business-name').style.display = '';
+        document.getElementById('field-ngo-name').style.display = 'none';
       })();
+
+      // Role selection tabs in registration
+      document.querySelectorAll('.auth-role-card-reg').forEach(card => {
+        card.addEventListener('click', () => {
+          document.querySelectorAll('.auth-role-card-reg').forEach(c => c.classList.remove('active'));
+          card.classList.add('active');
+          const role = card.dataset.role;
+          const regRoleInput = document.getElementById('reg-role');
+          const fieldDonor = document.getElementById('field-donor-type');
+          const fieldBizName = document.getElementById('field-business-name');
+          const fieldNgoName = document.getElementById('field-ngo-name');
+
+          if (role === 'restaurant') {
+            const subType = document.getElementById('reg-donor-subtype').value;
+            regRoleInput.value = subType;
+            fieldDonor.style.display = '';
+            fieldBizName.style.display = '';
+            fieldNgoName.style.display = 'none';
+          } else if (role === 'ngo') {
+            regRoleInput.value = 'ngo';
+            fieldDonor.style.display = 'none';
+            fieldBizName.style.display = 'none';
+            fieldNgoName.style.display = '';
+          }
+        });
+      });
+
+      document.getElementById('reg-donor-subtype')?.addEventListener('change', function() {
+        const regRoleInput = document.getElementById('reg-role');
+        if (regRoleInput.value !== 'ngo') {
+          regRoleInput.value = this.value;
+        }
+      });
     </script>
-    <script type="module" src="js/app.js"></script>
   </body>
 </html>
