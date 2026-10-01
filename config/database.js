@@ -2,6 +2,7 @@ const mysql = require('mysql2/promise');
 require('dotenv').config();
 
 const dbUrl = process.env.MYSQL_URL || process.env.DATABASE_URL;
+const isTiDb = Boolean(process.env.TIDB_HOST);
 
 let pool;
 
@@ -16,16 +17,16 @@ if (dbUrl) {
   });
 } else {
   pool = mysql.createPool({
-    host: process.env.DB_HOST || 'localhost',
-    port: Number(process.env.DB_PORT || 3306),
-    user: process.env.DB_USER || 'root',
-    password: process.env.DB_PASSWORD || '',
-    database: process.env.DB_NAME || 'foodbridge',
+    host: process.env.TIDB_HOST || process.env.DB_HOST || 'localhost',
+    port: Number(process.env.TIDB_PORT || process.env.DB_PORT || 3306),
+    user: process.env.TIDB_USER || process.env.DB_USER || 'root',
+    password: process.env.TIDB_PASSWORD || process.env.DB_PASSWORD || '',
+    database: process.env.TIDB_DATABASE || process.env.DB_NAME || 'foodbridge',
     waitForConnections: true,
     connectionLimit: 10,
     queueLimit: 0,
     timezone: 'Z',
-    ssl: (process.env.DB_SSL === 'true' || process.env.NODE_ENV === 'production') ? { rejectUnauthorized: false } : undefined
+    ssl: (isTiDb || process.env.DB_SSL === 'true' || process.env.NODE_ENV === 'production') ? { rejectUnauthorized: false } : undefined
   });
 }
 
