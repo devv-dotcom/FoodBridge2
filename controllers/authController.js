@@ -11,6 +11,17 @@ const serializeUser = user => ({ id: user.id, name: user.full_name, email: user.
 const otpHash = otp => crypto.createHash('sha256').update(otp).digest('hex');
 const loginOtpLifetimeMs = Number(process.env.LOGIN_OTP_TTL_MS || 10 * 60 * 1000);
 
+const deliveryFailureMessage = error => {
+  const detail = String(error?.message || '').toLowerCase();
+  if (/sender|from.*email|invalid.*email/.test(detail)) {
+    return 'The OTP sender is not verified. Verify the MAIL_FROM email in Brevo, then try again.';
+  }
+  if (/api.?key|unauthori[sz]ed|forbidden|authentication/.test(detail)) {
+    return 'The email service needs a valid Brevo API key. Update BREVO_API_KEY in Render, then try again.';
+  }
+  return 'We could not deliver a sign-in code. Please try again later.';
+};
+
 
 const Volunteer = require('../models/Volunteer');
 const NGO = require('../models/NGO');
@@ -123,7 +134,7 @@ exports.login = async (req, res, next) => {
 
     if (mailFailed) {
       await User.clearLoginOtp(user.id);
-      return res.status(503).json({ success: false, message: 'We could not deliver a sign-in code. Please try again later.' });
+      return res.status(503).json({ success: false, message: deliveryFailureMessage(mailError) });
     }
 
     return res.json({
@@ -165,7 +176,7 @@ exports.resendLoginOtp = async (req, res, next) => {
     } catch (mailError) {
       await User.clearLoginOtp(user.id);
       console.warn('Login OTP resend delivery failed.', { code: mailError.code || 'MAIL_DELIVERY_FAILED' });
-      return res.status(503).json({ success: false, message: 'We could not deliver a sign-in code. Please try again later.' });
+      return res.status(503).json({ success: false, message: deliveryFailureMessage(mailError) });
     }
     return res.json({
       success: true,

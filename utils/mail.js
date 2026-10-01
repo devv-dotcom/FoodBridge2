@@ -1,11 +1,14 @@
 const nodemailer = require('nodemailer');
 
-// Gmail only permits sending as the authenticated account or a verified
-// "Send mail as" alias. Use the authenticated account to avoid OTP delivery
-// failures when MAIL_FROM is configured with an unverified address.
-const fromAddress = process.env.MAIL_HOST?.toLowerCase() === 'smtp.gmail.com' && process.env.MAIL_USER
-  ? `Food Rescue <${process.env.MAIL_USER}>`
-  : (process.env.MAIL_FROM || process.env.MAIL_USER);
+const usingBrevo = Boolean(process.env.BREVO_API_KEY);
+
+// Brevo validates its own verified sender.  Prefer MAIL_FROM when using its
+// HTTPS API; the Gmail restriction only applies to the SMTP fallback.
+const fromAddress = usingBrevo
+  ? (process.env.MAIL_FROM || process.env.MAIL_USER)
+  : (process.env.MAIL_HOST?.toLowerCase() === 'smtp.gmail.com' && process.env.MAIL_USER
+    ? `Food Rescue <${process.env.MAIL_USER}>`
+    : (process.env.MAIL_FROM || process.env.MAIL_USER));
 
 const transporter = nodemailer.createTransport({
   host: process.env.MAIL_HOST,
@@ -14,13 +17,17 @@ const transporter = nodemailer.createTransport({
   auth: { user: process.env.MAIL_USER, pass: process.env.MAIL_PASSWORD }
 });
 
-const senderMatch = String(fromAddress || '').match(/^(.*?)\s*<([^>]+)>$/);
+const senderValue = String(fromAddress || '').trim();
+const senderMatch = senderValue.match(/^(.*?)\s*<([^>]+)>$/);
+const looseEmailMatch = senderValue.match(/([\w.+-]+@[\w.-]+\.[A-Za-z]{2,})/);
 const brevoSender = senderMatch
   ? { name: senderMatch[1].trim(), email: senderMatch[2].trim() }
-  : { email: fromAddress };
+  : looseEmailMatch
+    ? { name: senderValue.replace(looseEmailMatch[1], '').trim(), email: looseEmailMatch[1] }
+    : { email: senderValue };
 
 async function deliver(message) {
-  if (!process.env.BREVO_API_KEY) return transporter.sendMail(message);
+  if (!usingBrevo) return transporter.sendMail(message);
 
   const response = await fetch('https://api.brevo.com/v3/smtp/email', {
     method: 'POST',
