@@ -13,11 +13,32 @@ const loginOtpLifetimeMs = Number(process.env.LOGIN_OTP_TTL_MS || 10 * 60 * 1000
 
 const deliveryFailureMessage = error => {
   const detail = String(error?.message || '').toLowerCase();
+  if (error?.code === 'BREVO_API_KEY_MISSING') {
+    return 'Email delivery is not configured. Add BREVO_API_KEY to the Render environment and redeploy.';
+  }
+  if (error?.code === 'BREVO_HTTP_401') {
+    return 'Brevo rejected the API key. Create a new Brevo API key and update BREVO_API_KEY in Render.';
+  }
+  if (error?.code === 'BREVO_HTTP_402') {
+    return 'Brevo has not activated transactional email for this account. Complete its account or sender checks, then try again.';
+  }
+  if (error?.code === 'BREVO_HTTP_403') {
+    return 'Brevo blocked this send. Check account activation, sender verification, and any API IP restrictions.';
+  }
+  if (error?.code === 'BREVO_HTTP_429') {
+    return 'Brevo is rate limiting email delivery. Wait a few minutes, then request a new code.';
+  }
+  if (error?.code?.startsWith('BREVO_HTTP_5')) {
+    return 'Brevo is temporarily unavailable. Wait a few minutes, then request a new code.';
+  }
   if (/sender|from.*email|invalid.*email/.test(detail)) {
     return 'The OTP sender is not verified. Verify the MAIL_FROM email in Brevo, then try again.';
   }
   if (/api.?key|unauthori[sz]ed|forbidden|authentication/.test(detail)) {
     return 'The email service needs a valid Brevo API key. Update BREVO_API_KEY in Render, then try again.';
+  }
+  if (/domain|dmarc|dkim|spf|freemail/.test(detail)) {
+    return 'Brevo rejected the sender domain authentication. Use a sender on a domain you can authenticate with DKIM and DMARC.';
   }
   return 'We could not deliver a sign-in code. Please try again later.';
 };

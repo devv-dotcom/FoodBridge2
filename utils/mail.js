@@ -27,7 +27,12 @@ const brevoSender = senderMatch
     : { email: senderValue };
 
 async function deliver(message) {
-  if (!usingBrevo) return transporter.sendMail(message);
+  if (!usingBrevo) {
+    if (process.env.NODE_ENV !== 'production') return transporter.sendMail(message);
+    const error = new Error('BREVO_API_KEY is not configured; the SMTP fallback may be unavailable on this host.');
+    error.code = 'BREVO_API_KEY_MISSING';
+    throw error;
+  }
 
   const response = await fetch('https://api.brevo.com/v3/smtp/email', {
     method: 'POST',
@@ -47,7 +52,10 @@ async function deliver(message) {
 
   if (!response.ok) {
     const detail = await response.text();
-    throw new Error(`Brevo email request failed (${response.status}): ${detail}`);
+    const error = new Error(`Brevo email request failed (${response.status}): ${detail}`);
+    error.code = `BREVO_HTTP_${response.status}`;
+    error.statusCode = response.status;
+    throw error;
   }
 }
 
