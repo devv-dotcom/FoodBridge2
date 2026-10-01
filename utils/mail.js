@@ -14,8 +14,38 @@ const transporter = nodemailer.createTransport({
   auth: { user: process.env.MAIL_USER, pass: process.env.MAIL_PASSWORD }
 });
 
+const senderMatch = String(fromAddress || '').match(/^(.*?)\s*<([^>]+)>$/);
+const brevoSender = senderMatch
+  ? { name: senderMatch[1].trim(), email: senderMatch[2].trim() }
+  : { email: fromAddress };
+
+async function deliver(message) {
+  if (!process.env.BREVO_API_KEY) return transporter.sendMail(message);
+
+  const response = await fetch('https://api.brevo.com/v3/smtp/email', {
+    method: 'POST',
+    headers: {
+      accept: 'application/json',
+      'api-key': process.env.BREVO_API_KEY,
+      'content-type': 'application/json'
+    },
+    body: JSON.stringify({
+      sender: brevoSender,
+      to: [{ email: message.to }],
+      subject: message.subject,
+      textContent: message.text,
+      htmlContent: message.html
+    })
+  });
+
+  if (!response.ok) {
+    const detail = await response.text();
+    throw new Error(`Brevo email request failed (${response.status}): ${detail}`);
+  }
+}
+
 async function sendPasswordOtp({ email, fullName, otp }) {
-  await transporter.sendMail({
+  await deliver({
     from: fromAddress,
     to: email,
     subject: 'Your Food Rescue password reset code',
@@ -25,7 +55,7 @@ async function sendPasswordOtp({ email, fullName, otp }) {
 }
 
 async function sendLoginOtp({ email, fullName, otp }) {
-  await transporter.sendMail({
+  await deliver({
     from: fromAddress,
     to: email,
     subject: 'Your Food Rescue sign-in code',
