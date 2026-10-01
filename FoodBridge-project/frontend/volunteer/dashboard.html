@@ -1,1 +1,66 @@
-<!doctype html><html lang="en" data-api-base="http://localhost:5000"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Volunteer Dashboard · FoodBridge</title><link rel="stylesheet" href="../dashboard.css"></head><body data-required-role="volunteer" data-dashboard="volunteer"><main class="dashboard"><header><a href="../index.html">FoodBridge</a><button data-action="logout">Logout</button></header><h1>Volunteer Dashboard</h1><p>See pickup assignments and delivery history.</p><section id="assigned-pickups" class="notice">Loading assigned pickups…</section><section id="pickup-history" class="notice">Loading pickup history…</section></main><script type="module" src="../js/app.js"></script></body></html>
+<!doctype html>
+<html lang="en" data-api-base="http://localhost:5000">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <title>Volunteer Dashboard · FoodBridge</title>
+    <link rel="stylesheet" href="../dashboard.css" />
+  </head>
+  <body data-required-role="volunteer" data-dashboard="volunteer">
+    <main class="dashboard">
+      <header>
+        <a href="../index.html" style="font-weight: 800; text-decoration: none; color: #1d6638; font-size: 1.25rem;">FoodBridge</a>
+        <div class="header-actions">
+          <button type="button" class="btn-leaderboard-nav" data-action="open-leaderboard">🏆 Leaderboard</button>
+          <button type="button" class="btn-notification" data-notification-bell aria-label="Notifications">🔔</button>
+          <button data-action="logout">Logout</button>
+        </div>
+      </header>
+
+      <!-- Notification Drawer -->
+      <div class="notification-drawer" data-notification-drawer>
+        <header>Notifications</header>
+        <ul class="notification-list" data-notification-list>
+          <li class="notification-item">Loading notifications…</li>
+        </ul>
+      </div>
+
+      <!-- Emergency Alert Banner -->
+      <div id="emergency-alert-banner" class="emergency-banner" hidden></div>
+
+      <h1>Volunteer Dashboard</h1>
+      <p>Live pickup tracking, nearby food collections, and impact badges.</p>
+
+      <section class="cards">
+        <article class="card">Volunteer<strong data-api-value="fullName">—</strong></article>
+        <article class="card card-active">Deliveries<strong data-api-value="completedDeliveries">0</strong></article>
+        <article class="card">Rating<strong data-api-value="rating">5.0 ⭐</strong></article>
+        <article class="card card-active">Impact Points<strong data-metric="my-points">0 pts</strong></article>
+      </section>
+
+      <section>
+        <h2>Your Active Pickup Assignments & GPS Route</h2>
+        <div id="assigned-pickups" class="notice">Loading assigned pickups…</div>
+      </section>
+
+      <section style="margin-top:36px;">
+        <h2>Available Pickups in Your Area</h2>
+        <div id="available-pickup-list" class="notice">Checking for nearby pickups…</div>
+      </section>
+
+      <section style="margin-top:36px;">
+        <h2>Delivery Proof Submission</h2>
+        <form data-api-form="delivery-proof" style="background:#fff; border-radius:18px; padding:20px; border:1px solid #eef2eb;">
+          <p style="margin:0 0 10px; font-weight:700;">Upload photo receipt or beneficiary handover picture upon arrival:</p>
+          <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
+            <input type="file" accept="image/png,image/jpeg,image/webp" required style="padding:8px;" />
+            <input type="text" name="notes" placeholder="Notes (e.g. Received by orphanage warden)" style="padding:9px; border:1px solid #cbd5e1; border-radius:8px; flex:1;" />
+            <button type="submit">Upload Delivery Proof</button>
+          </div>
+          <img data-proof-preview hidden style="width:120px; height:120px; object-fit:cover; border-radius:10px; margin-top:10px;" alt="Proof preview" />
+        </form>
+      </section>
+    </main>
+    <script type="module" src="../js/app.js"></script>
+  </body>
+</html>

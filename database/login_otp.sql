@@ -1,5 +1,5 @@
 -- Adds a separate short-lived code for multi-factor sign-in.
--- Run once for existing FoodBridge databases.
+-- Run once for existing Food Rescue databases.
 USE foodbridge;
 
 ALTER TABLE users

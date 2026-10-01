@@ -1,4 +1,4 @@
-# FoodBridge: Modules 6 and 7
+# Food Rescue: Modules 6 and 7
 
 ## 1. Folder Structure
 

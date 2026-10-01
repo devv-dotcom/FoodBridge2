@@ -1,10 +1,10 @@
 @echo off
-title FoodBridge - Git Push
+title Food Rescue - Git Push
 set GIT_SSH=C:\Windows\System32\OpenSSH\ssh.exe
 set PATH=%PATH%;C:\Program Files\Git\bin;C:\Program Files\Git\cmd;C:\Program Files\Git\mingw64\bin
 
 echo ========================================
-echo   FoodBridge - Push to GitHub
+echo   Food Rescue - Push to GitHub
 echo ========================================
 echo.
 

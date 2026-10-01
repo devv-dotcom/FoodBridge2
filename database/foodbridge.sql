@@ -1,4 +1,4 @@
--- FoodBridge master database setup
+-- Food Rescue master database setup
 -- Run this file from the project root with the MySQL client, for example:
 --   mysql -u root -p < database/foodbridge.sql
 --

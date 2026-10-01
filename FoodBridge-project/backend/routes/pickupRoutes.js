@@ -5,6 +5,11 @@ const { uploadDeliveryProof } = require('../middleware/upload');
 const { deliveryProofValidation } = require('../middleware/validation');
 
 const router = express.Router();
+
+// Live tracking route accessible to all authenticated users, donors, NGOs, or public tracking
+router.get('/track/:id', controller.trackPickup);
+
+// Volunteer-protected operations
 router.use(authenticate, authorizeRoles('volunteer'), requireActiveAccount);
 router.get('/', controller.getPickupRequests);
 router.get('/:id', controller.getPickupById);
@@ -13,5 +18,7 @@ router.put('/start/:id', controller.startPickup);
 router.put('/collect/:id', controller.collectFood);
 router.put('/deliver/:id', controller.deliverFood);
 router.put('/complete/:id', controller.completePickup);
+router.put('/location/:id', controller.updateLocation);
 router.post('/proof/:id', uploadDeliveryProof, deliveryProofValidation, controller.uploadDeliveryProof);
+
 module.exports = router;

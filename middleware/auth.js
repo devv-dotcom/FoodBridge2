@@ -22,7 +22,7 @@ const authorizeRoles = (...roles) => (req, res, next) => {
   next();
 };
 
-const BUSINESS_ROLES = ['restaurant', 'hotel', 'bakery', 'supermarket', 'catering', 'marriage_hall'];
+const { BUSINESS_ROLES } = require('../config/roles');
 const authorizeBusiness = authorizeRoles(...BUSINESS_ROLES);
 
 const requireActiveAccount = async (req, res, next) => {

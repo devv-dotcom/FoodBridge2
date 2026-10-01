@@ -1,1 +1,77 @@
-<!doctype html><html lang="en" data-api-base="http://localhost:5000"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Admin Dashboard · FoodBridge</title><link rel="stylesheet" href="../dashboard.css"></head><body data-required-role="admin" data-dashboard="admin"><main class="dashboard"><header><a href="../index.html">FoodBridge</a><button data-action="logout">Logout</button></header><h1>Admin Dashboard</h1><p>Monitor FoodBridge activity and manage the platform.</p><section class="cards"><article class="card">Users<strong data-api-value="total_users">—</strong></article><article class="card">Donations<strong data-api-value="total_donations">—</strong></article><article class="card">Meals rescued<strong data-api-value="meals_rescued">—</strong></article></section><canvas data-chart="donationGrowth" data-label="Monthly donations"></canvas></main><script type="module" src="../js/app.js"></script></body></html>
+<!doctype html>
+<html lang="en" data-api-base="http://localhost:5000">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <title>Live Operations Admin Dashboard · FoodBridge</title>
+    <link rel="stylesheet" href="../dashboard.css" />
+  </head>
+  <body data-required-role="admin" data-dashboard="admin">
+    <main class="dashboard">
+      <header>
+        <a href="../index.html" style="font-weight: 800; text-decoration: none; color: #1d6638; font-size: 1.25rem;">FoodBridge Operations</a>
+        <div class="header-actions">
+          <button type="button" class="btn-leaderboard-nav" data-action="open-leaderboard">🏆 Leaderboard</button>
+          <button type="button" class="btn-notification" data-notification-bell aria-label="Notifications">🔔</button>
+          <button data-action="logout">Logout</button>
+        </div>
+      </header>
+
+      <!-- Notification Drawer -->
+      <div class="notification-drawer" data-notification-drawer>
+        <header>Admin Notifications</header>
+        <ul class="notification-list" data-notification-list>
+          <li class="notification-item">Loading notifications…</li>
+        </ul>
+      </div>
+
+      <h1>Live Operations Dashboard</h1>
+      <p>Real-time platform activity, live donation status buckets, interactive geographic heatmap, and partner verification.</p>
+
+      <!-- Today's Live Rescue Metrics -->
+      <section style="margin: 28px 0;">
+        <h2 style="font-size:1.15rem; color:#1d6638; margin-bottom:12px;">LIVE DONATION RESCUE PIPELINE</h2>
+        <div class="cards" style="margin-top:0;">
+          <article class="card card-urgent">🔴 Urgent (&lt;2h)<strong data-metric="urgent-donations" style="color:#e11d48;">0</strong></article>
+          <article class="card">🟡 Available<strong data-metric="available-donations" style="color:#d97706;">0</strong></article>
+          <article class="card card-active">🟢 Active In-Transit<strong data-metric="active-operations" style="color:#16a34a;">0</strong></article>
+          <article class="card">🔵 Completed<strong data-metric="completed-donations" style="color:#2563eb;">0</strong></article>
+        </div>
+      </section>
+
+      <!-- Environmental Savings Real-Time Analytics -->
+      <section style="margin: 28px 0;">
+        <h2 style="font-size:1.15rem; color:#1d6638; margin-bottom:12px;">ENVIRONMENTAL &amp; SOCIAL IMPACT (VERIFIED DB)</h2>
+        <div class="cards" style="margin-top:0;">
+          <article class="card">🍱 Meals Rescued<strong data-api-value="meals_rescued">0</strong></article>
+          <article class="card">⚖️ Food Saved (KG)<strong data-metric="kg-food-saved">0 kg</strong></article>
+          <article class="card">🌿 CO₂ Avoided<strong data-metric="co2-avoided">0 kg</strong></article>
+          <article class="card">🤝 Beneficiaries Reached<strong data-metric="beneficiaries">0</strong></article>
+        </div>
+      </section>
+
+      <!-- Interactive Live Map & Heatmap -->
+      <section style="margin: 32px 0;">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <h2 style="margin:0;">🗺️ Live Operations &amp; Donation Heatmap</h2>
+          <span style="font-size:0.82rem; color:#64748b;">🔴 Urgent &bull; 🟡 Available &bull; 🟢 NGOs &bull; 🚚 Volunteers</span>
+        </div>
+        <div data-live-map style="height: 400px; width: 100%; border-radius: 18px; margin-top: 14px; border: 1px solid #cbd5e1; box-shadow: 0 10px 25px rgba(0,0,0,0.06);"></div>
+      </section>
+
+      <!-- Trust & Verification Approval Queue -->
+      <section style="margin: 32px 0;">
+        <h2>🛡️ Trust &amp; Verification — Pending Approvals</h2>
+        <p style="margin-top:-14px; font-size:0.88rem; color:#666;">Verify licenses, FSSAI certificates, and registration documents for pending businesses, NGOs, and volunteers.</p>
+        <div id="pending-moderation-list" class="notice">Checking verification queue…</div>
+      </section>
+
+      <!-- Monthly Trends Chart -->
+      <section style="margin: 32px 0;">
+        <h2>Monthly Donation Trends</h2>
+        <canvas data-chart="donationGrowth" data-label="Monthly donations"></canvas>
+      </section>
+    </main>
+    <script type="module" src="../js/app.js"></script>
+  </body>
+</html>

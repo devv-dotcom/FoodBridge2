@@ -1,6 +1,6 @@
 /**
- * Food Rescue · Food Rescue Partner Application
- * Single unified frontend for NGO and Volunteer roles.
+ * Food Rescue Partner Application
+ * Unified frontend for the existing NGO and Partner roles.
  * All API calls go to /api/partner/* endpoints.
  */
 
@@ -8,7 +8,7 @@ import { request, getSession, saveSession, clearSession, notifyError, API_BASE }
 import { dashboardForRole } from './roles.js';
 import { initTheme, initExpiryCountdowns, initEmergencyBanner, initLiveOperationsMap } from './features.js';
 import { openSmartMatchModal } from './smartMatch.js';
-import { openLiveTracker, startVolunteerLocationBroadcaster } from './liveTracking.js';
+import { openLiveTracker } from './liveTracking.js';
 import { downloadCertificate } from './certificate.js';
 import { openLeaderboardModal, renderLeaderboardToContainer } from './leaderboard.js';
 
@@ -134,10 +134,12 @@ document.addEventListener('DOMContentLoaded', async () => {
   const { token, user } = getSession();
   if (!token || !user) {
     clearSession();
-    location.replace(location.pathname.includes('/frontend/') ? '/frontend/login.html' : '/login.html');
+    const prefix = location.pathname.includes('/frontend/') ? '/frontend' : '';
+    const returnTo = `${location.pathname}${location.search}${location.hash}`;
+    location.replace(`${prefix}/login.html?redirect=${encodeURIComponent(returnTo)}`);
     return;
   }
-  if (!['ngo', 'admin', 'partner'].includes(String(user.role || '').toLowerCase())) {
+  if (!['ngo', 'partner'].includes(String(user.role || '').toLowerCase())) {
     location.replace(dashboardForRole(user.role));
     return;
   }
@@ -851,11 +853,6 @@ function renderTrackerView() {
         ${actionHTML}
       </div>
     </div>`;
-
-  // If active user is volunteer, start GPS tracking broadcaster
-  if (state.user?.role === 'volunteer' && a.id) {
-    startVolunteerLocationBroadcaster(a.id);
-  }
 
   // Bind action buttons
   bindTrackerActions(a, status);

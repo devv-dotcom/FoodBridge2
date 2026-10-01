@@ -5,6 +5,15 @@ module.exports = {
     const [rows] = await pool.execute(`SELECT n.*, u.full_name AS creator_name FROM notifications n JOIN admins a ON a.id = n.created_by JOIN users u ON u.id = a.user_id ORDER BY n.created_at DESC LIMIT ? OFFSET ?`, [limit, offset]);
     return rows;
   },
+  async listForUser(userId, role = 'all') {
+    const [rows] = await pool.execute(
+      `SELECT n.* FROM notifications n
+       WHERE n.recipient_user_id = ? OR n.target_role IN (?, 'all') OR n.recipient_user_id IS NULL
+       ORDER BY n.created_at DESC LIMIT 30`,
+      [userId, role]
+    );
+    return rows;
+  },
   async create(adminId, data) {
     const [result] = await pool.execute('INSERT INTO notifications (created_by, recipient_user_id, target_role, title, message) VALUES (?, ?, ?, ?, ?)', [adminId, data.recipientUserId || null, data.targetRole || 'all', data.title, data.message]);
     return result.insertId;

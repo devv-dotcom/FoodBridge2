@@ -1,6 +1,6 @@
 /**
  * login.js — Self-contained, robust auth module for login & register.
- * Provides instant 1-click test credentials, dev OTP auto-fill, and role routing.
+ * Provides instant 1-click test credentials and role routing.
  */
 
 const $ = sel => document.querySelector(sel);
@@ -168,24 +168,16 @@ if (loginForm) {
         const emailField = $('#otp-email-field');
         const hint       = $('#otp-hint');
         const otpInput   = $('#otp-input');
-        const devOtpBox  = $('#dev-otp-box');
-        const devOtpCode = $('#dev-otp-code');
 
         if (emailField) emailField.value = pendingEmail;
         if (hint) hint.textContent = `A 6-digit sign-in code was sent to ${pendingEmail}.`;
-
-        if (res.devOtp && devOtpBox && devOtpCode) {
-          devOtpBox.style.display = 'flex';
-          devOtpCode.textContent = res.devOtp;
-          if (otpInput) otpInput.value = res.devOtp;
-        }
 
         $('#step-credentials')?.setAttribute('hidden', '');
         const stepOtp = $('#step-otp');
         if (stepOtp) { stepOtp.removeAttribute('hidden'); otpInput?.focus(); }
         toast(res.message || 'Check your email for your sign-in code.');
       } else {
-        // Direct login (Admin or verified)
+        // Handle a completed authentication response.
         saveSession(res);
         toast(`Welcome back, ${res.user.name || 'User'}! Redirecting…`);
         setTimeout(() => location.assign(dashboardFor(res.user.role)), 500);
@@ -198,16 +190,6 @@ if (loginForm) {
   });
 }
 
-// Dev Auto-fill OTP button
-$('#btn-autofill-otp')?.addEventListener('click', () => {
-  const code = $('#dev-otp-code')?.textContent;
-  const otpInput = $('#otp-input');
-  if (code && otpInput) {
-    otpInput.value = code;
-    toast('Code auto-filled!', 'success');
-  }
-});
-
 // ── Step 2: OTP verification ───────────────────────────────────────────────
 const otpForm = $('[data-api-form="verify-login-otp"]');
 if (otpForm) {
@@ -219,13 +201,13 @@ if (otpForm) {
       setLoading(submit, true, 'Verifying code…');
       const res = await apiPost('/api/auth/verify-login-otp', {
         email: data.email || pendingEmail,
-        otp: data.otp || '123456'
+        otp: data.otp
       });
       saveSession(res);
       toast('Verification successful! Opening your workspace…');
       setTimeout(() => location.assign(dashboardFor(res.user.role)), 500);
     } catch (err) {
-      toast(err.message || 'Invalid or expired code. Try 123456 in dev mode.', 'error');
+      toast(err.message || 'Invalid or expired sign-in code.', 'error');
     } finally {
       setLoading(submit, false);
     }
@@ -240,10 +222,6 @@ $('#resend-otp-link')?.addEventListener('click', async e => {
   try {
     const res = await apiPost('/api/auth/resend-login-otp', { email });
     toast('A new sign-in code has been sent.');
-    if (res.devOtp && $('#dev-otp-code')) {
-      $('#dev-otp-code').textContent = res.devOtp;
-      if ($('#otp-input')) $('#otp-input').value = res.devOtp;
-    }
   } catch (err) {
     toast(err.message || 'Could not resend code.', 'error');
   }

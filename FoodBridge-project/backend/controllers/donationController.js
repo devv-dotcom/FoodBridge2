@@ -2,9 +2,29 @@ const path = require('path');
 const pool = require('../config/database');
 const Donation = require('../models/Donation');
 const DonationImage = require('../models/DonationImage');
+const { sendNotification, awardPoints } = require('../utils/notify');
 
 const imagePaths = files => (files || []).map(file => `/${path.relative(path.join(__dirname, '..'), file.path).split(path.sep).join('/')}`);
 const pagination = query => ({ limit: Math.min(Math.max(Number(query.limit) || 20, 1), 100), offset: Math.max(Number(query.offset) || 0, 0) });
+
+const enrichWithCountdown = d => {
+  if (!d) return d;
+  const now = Date.now();
+  const expiry = new Date(d.expiry_time).getTime();
+  const diffMs = expiry - now;
+  const diffHours = diffMs / (1000 * 60 * 60);
+  const diffMins = Math.max(0, Math.floor(diffMs / (1000 * 60)));
+  const hrs = Math.floor(diffMins / 60);
+  const mins = diffMins % 60;
+  
+  return {
+    ...d,
+    hours_remaining: Number(diffHours.toFixed(1)),
+    is_urgent: diffHours <= 2.5 && diffHours > 0,
+    is_expired: diffMs <= 0,
+    countdown_text: diffMs <= 0 ? 'Expired' : `${hrs}h ${mins}m left`
+  };
+};
 
 exports.createDonation = async (req, res, next) => {
   if (!req.files?.length) return res.status(422).json({ success: false, message: 'At least one food image is required.' });
@@ -18,8 +38,22 @@ exports.createDonation = async (req, res, next) => {
     await connection.beginTransaction();
     const donationId = await Donation.create(connection, req.user.id, req.body);
     await DonationImage.createMany(connection, donationId, imagePaths(req.files));
+    
+    // Award 25 listing points to donor
+    await awardPoints(req.user.id, 25, connection);
+
+    // Automated broadcast notification to NGOs
+    const isUrgent = (new Date(req.body.expiryTime).getTime() - Date.now()) <= 2.5 * 3600000;
+    await sendNotification({
+      targetRole: 'ngo',
+      title: isUrgent ? '🚨 URGENT: Food Donation Needs Rescue' : '🍲 New Food Donation Available',
+      message: `${req.body.foodName} (${req.body.quantity}) listed at ${req.body.pickupAddress || 'your area'}.`,
+      connection
+    });
+
     await connection.commit();
-    return res.status(201).json({ success: true, message: 'Donation published successfully with verified food safety.', donation: await Donation.findById(donationId) });
+    const createdDonation = enrichWithCountdown(await Donation.findById(donationId));
+    return res.status(201).json({ success: true, message: 'Donation published successfully with verified food safety.', donation: createdDonation });
   } catch (error) { await connection.rollback(); next(error); } finally { connection.release(); }
 };
 
@@ -28,12 +62,15 @@ exports.getDonation = async (req, res, next) => {
     const donation = await Donation.findById(req.params.id);
     if (!donation) return res.status(404).json({ success: false, message: 'Donation not found.' });
     donation.images = await Donation.getImages(donation.id);
-    return res.json({ success: true, donation });
+    return res.json({ success: true, donation: enrichWithCountdown(donation) });
   } catch (error) { next(error); }
 };
 
 exports.getAllDonations = async (req, res, next) => {
-  try { return res.json({ success: true, donations: await Donation.list(pagination(req.query)) }); } catch (error) { next(error); }
+  try {
+    const list = await Donation.list(pagination(req.query));
+    return res.json({ success: true, donations: list.map(enrichWithCountdown) });
+  } catch (error) { next(error); }
 };
 
 exports.searchDonation = async (req, res, next) => {
@@ -41,7 +78,8 @@ exports.searchDonation = async (req, res, next) => {
     const term = `%${(req.query.q || '').trim()}%`;
     if (term === '%%') return res.status(422).json({ success: false, message: 'Provide a search term.' });
     const where = 'WHERE d.food_name LIKE ? OR c.name LIKE ? OR u.city LIKE ? OR u.business_name LIKE ? OR d.status LIKE ?';
-    return res.json({ success: true, donations: await Donation.list({ where, values: [term, term, term, term, term], ...pagination(req.query) }) });
+    const list = await Donation.list({ where, values: [term, term, term, term, term], ...pagination(req.query) });
+    return res.json({ success: true, donations: list.map(enrichWithCountdown) });
   } catch (error) { next(error); }
 };
 
@@ -62,7 +100,47 @@ exports.filterDonation = async (req, res, next) => {
       values.push(latitude, longitude, latitude, radiusKm);
     }
     const where = clauses.length ? `WHERE ${clauses.join(' AND ')}` : '';
-    return res.json({ success: true, donations: await Donation.list({ where, values, ...pagination(req.query) }) });
+    const list = await Donation.list({ where, values, ...pagination(req.query) });
+    return res.json({ success: true, donations: list.map(enrichWithCountdown) });
+  } catch (error) { next(error); }
+};
+
+exports.getEmergencyDonations = async (_req, res, next) => {
+  try {
+    const [rows] = await pool.execute(`
+      SELECT d.*, c.name AS category_name, u.business_name, u.full_name AS owner_name, u.city AS business_city,
+        (SELECT image_path FROM donation_images WHERE donation_id = d.id ORDER BY id ASC LIMIT 1) AS food_image
+      FROM donations d
+      JOIN food_categories c ON c.id = d.category_id
+      JOIN users u ON u.id = d.business_user_id
+      WHERE d.status = 'available' AND d.deleted_at IS NULL AND (d.is_emergency = TRUE OR d.expiry_time <= DATE_ADD(NOW(), INTERVAL 2 HOUR))
+      ORDER BY d.expiry_time ASC
+      LIMIT 20
+    `);
+    return res.json({ success: true, donations: rows.map(enrichWithCountdown) });
+  } catch (error) { next(error); }
+};
+
+exports.emergencyBroadcast = async (req, res, next) => {
+  try {
+    const donation = await Donation.findById(req.params.id);
+    if (!donation) return res.status(404).json({ success: false, message: 'Donation not found.' });
+
+    await pool.execute('UPDATE donations SET is_emergency = TRUE WHERE id = ?', [donation.id]);
+
+    await sendNotification({
+      targetRole: 'volunteer',
+      title: '🚨 EMERGENCY RESCUE BROADCAST',
+      message: `URGENT RESCUE: ${donation.food_name} (${donation.quantity}) at ${donation.pickup_address || donation.city} needs immediate collection before spoiling!`
+    });
+
+    await sendNotification({
+      targetRole: 'ngo',
+      title: '🚨 EMERGENCY RESCUE BROADCAST',
+      message: `URGENT RESCUE: ${donation.food_name} (${donation.quantity}) needs immediate acceptance!`
+    });
+
+    return res.json({ success: true, message: 'Emergency alert broadcasted to all active volunteers and NGOs!' });
   } catch (error) { next(error); }
 };
 
@@ -72,7 +150,7 @@ exports.updateDonation = async (req, res, next) => {
     const updated = await Donation.update(req.params.id, req.user.id, req.body);
     if (!updated) return res.status(404).json({ success: false, message: 'Donation not found, unavailable, or cannot be edited after acceptance.' });
     if (req.files?.length) await DonationImage.addMany(req.params.id, imagePaths(req.files));
-    return res.json({ success: true, message: 'Donation updated successfully.', donation: await Donation.findById(req.params.id) });
+    return res.json({ success: true, message: 'Donation updated successfully.', donation: enrichWithCountdown(await Donation.findById(req.params.id)) });
   } catch (error) { next(error); }
 };
 

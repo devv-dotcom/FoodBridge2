@@ -66,6 +66,14 @@ const User = {
   async clearLoginOtp(userId) {
     await pool.execute('UPDATE users SET login_otp = NULL, login_otp_expires_at = NULL WHERE id = ?', [userId]);
   },
+
+  async consumeLoginOtp(userId, otpHash) {
+    const [result] = await pool.execute(
+      'UPDATE users SET login_otp = NULL, login_otp_expires_at = NULL WHERE id = ? AND login_otp = ? AND login_otp_expires_at > ?',
+      [userId, otpHash, new Date()]
+    );
+    return result.affectedRows === 1;
+  },
   async markEmailVerified(userId) {
     await pool.execute('UPDATE users SET is_verified = TRUE WHERE id = ?', [userId]);
   },

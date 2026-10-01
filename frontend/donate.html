@@ -1,10 +1,10 @@
 <!doctype html>
-<html lang="en" data-api-base="http://localhost:5000">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Turn your surplus food into meals for people in need. Donate food safely and reduce food waste with FoodBridge." />
-    <title>Donate Food · FoodBridge</title>
+    <meta name="description" content="Turn your surplus food into meals for people in need. Donate food safely and reduce food waste with Food Rescue." />
+    <title>Donate Food · Food Rescue</title>
     
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -20,6 +20,7 @@
     <link rel="stylesheet" href="responsive.css" />
     <link rel="stylesheet" href="features.css" />
     <link rel="stylesheet" href="css/donate.css" />
+    <link rel="stylesheet" href="css/accessibility.css" />
   </head>
   <body data-required-role="business">
     <div class="cursor-dot" aria-hidden="true"></div>
@@ -28,10 +29,10 @@
 
     <!-- Site Header Navigation -->
     <header class="site-header" id="top">
-      <a class="brand" href="index.html" aria-label="FoodBridge home">
-        <span class="brand-mark"><i></i><i></i><i></i></span>FoodBridge<sup>®</sup>
+      <a class="brand" href="index.html" aria-label="Food Rescue home">
+        <span class="brand-mark"><i></i><i></i><i></i></span>Food Rescue<sup>®</sup>
       </a>
-      <button class="menu-toggle" aria-label="Open navigation" aria-expanded="false">
+      <button class="menu-toggle" type="button" aria-label="Open navigation" aria-expanded="false">
         <span></span><span></span>
       </button>
       <nav class="main-nav" aria-label="Main navigation">
@@ -40,8 +41,8 @@
         <a href="#how-it-works">How It Works</a>
         <a class="active" href="donate.html">Donate Food</a>
         <a href="index.html#network">Find NGOs</a>
-        <a href="index.html#volunteer">Volunteer</a>
         <a href="freshness.html">Freshness Predictor</a>
+        <a href="index.html#contact">Contact</a>
       </nav>
       <div style="display:flex; align-items:center; gap:12px;">
         <button class="theme-toggle" type="button" aria-label="Toggle dark mode" aria-pressed="false">◐</button>
@@ -90,7 +91,7 @@
             <!-- Hero Visual Illustration -->
             <div class="donor-hero-visual">
               <div class="donor-art-frame">
-                <img src="images/food_rescue_donor.jpg" alt="Food donor handing fresh meal box to volunteer" width="700" height="480" />
+                <img src="images/food_rescue_donor.jpg" alt="Food donor handing fresh meal box to partner NGO" width="700" height="480" />
               </div>
               <div class="donor-float-card donor-float-1">
                 <div class="donor-float-icon orange">🍲</div>
@@ -105,7 +106,7 @@
                 </div>
                 <div class="donor-float-text">
                   <strong>Live Pickup Match</strong>
-                  <small>Volunteers active nearby</small>
+                  <small>NGOs active nearby</small>
                 </div>
               </div>
             </div>
@@ -138,7 +139,7 @@
                 <i data-lucide="map-pin"></i>
               </div>
               <h3 class="donor-step-title">2. We Find a Match</h3>
-              <p class="donor-step-desc">Our platform connects your donation with nearby verified volunteers or non-profit organizations.</p>
+              <p class="donor-step-desc">Our platform connects your donation with nearby verified non-profit organizations (NGOs).</p>
             </div>
 
             <div class="donor-step-card">
@@ -165,7 +166,7 @@
                 <div class="donor-success-icon">🎉</div>
                 <h2 class="donor-success-title">Thank You for Making a Difference!</h2>
                 <p class="donor-success-desc">
-                  Your food donation has been submitted successfully. We'll notify you as soon as a volunteer or partner NGO accepts the request.
+                  Your food donation has been submitted successfully. We'll notify you as soon as a partner NGO accepts the request.
                 </p>
 
                 <div class="donor-success-card">
@@ -184,6 +185,19 @@
                   <div class="donor-success-row">
                     <span>Estimated Response Time:</span>
                     <strong>15–30 minutes</strong>
+                  </div>
+                </div>
+
+                <!-- Nearby Food Rescue Partners Section -->
+                <div id="nearby-partners-container" style="margin-top:24px; text-align:left; border-top:1px solid #e2e8f0; padding-top:20px;">
+                  <h3 style="font-size:18px; font-weight:800; color:#1e293b; margin:0 0 4px; display:flex; align-items:center; gap:8px;">
+                    <span>🏛️</span> Nearby Food Rescue Partners
+                  </h3>
+                  <p style="font-size:13px; color:#64748b; margin:0 0 16px;">
+                    We've found organizations near you that may be able to collect this food.
+                  </p>
+                  <div id="nearby-partners-list" style="display:flex; flex-direction:column; gap:10px;">
+                    <!-- Dynamically populated after submission -->
                   </div>
                 </div>
 
@@ -335,7 +349,7 @@
                       <div class="donor-dropzone-icon"><i data-lucide="upload-cloud"></i></div>
                       <div class="donor-dropzone-text">
                         <strong>Upload Food Photos</strong>
-                        <small>Clear photos help volunteers understand the food better. (Drag &amp; drop or click to upload)</small>
+                        <small>Clear photos help with food identification. (Drag &amp; drop or click to upload)</small>
                       </div>
                       <input data-donation-image type="file" accept="image/png,image/jpeg,image/webp" multiple required style="position:absolute; inset:0; opacity:0; cursor:pointer;" />
                     </div>
@@ -489,7 +503,7 @@
               <div class="donor-activity-icon">🍛</div>
               <div class="donor-activity-body">
                 <h5>50 Meals Donated</h5>
-                <p>Successfully collected by a nearby volunteer for distribution.</p>
+                <p>Successfully collected for distribution.</p>
               </div>
             </div>
 
@@ -530,11 +544,11 @@
     <footer style="background:#1e1e1e; color:#fff; padding:60px 0 30px;">
       <div class="donor-container" style="display:grid; grid-template-columns:1fr 1fr; gap:30px; align-items:center;">
         <div>
-          <a class="brand" href="index.html" style="color:#fff;"><span class="brand-mark"><i></i><i></i><i></i></span>FoodBridge<sup>®</sup></a>
+          <a class="brand" href="index.html" style="color:#fff;"><span class="brand-mark"><i></i><i></i><i></i></span>Food Rescue<sup>®</sup></a>
           <p style="font-size:14px; color:#94a3b8; margin:10px 0 0;">Connecting food surplus with people in need. Zero waste. Full hearts.</p>
         </div>
         <div style="text-align:right; font-size:12px; color:#64748b;">
-          &copy; 2026 FoodBridge Inc. All rights reserved.
+          &copy; 2026 Food Rescue. All rights reserved.
         </div>
       </div>
     </footer>

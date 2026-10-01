@@ -1,5 +1,12 @@
-/* FoodBridge UI interactions: navigation, cursor, magnetic controls and live counters. */
+/* Food Rescue UI interactions: navigation, cursor, magnetic controls and live counters. */
 document.addEventListener('DOMContentLoaded', () => {
+  // Lucide does not ship brand-logo glyphs. Replace former brand-only names
+  // with equivalent supported icons before creating the icon set.
+  const fallbackIcons = { instagram: 'camera', linkedin: 'briefcase-business', facebook: 'thumbs-up', github: 'code-2', twitter: 'message-circle' };
+  document.querySelectorAll('[data-lucide]').forEach(icon => {
+    const fallback = fallbackIcons[icon.dataset.lucide];
+    if (fallback) icon.dataset.lucide = fallback;
+  });
   lucide.createIcons({ strokeWidth: 1.7 });
   const header = document.querySelector('.site-header');
   const progress = document.querySelector('.scroll-progress');
@@ -9,8 +16,19 @@ document.addEventListener('DOMContentLoaded', () => {
     header.classList.toggle('scrolled', window.scrollY > 30);
     progress.style.width = `${(window.scrollY / (document.documentElement.scrollHeight - innerHeight)) * 100}%`;
   }, { passive: true });
-  menu?.addEventListener('click', () => { nav.classList.toggle('is-open'); menu.setAttribute('aria-expanded', nav.classList.contains('is-open')); });
-  nav?.querySelectorAll('a').forEach(link => link.addEventListener('click', () => nav.classList.remove('is-open')));
+  const setMenuState = open => {
+    nav?.classList.toggle('is-open', open);
+    menu?.setAttribute('aria-expanded', String(open));
+    menu?.setAttribute('aria-label', open ? 'Close navigation' : 'Open navigation');
+  };
+  menu?.addEventListener('click', () => setMenuState(!nav.classList.contains('is-open')));
+  nav?.querySelectorAll('a').forEach(link => link.addEventListener('click', () => setMenuState(false)));
+  document.addEventListener('keydown', event => {
+    if (event.key === 'Escape' && nav?.classList.contains('is-open')) {
+      setMenuState(false);
+      menu?.focus();
+    }
+  });
 
   // Trusted Partners: CountUp keeps the headline numbers crisp while Swiper handles touch and keyboard-friendly testimonials.
   const trustStats = document.querySelector('.trust-stats');
@@ -35,24 +53,6 @@ document.addEventListener('DOMContentLoaded', () => {
       pagination: { el: '.voice-pagination', clickable: true },
       a11y: { enabled: true }
     });
-  }
-
-  const liveCounters = [...document.querySelectorAll('[data-live-count]')];
-  if (liveCounters.length && window.countUp?.CountUp) {
-    const refreshLiveCounters = () => liveCounters.forEach(counter => {
-      const current = Number(counter.dataset.liveCount);
-      const next = current + Number(counter.dataset.liveStep || 1);
-      counter.dataset.liveCount = String(next);
-      const animation = new window.countUp.CountUp(counter, next, { startVal: current, duration: .7, separator: ',' });
-      if (!animation.error) animation.start();
-    });
-    const liveCounterObserver = new IntersectionObserver(entries => entries.forEach(entry => {
-      if (!entry.isIntersecting || entry.target.dataset.liveStarted) return;
-      entry.target.dataset.liveStarted = 'true';
-      refreshLiveCounters();
-      window.setInterval(() => { if (!document.hidden) refreshLiveCounters(); }, 5200);
-    }), { threshold: .3 });
-    liveCounterObserver.observe(document.querySelector('.live-counters'));
   }
 
   const partnerTooltip = document.querySelector('.partner-map-tooltip');
@@ -99,7 +99,7 @@ document.addEventListener('DOMContentLoaded', () => {
     { icon: 'shield-check', label: 'Step 02 · Freshness confirmed', title: 'Collect food<br /><em>with care.</em>', body: 'A quick verification keeps every meal safe, traceable, and ready to share.', count: '98', unit: 'quality score' },
     { icon: 'navigation', label: 'Step 03 · Your route is ready', title: 'Let a good route<br /><em>find you.</em>', body: 'Live directions keep the handoff simple, timely, and close to home.', count: '2.4', unit: 'km away' },
     { icon: 'heart-handshake', label: 'Step 04 · A shared table', title: 'Arrive with<br /><em>something good.</em>', body: 'A warm handoff brings rescued meals directly to an NGO partner.', count: '42', unit: 'plates shared' },
-    { icon: 'award', label: 'Step 05 · Your impact grows', title: 'Good work earns<br /><em>its glow.</em>', body: 'Each rescue becomes a lasting part of your FoodBridge story.', count: '180', unit: 'points earned' }
+    { icon: 'award', label: 'Step 05 · Your impact grows', title: 'Good work earns<br /><em>its glow.</em>', body: 'Each rescue becomes a lasting part of your Food Rescue story.', count: '180', unit: 'points earned' }
   ];
   const activateMissionStep = index => {
     const state = missionStates[index];
@@ -115,12 +115,12 @@ document.addEventListener('DOMContentLoaded', () => {
   };
   missionSteps.forEach((step, index) => step.addEventListener('click', () => activateMissionStep(index)));
 
-  const ngoNumbers = [...document.querySelectorAll('[data-volunteer-count]')];
+  const ngoNumbers = [...document.querySelectorAll('[data-partner-count]')];
   if (ngoNumbers.length && window.countUp?.CountUp) {
     const ngoObserver = new IntersectionObserver(entries => entries.forEach(entry => {
       if (!entry.isIntersecting || entry.target.dataset.counted) return;
       entry.target.dataset.counted = 'true';
-      ngoNumbers.forEach(number => new window.countUp.CountUp(number, Number(number.dataset.volunteerCount), { duration: 1.8, separator: ',' }).start());
+      ngoNumbers.forEach(number => new window.countUp.CountUp(number, Number(number.dataset.partnerCount), { duration: 1.8, separator: ',' }).start());
     }), { threshold: .45 });
     ngoObserver.observe(document.querySelector('.ngo-highlight'));
   }
@@ -138,8 +138,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const featuredStory = document.querySelector('.featured-story');
   const storyStates = {
-    ngo: { quote: 'We feed over <em>500 families</em> every week.', copy: 'FoodBridge makes it possible for Hope Circle to plan each table with confidence and care.', name: 'Nisha Kapoor', role: 'NGO manager · Hope Circle', place: 'Delhi, India', impact: '2,840', unit: 'meals shared', image: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=1100&q=82&fm=webp' },
-    volunteer: { quote: 'Helping people has never been <em>this easy.</em>', copy: 'A nearby alert, a simple route, and a warm welcome at the other end make every rescue feel possible.', name: 'Maya Thomas', role: 'Volunteer · FoodBridge', place: 'Bengaluru, India', impact: '96', unit: 'rescues completed', image: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=1100&q=82&fm=webp' },
+    ngo: { quote: 'We feed over <em>500 families</em> every week.', copy: 'Food Rescue makes it possible for Hope Circle to plan each table with confidence and care.', name: 'Nisha Kapoor', role: 'NGO manager · Hope Circle', place: 'Delhi, India', impact: '2,840', unit: 'meals shared', image: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=1100&q=82&fm=webp' },
     wedding: { quote: 'Leftover wedding food now feeds <em>hundreds.</em>', copy: 'A grand celebration can leave behind another generous moment for a neighbourhood.', name: 'Kavya Reddy', role: 'Marriage hall partner · Saanvi Gardens', place: 'Vizag, India', impact: '760', unit: 'plates shared', image: 'https://images.unsplash.com/photo-1556761175-b413da4baf72?auto=format&fit=crop&w=1100&q=82&fm=webp' }
   };
   document.querySelectorAll('.river-track article[data-story]').forEach(card => card.addEventListener('click', () => {
@@ -164,11 +163,15 @@ document.addEventListener('DOMContentLoaded', () => {
   document.querySelector('.story-play')?.addEventListener('click', event => {
     const surface = event.currentTarget.closest('.video-surface');
     surface.classList.toggle('is-playing');
-    event.currentTarget.setAttribute('aria-label', surface.classList.contains('is-playing') ? 'Pause FoodBridge success story preview' : 'Play FoodBridge success story');
+    event.currentTarget.setAttribute('aria-label', surface.classList.contains('is-playing') ? 'Pause Food Rescue success story preview' : 'Play Food Rescue success story');
   });
 
   const faqItems = [...document.querySelectorAll('.faq-item')];
-  faqItems.forEach(item => item.querySelector('button')?.addEventListener('click', () => {
+  faqItems.forEach((item, index) => {
+    const button = item.querySelector('button');
+    const number = button?.querySelector('span');
+    if (number) number.textContent = String(index + 1).padStart(2, '0');
+    button?.addEventListener('click', () => {
     const shouldOpen = !item.classList.contains('open');
     faqItems.forEach(entry => {
       entry.classList.remove('open');
@@ -178,7 +181,8 @@ document.addEventListener('DOMContentLoaded', () => {
       item.classList.add('open');
       item.querySelector('button')?.setAttribute('aria-expanded', 'true');
     }
-  }));
+    });
+  });
 
   document.querySelector('.newsletter-form')?.addEventListener('submit', event => {
     event.preventDefault();

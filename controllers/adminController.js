@@ -19,21 +19,17 @@ exports.login = async (req, res, next) => {
     if (!admin || admin.account_status !== 'active' || !(await bcrypt.compare(req.body.password, admin.password))) return res.status(401).json({ success: false, message: 'Invalid administrator email or password.' });
     const otp = crypto.randomInt(100000, 1000000).toString();
     await User.saveLoginOtp(admin.email, otpHash(otp), new Date(Date.now() + Number(process.env.LOGIN_OTP_TTL_MS || 10 * 60 * 1000)));
-    const isDev = process.env.NODE_ENV !== 'production';
     try {
       await sendLoginOtp({ email: admin.email, fullName: admin.full_name, otp });
     } catch (mailError) {
-      if (!isDev) {
-        await User.clearLoginOtp(admin.id);
-        console.error('Administrator OTP delivery failed.', { code: mailError.code || 'MAIL_DELIVERY_FAILED' });
-        return res.status(503).json({ success: false, message: 'We could not deliver a sign-in code. Please try again later.' });
-      }
+      await User.clearLoginOtp(admin.id);
+      console.error('Administrator OTP delivery failed.', { code: mailError.code || 'MAIL_DELIVERY_FAILED' });
+      return res.status(503).json({ success: false, message: 'We could not deliver a sign-in code. Please try again later.' });
     }
     return res.json({
       success: true,
       requiresOtp: true,
       email: admin.email,
-      devOtp: isDev ? otp : undefined,
       message: 'We sent a 6-digit administrator sign-in code to your email.'
     });
   } catch (error) { next(error); }

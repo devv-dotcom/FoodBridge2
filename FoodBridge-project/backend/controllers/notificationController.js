@@ -3,6 +3,12 @@ const ActivityLog = require('../models/ActivityLog');
 
 const page = query => ({ limit: Math.min(Math.max(Number(query.limit) || 20, 1), 100), offset: Math.max(Number(query.offset) || 0, 0) });
 exports.list = async (req, res, next) => { try { const { limit, offset } = page(req.query); return res.json({ success: true, notifications: await Notification.list(limit, offset) }); } catch (error) { next(error); } };
+exports.listForUser = async (req, res, next) => {
+  try {
+    const notifications = await Notification.listForUser(req.user.id, req.user.role);
+    return res.json({ success: true, notifications });
+  } catch (error) { next(error); }
+};
 exports.create = async (req, res, next) => {
   try {
     const id = await Notification.create(req.admin.admin_id, req.body);

@@ -4,13 +4,35 @@ import { BUSINESS_ROLES, dashboardForRole } from './roles.js';
 
 export const dashboardFor = dashboardForRole;
 
+const roleCanOpen = (role, path) => {
+  const normalizedRole = String(role || '').toLowerCase();
+  if (path === '/donate.html' || path === '/business/dashboard.html') return BUSINESS_ROLES.includes(normalizedRole);
+  if (path === '/partner/dashboard.html' || path === '/ngo/dashboard.html') return ['ngo', 'partner'].includes(normalizedRole);
+  if (path === '/admin/dashboard.html') return normalizedRole === 'admin';
+  return false;
+};
+
+const postAuthTarget = user => {
+  const requested = new URLSearchParams(location.search).get('redirect');
+  if (requested && requested.startsWith('/') && !requested.startsWith('//')) {
+    try {
+      const target = new URL(requested, location.origin);
+      const appPath = target.pathname.replace(/^\/frontend(?=\/)/, '');
+      if (target.origin === location.origin && roleCanOpen(user?.role, appPath)) {
+        return `${target.pathname}${target.search}${target.hash}`;
+      }
+    } catch (_) { /* Fall back to the canonical role dashboard. */ }
+  }
+  return dashboardFor(user?.role);
+};
+
 export const logout = ({ redirect = true } = {}) => {
   clearSession();
   if (redirect) location.assign('/login.html');
 };
 
 const registerEndpoint = role => role === 'ngo' ? '/api/ngo/register' : '/api/auth/register';
-const loginEndpoint = () => '/api/auth/login';
+const loginEndpoint = role => String(role || '').toLowerCase() === 'admin' ? '/api/admin/login' : '/api/auth/login';
 
 export const initAuth = () => {
   window.addEventListener('foodbridge:unauthorized', () => { toast('Your session has expired. Please sign in again.', 'warning'); logout(); });
@@ -27,37 +49,23 @@ export const initAuth = () => {
       const response = await login(details, loginEndpoint(details.role));
 
       if (response.requiresOtp) {
-        // Show OTP panel and pre-fill hidden email field
+        // Show OTP panel; only the user-entered code is used for verification.
         const email = response.email || details.email;
         const otpEmailField = $('#otp-email-field');
         const otpHint = $('#otp-hint');
         const otpInput = $('#otp-input');
-        const devOtpBox = $('#dev-otp-box');
-        const devOtpCode = $('#dev-otp-code');
 
         if (otpEmailField) otpEmailField.value = email;
         if (otpHint) otpHint.textContent = `We sent a 6-digit code to ${email}.`;
 
-        if (response.devOtp) {
-          // Dev mode — show the autofill box and pre-fill the input
-          if (devOtpCode) devOtpCode.textContent = response.devOtp;
-          if (devOtpBox) devOtpBox.style.display = 'flex';
-          if (otpInput) otpInput.value = response.devOtp;
-          // Wire autofill button
-          $('#btn-autofill-otp')?.addEventListener('click', () => {
-            if (otpInput && devOtpCode) otpInput.value = devOtpCode.textContent;
-          }, { once: true });
-        }
-
         $('#step-credentials')?.setAttribute('hidden', '');
         const stepOtp = $('#step-otp');
         if (stepOtp) { stepOtp.removeAttribute('hidden'); otpInput?.focus(); }
-        toast(response.devOtp ? `Dev mode: OTP ${response.devOtp} auto-filled below.` : (response.message || 'Check your email for a sign-in code.'));
+        toast(response.message || 'Check your email for a sign-in code.');
       } else {
-        // Admin login returns token directly (no OTP step)
         saveSession(response);
         toast('Login successful.');
-        location.assign(dashboardFor(response.user.role));
+        location.assign(postAuthTarget(response.user));
       }
     } catch (error) { notifyError(error); } finally { setLoading(submit, false); }
   });
@@ -73,7 +81,7 @@ export const initAuth = () => {
       const response = await request('/api/auth/verify-login-otp', { method: 'POST', body: details, auth: false });
       saveSession(response);
       toast('Login successful.');
-      location.assign(dashboardFor(response.user.role));
+      location.assign(postAuthTarget(response.user));
     } catch (error) { notifyError(error); } finally { setLoading(submit, false); }
   });
 
@@ -103,7 +111,7 @@ export const initAuth = () => {
     try {
       setLoading(submit, true, 'Creating account…');
       const response = await register(details, registerEndpoint(details.role));
-      saveSession(response); toast('Registration successful.'); location.assign(dashboardFor(response.user.role));
+      saveSession(response); toast('Registration successful.'); location.assign(postAuthTarget(response.user));
     } catch (error) { notifyError(error); } finally { setLoading(submit, false); }
   });
 };
@@ -122,7 +130,9 @@ export const protectRoute = () => {
 
   // Protected pages: redirect unauthenticated users to login page
   if (requiredRole && (!token || !user)) {
-    location.replace(location.pathname.includes('/frontend/') ? '/frontend/login.html' : '/login.html');
+    const prefix = location.pathname.includes('/frontend/') ? '/frontend' : '';
+    const returnTo = `${location.pathname}${location.search}${location.hash}`;
+    location.replace(`${prefix}/login.html?redirect=${encodeURIComponent(returnTo)}`);
     return false;
   }
 

@@ -1,23 +1,9 @@
 /**
- * FoodBridge Notification Store
+ * Food Rescue Notification Store
  * --------------------------------------------------
  * Lightweight in-memory + file-persisted notification
- * system. No extra npm packages required.
- *
- * Notification shape:
- * {
- *   id        : string  (uuid-like)
- *   type      : 'NEW_DONATION' | 'CLAIM' | 'DELIVERY' | 'ALERT'
- *   title     : string
- *   body      : string
- *   donationId: number | null
- *   donorName : string
- *   foodName  : string
- *   quantity  : string
- *   city      : string
- *   createdAt : ISO string
- *   readBy    : string[]   (array of user IDs who read it)
- * }
+ * system. Supports targeted recipient notifications, distance metadata,
+ * and duplicate prevention.
  */
 
 const fs   = require('fs');
@@ -25,13 +11,11 @@ const path = require('path');
 
 const STORE_FILE = path.join(__dirname, '..', 'data', 'notifications.json');
 
-// ── Ensure data directory exists ──────────────────────────────────────────────
 function ensureDir() {
   const dir = path.dirname(STORE_FILE);
   if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
 }
 
-// ── Read all notifications from disk ─────────────────────────────────────────
 function readAll() {
   ensureDir();
   try {
@@ -41,73 +25,117 @@ function readAll() {
   }
 }
 
-// ── Write all notifications to disk ──────────────────────────────────────────
 function writeAll(notifications) {
   ensureDir();
-  // Keep only the most recent 200 to avoid unbounded growth
-  const trimmed = notifications.slice(-200);
+  const trimmed = notifications.slice(-300);
   fs.writeFileSync(STORE_FILE, JSON.stringify(trimmed, null, 2), 'utf8');
 }
 
-// ── Simple ID generator ───────────────────────────────────────────────────────
 function uid() {
   return `ntf_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
 }
 
-// ── Push a new notification ───────────────────────────────────────────────────
+/**
+ * Push a new notification into the store.
+ * Prevents duplicate notifications for same recipient & donation.
+ */
 function push(data) {
   const notifications = readAll();
+
+  // Prevent duplicate notification for same recipient, donationId & type
+  if (data.recipientUserId && data.donationId && data.type) {
+    const exists = notifications.find(
+      n => String(n.recipientUserId) === String(data.recipientUserId) &&
+           String(n.donationId) === String(data.donationId) &&
+           n.type === data.type
+    );
+    if (exists) return exists;
+  }
+
   const entry = {
-    id:         uid(),
-    type:       data.type       || 'NEW_DONATION',
-    title:      data.title      || '🍱 New Food Available',
-    body:       data.body       || '',
-    donationId: data.donationId || null,
-    donorName:  data.donorName  || 'A Donor',
-    foodName:   data.foodName   || 'Food',
-    quantity:   data.quantity   || '',
-    city:       data.city       || '',
-    createdAt:  new Date().toISOString(),
-    readBy:     [],
+    id:              uid(),
+    recipientUserId: data.recipientUserId ? String(data.recipientUserId) : null,
+    targetRole:      data.targetRole || 'all',
+    type:            data.type || 'NEW_DONATION',
+    title:           data.title || '🍱 New Food Available',
+    message:         data.body || data.message || '',
+    body:            data.body || data.message || '',
+    donationId:      data.donationId ? Number(data.donationId) : null,
+    distanceKm:      data.distanceKm !== undefined ? data.distanceKm : null,
+    donorName:       data.donorName || 'A Donor',
+    foodName:        data.foodName || 'Food',
+    quantity:        data.quantity || '',
+    city:            data.city || '',
+    expiryTime:      data.expiryTime || null,
+    createdAt:       new Date().toISOString(),
+    isRead:          false,
+    readBy:          []
   };
+
   notifications.push(entry);
   writeAll(notifications);
   return entry;
 }
 
-// ── Get unread notifications for a user (NGO/Volunteer) ──────────────────────
+/**
+ * Get unread notifications relevant for a given user ID (NGO / Donor / Volunteer).
+ */
 function getUnread(userId, limit = 30) {
   const all = readAll();
+  const sUserId = String(userId);
   return all
-    .filter(n => !n.readBy.includes(String(userId)))
+    .filter(n => {
+      const isTarget = (!n.recipientUserId || n.recipientUserId === sUserId);
+      const isUnread = !n.readBy.includes(sUserId);
+      return isTarget && isUnread;
+    })
     .slice(-limit)
     .reverse();
 }
 
-// ── Get all recent notifications (for admin / full view) ─────────────────────
+/**
+ * Get all notifications for a specific user ID.
+ */
+function getForUser(userId, limit = 50) {
+  const all = readAll();
+  const sUserId = String(userId);
+  return all
+    .filter(n => !n.recipientUserId || n.recipientUserId === sUserId)
+    .map(n => ({
+      ...n,
+      isRead: n.readBy.includes(sUserId) || Boolean(n.isRead && !n.recipientUserId)
+    }))
+    .slice(-limit)
+    .reverse();
+}
+
 function getRecent(limit = 50) {
   return readAll().slice(-limit).reverse();
 }
 
-// ── Mark one notification as read for a user ─────────────────────────────────
 function markRead(notifId, userId) {
   const all = readAll();
   const notif = all.find(n => n.id === notifId);
   if (!notif) return false;
-  if (!notif.readBy.includes(String(userId))) {
-    notif.readBy.push(String(userId));
+  const sUserId = String(userId);
+  if (!notif.readBy.includes(sUserId)) {
+    notif.readBy.push(sUserId);
+    notif.isRead = true;
   }
   writeAll(all);
   return true;
 }
 
-// ── Mark ALL as read for a user ───────────────────────────────────────────────
 function markAllRead(userId) {
   const all = readAll();
+  const sUserId = String(userId);
   all.forEach(n => {
-    if (!n.readBy.includes(String(userId))) n.readBy.push(String(userId));
+    if (!n.recipientUserId || n.recipientUserId === sUserId) {
+      if (!n.readBy.includes(sUserId)) n.readBy.push(sUserId);
+      n.isRead = true;
+    }
   });
   writeAll(all);
 }
 
-module.exports = { push, getUnread, getRecent, markRead, markAllRead };
+module.exports = { push, getUnread, getForUser, getRecent, markRead, markAllRead };

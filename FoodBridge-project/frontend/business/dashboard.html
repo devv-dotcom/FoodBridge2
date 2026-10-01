@@ -1,1 +1,50 @@
-<!doctype html><html lang="en" data-api-base="http://localhost:5000"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Business Dashboard · FoodBridge</title><link rel="stylesheet" href="../dashboard.css"></head><body data-required-role="business" data-dashboard="business"><main class="dashboard"><header><a href="../index.html">FoodBridge</a><button data-action="logout">Logout</button></header><h1>Business Dashboard</h1><p>Manage your donations and see your impact.</p><section class="cards"><article class="card">Business<strong data-api-value="businessName">—</strong></article><article class="card">Total donations<strong data-api-value="statistics.totalDonations">—</strong></article></section><section id="donation-history" class="notice">Loading donation history…</section></main><script type="module" src="../js/app.js"></script></body></html>
+<!doctype html>
+<html lang="en" data-api-base="http://localhost:5000">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <title>Business Dashboard · FoodBridge</title>
+    <link rel="stylesheet" href="../dashboard.css" />
+  </head>
+  <body data-required-role="business" data-dashboard="business">
+    <main class="dashboard">
+      <header>
+        <a href="../index.html" style="font-weight: 800; text-decoration: none; color: #1d6638; font-size: 1.25rem;">FoodBridge</a>
+        <div class="header-actions">
+          <button type="button" class="btn-leaderboard-nav" data-action="open-leaderboard">🏆 Leaderboard</button>
+          <button type="button" class="btn-notification" data-notification-bell aria-label="Notifications">🔔</button>
+          <button data-action="logout">Logout</button>
+        </div>
+      </header>
+
+      <!-- Notification Drawer -->
+      <div class="notification-drawer" data-notification-drawer>
+        <header>Notifications</header>
+        <ul class="notification-list" data-notification-list>
+          <li class="notification-item">Loading notifications…</li>
+        </ul>
+      </div>
+
+      <div style="display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:16px;">
+        <div>
+          <h1>Business Dashboard</h1>
+          <p>Manage your surplus food donations, earn impact points, and download certified tax/CSR receipts.</p>
+        </div>
+        <a href="../donate.html" style="display:inline-block; background:#1d6638; color:#fff; padding:12px 20px; border-radius:12px; font-weight:800; text-decoration:none;">+ Donate Surplus Food</a>
+      </div>
+
+      <section class="cards">
+        <article class="card">Business<strong data-api-value="businessName">—</strong></article>
+        <article class="card">Total Donations<strong data-api-value="statistics.totalDonations">—</strong></article>
+        <article class="card card-active">Impact Points<strong data-metric="my-points">0 pts</strong></article>
+        <article class="card">Impact Tier<strong data-metric="my-badge" style="font-size:1.25rem; color:#047857;">Bronze Hero</strong></article>
+      </section>
+
+      <section>
+        <h2>Your Donation History & Verified Certificates</h2>
+        <div id="donation-history" class="notice">Loading donation history…</div>
+      </section>
+    </main>
+    <script type="module" src="../js/app.js"></script>
+  </body>
+</html>

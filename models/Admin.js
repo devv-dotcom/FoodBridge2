@@ -1,6 +1,5 @@
 const pool = require('../config/database');
-
-const BUSINESS_ROLES = ['restaurant', 'hotel', 'bakery', 'supermarket', 'catering', 'marriage_hall'];
+const { BUSINESS_ROLES } = require('../config/roles');
 const buildIn = items => items.map(() => '?').join(', ');
 
 module.exports = {

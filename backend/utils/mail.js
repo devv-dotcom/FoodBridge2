@@ -11,9 +11,9 @@ async function sendPasswordOtp({ email, fullName, otp }) {
   await transporter.sendMail({
     from: process.env.MAIL_FROM,
     to: email,
-    subject: 'Your FoodBridge password reset code',
-    text: `Hello ${fullName}, your FoodBridge password reset code is ${otp}. It expires in 10 minutes.`,
-    html: `<p>Hello ${fullName},</p><p>Your FoodBridge password reset code is:</p><h1 style="letter-spacing:6px">${otp}</h1><p>This code expires in 10 minutes. If you did not request this, you can ignore this email.</p>`
+    subject: 'Your Food Rescue password reset code',
+    text: `Hello ${fullName}, your Food Rescue password reset code is ${otp}. It expires in 10 minutes.`,
+    html: `<p>Hello ${fullName},</p><p>Your Food Rescue password reset code is:</p><h1 style="letter-spacing:6px">${otp}</h1><p>This code expires in 10 minutes. If you did not request this, you can ignore this email.</p>`
   });
 }
 

@@ -5,6 +5,8 @@ const path = require('path');
 const cors = require('cors');
 const helmet = require('helmet');
 const pool = require('./config/database');
+const runAutoMigration = require('./database/autoMigrate');
+
 const authRoutes = require('./routes/authRoutes');
 const businessRoutes = require('./routes/businessRoutes');
 const donationRoutes = require('./routes/donationRoutes');
@@ -14,11 +16,12 @@ const pickupRoutes = require('./routes/pickupRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const categoryRoutes = require('./routes/categoryRoutes');
 const contactRoutes = require('./routes/contactRoutes');
+const commonRoutes = require('./routes/commonRoutes');
 
 const app = express();
 const port = Number(process.env.PORT || 5000);
 
-app.use(helmet());
+app.use(helmet({ contentSecurityPolicy: false, crossOriginEmbedderPolicy: false }));
 app.use(cors({ origin: process.env.CLIENT_ORIGIN || true, methods: ['GET', 'POST', 'PUT', 'DELETE'], allowedHeaders: ['Content-Type', 'Authorization'] }));
 app.use(express.json({ limit: '1mb' }));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
@@ -26,10 +29,11 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.get('/health', async (_req, res, next) => {
   try {
     await pool.query('SELECT 1');
-    res.json({ success: true, message: 'FoodBridge authentication API is healthy.' });
+    res.json({ success: true, message: 'FoodBridge API is healthy.' });
   } catch (error) { next(error); }
 });
 
+app.use('/api', commonRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/business', businessRoutes);
 app.use('/api/donations', donationRoutes);
@@ -39,6 +43,7 @@ app.use('/api/pickups', pickupRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/contact', contactRoutes);
+
 app.use((_req, res) => res.status(404).json({ success: false, message: 'Route not found.' }));
 app.use((error, _req, res, _next) => {
   console.error(error);
@@ -51,4 +56,7 @@ app.use((error, _req, res, _next) => {
   res.status(500).json({ success: false, message: 'Something went wrong. Please try again later.' });
 });
 
-app.listen(port, () => console.log(`FoodBridge auth API listening on port ${port}`));
+app.listen(port, async () => {
+  console.log(`FoodBridge API listening on port ${port}`);
+  await runAutoMigration();
+});

@@ -1,1 +1,944 @@
-<!doctype html><html lang="en" data-api-base="http://localhost:5000"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Admin Dashboard · FoodBridge</title><link rel="stylesheet" href="../dashboard.css"></head><body data-required-role="admin" data-dashboard="admin"><main class="dashboard"><header><a href="../index.html">FoodBridge</a><button data-action="logout">Logout</button></header><h1>Admin Dashboard</h1><p>Monitor FoodBridge activity and manage the platform.</p><section class="cards"><article class="card">Users<strong data-api-value="total_users">—</strong></article><article class="card">Donations<strong data-api-value="total_donations">—</strong></article><article class="card">Meals rescued<strong data-api-value="meals_rescued">—</strong></article></section><canvas data-chart="donationGrowth" data-label="Monthly donations"></canvas></main><script type="module" src="../js/app.js"></script></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard · Food Rescue</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Style Sheets -->
+  <link rel="stylesheet" href="../css/role-dashboard.css">
+  <link rel="stylesheet" href="../css/admin-portal.css">
+  <link rel="stylesheet" href="../dashboard.css">
+  <link rel="stylesheet" href="../features.css">
+  <link rel="stylesheet" href="../css/accessibility.css">
+  <script>try{const t=localStorage.getItem('foodbridge.theme')||(window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');if(t)document.documentElement.dataset.theme=t;}catch(e){}</script>
+  
+  <!-- Chart.js for visualizations -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+</head>
+<body class="admin-dashboard-body" data-required-role="admin" data-dashboard="admin" data-admin-portal="true">
+
+  <!-- ============================================================
+       1. FIXED SIDEBAR NAVIGATION
+       ============================================================ -->
+  <aside class="admin-sidebar" id="admin-sidebar">
+    <div class="sidebar-header">
+      <a href="../index.html" class="sidebar-brand">
+        <div class="brand-icon">🌱</div>
+        <div class="brand-text-wrap">
+          <span class="brand-name">Food Rescue</span>
+          <span class="brand-badge">Impact Admin</span>
+        </div>
+      </a>
+      <button type="button" class="sidebar-close-btn" id="sidebar-close-btn" aria-label="Close Sidebar">&times;</button>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-section-title">Core Operations</div>
+      
+      <a href="#overview" class="nav-item active" data-tab="overview">
+        <span class="nav-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>
+        </span>
+        Dashboard
+      </a>
+
+      <a href="#donations" class="nav-item" data-tab="donations">
+        <span class="nav-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        </span>
+        Donations
+        <span class="nav-badge" id="sidebar-donations-count">342</span>
+      </a>
+
+      <a href="#ngos" class="nav-item" data-tab="ngos">
+        <span class="nav-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18M3 7v14M21 7v14M6 11h4M6 15h4M14 11h4M14 15h4M9 3h6v4H9z"/></svg>
+        </span>
+        NGOs / Receivers
+        <span class="nav-badge alert-count" id="sidebar-pending-ngo-badge">3</span>
+      </a>
+
+      <a href="#donors" class="nav-item" data-tab="donors">
+        <span class="nav-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><path d="M20 8v6M23 11h-6"/></svg>
+        </span>
+        Donors
+      </a>
+
+      <a href="#pickups" class="nav-item" data-tab="pickups">
+        <span class="nav-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13" rx="2"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+        </span>
+        Pickup & Delivery
+      </a>
+
+      <div class="nav-section-title">Insights & System</div>
+
+      <a href="#analytics" class="nav-item" data-tab="analytics">
+        <span class="nav-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        </span>
+        Reports & Analytics
+      </a>
+
+      <a href="#notifications" class="nav-item" data-tab="notifications">
+        <span class="nav-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        </span>
+        Notifications
+        <span class="nav-badge alert-count" id="sidebar-notif-count">4</span>
+      </a>
+
+      <a href="#activity-logs" class="nav-item" data-tab="activity-logs">
+        <span class="nav-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        </span>
+        Activity Logs
+      </a>
+
+      <a href="#leaderboard" class="nav-item" data-action="open-leaderboard">
+        <span class="nav-icon">🏆</span>
+        Leaderboard
+      </a>
+
+      <a href="#settings" class="nav-item" data-tab="settings">
+        <span class="nav-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        </span>
+        Settings
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="sidebar-impact-card">
+        <div class="impact-mini-icon">🥦</div>
+        <div class="impact-mini-info">
+          <h5>Total Rescued</h5>
+          <strong>128,450 kg</strong>
+        </div>
+      </div>
+      <button type="button" class="sidebar-logout-btn" data-action="logout">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Logout
+      </button>
+    </div>
+  </aside>
+
+  <!-- ============================================================
+       MAIN CONTENT WRAPPER
+       ============================================================ -->
+  <div class="admin-main-wrapper">
+
+    <!-- 2. TOP NAVIGATION BAR -->
+    <header class="admin-topbar">
+      <div class="topbar-left">
+        <button type="button" class="mobile-menu-toggle" id="mobile-menu-toggle" aria-label="Toggle Navigation">
+          &#9776;
+        </button>
+        <div class="page-title-wrap">
+          <h1 id="active-page-title">Admin Dashboard</h1>
+          <div class="page-subtitle">
+            <span class="live-indicator"></span> Real-time Social Impact Operations &bull; <span id="current-live-clock">Aug 26, 2026</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="topbar-right">
+        <!-- Global Search -->
+        <div class="global-search-container">
+          <span class="search-icon-left">🔍</span>
+          <input type="text" class="global-search-input" id="global-search-input" placeholder="Search donations, NGOs, donors..." autocomplete="off">
+          <span class="search-shortcut-badge">/</span>
+
+          <div class="search-results-dropdown" id="search-results-dropdown">
+            <!-- Dynamically populated search results -->
+          </div>
+        </div>
+
+        <!-- Quick Action "+ Add Donation" Button -->
+        <button type="button" class="btn-primary-cta" id="btn-quick-add-donation">
+          <span>+</span> Add Donation
+        </button>
+
+        <!-- Notification Bell Icon -->
+        <div class="notif-btn-wrap">
+          <button type="button" class="topbar-icon-btn" id="notif-topbar-btn" aria-label="Notifications">
+            🔔
+            <span class="notif-pulse-dot" id="topbar-notif-badge">4</span>
+          </button>
+        </div>
+
+        <!-- Admin Profile Avatar -->
+        <div class="admin-profile-widget" id="admin-profile-widget">
+          <div class="avatar-circle">
+            SJ
+            <span class="avatar-status-dot"></span>
+          </div>
+          <div class="admin-info-text">
+            <span class="admin-name" data-api-value="admin_name">Sarah Jenkins</span>
+            <span class="admin-role">Super Admin</span>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- CONTENT BODY -->
+    <main class="admin-content-body">
+
+      <!-- ============================================================
+           SECTION 1: OVERVIEW DASHBOARD (#overview)
+           ============================================================ -->
+      <section class="dashboard-section active" id="sec-overview">
+
+        <!-- 3. OVERVIEW STATISTICS (KPI CARDS) -->
+        <div class="kpi-grid">
+          <!-- Total Donations -->
+          <div class="kpi-card">
+            <div class="kpi-card-top">
+              <div class="kpi-icon-wrap">📦</div>
+              <span class="kpi-trend-badge up">↑ 18.4%</span>
+            </div>
+            <div>
+              <div class="kpi-number" id="kpi-total-donations" data-api-value="total_donations">14,850</div>
+              <div class="kpi-label">Total Donations</div>
+              <div class="kpi-subtext">+2,410 posted this month</div>
+            </div>
+          </div>
+
+          <!-- Active Donations -->
+          <div class="kpi-card">
+            <div class="kpi-card-top">
+              <div class="kpi-icon-wrap" style="background:#fff7ed; color:#ea580c; border-color:#ffedd5;">⚡</div>
+              <span class="kpi-trend-badge up">↑ 5.2%</span>
+            </div>
+            <div>
+              <div class="kpi-number" id="kpi-active-donations">342</div>
+              <div class="kpi-label">Active Donations</div>
+              <div class="kpi-subtext">Currently available / in-transit</div>
+            </div>
+          </div>
+
+          <!-- Food Successfully Rescued -->
+          <div class="kpi-card">
+            <div class="kpi-card-top">
+              <div class="kpi-icon-wrap" style="background:#ecfdf5; color:#059669; border-color:#a7f3d0;">🥦</div>
+              <span class="kpi-trend-badge up">↑ 24.1%</span>
+            </div>
+            <div>
+              <div class="kpi-number" id="kpi-food-rescued" data-api-value="meals_rescued">128,450 kg</div>
+              <div class="kpi-label">Food Rescued</div>
+              <div class="kpi-subtext">~321,125 meals distributed</div>
+            </div>
+          </div>
+
+          <!-- Registered NGOs -->
+          <div class="kpi-card">
+            <div class="kpi-card-top">
+              <div class="kpi-icon-wrap" style="background:#eff6ff; color:#2563eb; border-color:#dbeafe;">🏢</div>
+              <span class="kpi-trend-badge neutral">+12 new</span>
+            </div>
+            <div>
+              <div class="kpi-number" id="kpi-registered-ngos">428</div>
+              <div class="kpi-label">Registered NGOs</div>
+              <div class="kpi-subtext">3 pending verification review</div>
+            </div>
+          </div>
+
+          <!-- Active Rescues & Routes -->
+          <div class="kpi-card">
+            <div class="kpi-card-top">
+              <div class="kpi-icon-wrap" style="background:#fefce8; color:#a16207; border-color:#fef08a;">🚚</div>
+              <span class="kpi-trend-badge up">↑ 8.7%</span>
+            </div>
+            <div>
+              <div class="kpi-number" id="kpi-active-rescues">1,890</div>
+              <div class="kpi-label">Rescue Missions</div>
+              <div class="kpi-subtext">425 active NGO routes today</div>
+            </div>
+          </div>
+
+          <!-- Completed Pickups -->
+          <div class="kpi-card">
+            <div class="kpi-card-top">
+              <div class="kpi-icon-wrap" style="background:#f0fdf4; color:#166534; border-color:#bbf7d0;">🎯</div>
+              <span class="kpi-trend-badge up">98.2%</span>
+            </div>
+            <div>
+              <div class="kpi-number" id="kpi-completed-pickups">11,240</div>
+              <div class="kpi-label">Completed Pickups</div>
+              <div class="kpi-subtext">Successful rescue missions</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pending NGO Verification Banner -->
+        <div class="pending-alert-banner" id="pending-ngo-banner">
+          <div class="alert-banner-left">
+            <div class="alert-banner-icon">⚠️</div>
+            <div class="alert-banner-text">
+              <h4>3 NGO Verification Requests Pending Approval</h4>
+              <p>Organization credentials & food safety documents submitted for verification.</p>
+            </div>
+          </div>
+          <button type="button" class="btn-alert-action" id="btn-review-ngos">Review Requests &rarr;</button>
+        </div>
+
+        <!-- Grid: Operational Overview (Donations Table + Activity Log) -->
+        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 24px;">
+          <!-- Recent Live Donations Summary -->
+          <div class="card-panel">
+            <div class="panel-header">
+              <div class="panel-title-wrap">
+                <h3>Live Donation Stream</h3>
+                <p>Recent surplus food items posted across all regions</p>
+              </div>
+              <button type="button" class="btn-secondary" id="btn-view-all-donations">View All Table &rarr;</button>
+            </div>
+            <div class="table-responsive">
+              <table class="admin-data-table">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Donor</th>
+                    <th>Food Item</th>
+                    <th>Qty</th>
+                    <th>Freshness</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="overview-recent-donations-tbody">
+                  <!-- Dynamic rows -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Live Activity Log Sidebar Widget -->
+          <div class="card-panel">
+            <div class="panel-header">
+              <div class="panel-title-wrap">
+                <h3>Recent System Activity</h3>
+                <p>Real-time audit log</p>
+              </div>
+            </div>
+            <div class="log-timeline" id="overview-mini-activity-log">
+              <!-- Dynamically populated logs -->
+            </div>
+          </div>
+        </div>
+      </section>
+
+
+      <!-- ============================================================
+           SECTION 2: DONATION MANAGEMENT (#donations)
+           ============================================================ -->
+      <section class="dashboard-section" id="sec-donations">
+        <div class="card-panel">
+          <div class="panel-header">
+            <div class="panel-title-wrap">
+              <h3>Donation Management</h3>
+              <p>Monitor, assign, verify freshness, and track all food rescue listings</p>
+            </div>
+            <div class="panel-controls">
+              <button type="button" class="btn-primary-cta" id="btn-add-donation-modal-trigger">+ Post New Donation</button>
+              <button type="button" class="btn-secondary" id="btn-export-donations-csv">📥 Export CSV</button>
+            </div>
+          </div>
+
+          <!-- Search & Filter Controls -->
+          <div class="panel-controls" style="margin-bottom: 20px;">
+            <div class="table-search-box">
+              <span class="search-icon-left">🔍</span>
+              <input type="text" class="table-search-input" id="donation-search-input" placeholder="Search ID, Donor, Food...">
+            </div>
+
+            <select class="select-filter" id="donation-status-filter">
+              <option value="all">All Statuses</option>
+              <option value="available">Available</option>
+              <option value="accepted">Accepted</option>
+              <option value="assigned">Assigned</option>
+              <option value="picked_up">Picked Up</option>
+              <option value="delivered">Delivered</option>
+              <option value="expired">Expired</option>
+              <option value="cancelled">Cancelled</option>
+            </select>
+
+            <select class="select-filter" id="donation-date-filter">
+              <option value="all">All Dates</option>
+              <option value="today">Today</option>
+              <option value="week">This Week</option>
+              <option value="month">This Month</option>
+            </select>
+
+            <select class="select-filter" id="donation-location-filter">
+              <option value="all">All Locations</option>
+              <option value="Downtown">Downtown</option>
+              <option value="North District">North District</option>
+              <option value="West Suburbs">West Suburbs</option>
+              <option value="East Side">East Side</option>
+            </select>
+
+            <select class="select-filter" id="donation-sort-filter">
+              <option value="newest">Sort: Newest First</option>
+              <option value="oldest">Sort: Oldest First</option>
+              <option value="expiry">Sort: Expiry Soonest</option>
+              <option value="quantity">Sort: Quantity (High to Low)</option>
+            </select>
+          </div>
+
+          <!-- Table -->
+          <div class="table-responsive">
+            <table class="admin-data-table" id="donations-main-table">
+              <thead>
+                <tr>
+                  <th>Donation ID</th>
+                  <th>Donor</th>
+                  <th>Food Type / Name</th>
+                  <th>Quantity</th>
+                  <th>Location</th>
+                  <th>Posted Date</th>
+                  <th>Expiry / Freshness</th>
+                  <th>Assigned NGO</th>
+                  <th>Status</th>
+                  <th style="text-align: right;">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="donations-table-body">
+                <!-- Dynamically injected -->
+              </tbody>
+            </table>
+          </div>
+
+          <div class="pagination-bar">
+            <div>Showing <span id="donation-showing-count">1 - 10</span> of <span id="donation-total-count">14,850</span> entries</div>
+            <div class="pagination-controls" id="donation-pagination-controls">
+              <button class="page-btn">&laquo;</button>
+              <button class="page-btn active">1</button>
+              <button class="page-btn">2</button>
+              <button class="page-btn">3</button>
+              <button class="page-btn">&raquo;</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+
+      <!-- ============================================================
+           SECTION 3: NGO / RECEIVER MANAGEMENT (#ngos)
+           ============================================================ -->
+      <section class="dashboard-section" id="sec-ngos">
+        <div class="card-panel">
+          <div class="panel-header">
+            <div class="panel-title-wrap">
+              <h3>NGO & Receiver Management</h3>
+              <p>Verify organizations, monitor claim histories, and manage partner accounts</p>
+            </div>
+            <button type="button" class="btn-secondary" id="btn-export-ngos">Export NGO Directory</button>
+          </div>
+
+          <!-- Pending Verifications Section -->
+          <div style="margin-bottom: 28px;">
+            <h4 style="font-size:0.95rem; font-weight:800; color:#ea580c; margin-bottom:12px; display:flex; align-items:center; gap:8px;">
+              <span>⚠️</span> Pending Verification Requests (<span id="pending-ngo-count">3</span>)
+            </h4>
+            <div class="table-responsive" style="border-color:#ffedd5;">
+              <table class="admin-data-table">
+                <thead>
+                  <tr style="background:#fff7ed;">
+                    <th>Organization</th>
+                    <th>Contact Person</th>
+                    <th>Location</th>
+                    <th>Tax ID / Reg #</th>
+                    <th>Submitted Date</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="pending-ngo-table-body">
+                  <!-- Injected pending NGO rows -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Verified NGO Directory -->
+          <div>
+            <div class="panel-controls" style="margin-bottom: 16px;">
+              <div class="table-search-box">
+                <span class="search-icon-left">🔍</span>
+                <input type="text" class="table-search-input" id="ngo-search-input" placeholder="Search NGO name, contact, city...">
+              </div>
+
+              <select class="select-filter" id="ngo-status-filter">
+                <option value="all">All Verification Statuses</option>
+                <option value="verified">Verified Only</option>
+                <option value="pending">Pending Only</option>
+                <option value="suspended">Suspended Only</option>
+              </select>
+            </div>
+
+            <div class="table-responsive">
+              <table class="admin-data-table">
+                <thead>
+                  <tr>
+                    <th>Organization Name</th>
+                    <th>Contact Details</th>
+                    <th>Location</th>
+                    <th>Verification Status</th>
+                    <th>Donations Claimed</th>
+                    <th>Registered Date</th>
+                    <th>Current Status</th>
+                    <th style="text-align: right;">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="all-ngo-table-body">
+                  <!-- Injected NGO rows -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+
+      <!-- ============================================================
+           SECTION 4: DONOR MANAGEMENT (#donors)
+           ============================================================ -->
+      <section class="dashboard-section" id="sec-donors">
+        <div class="card-panel">
+          <div class="panel-header">
+            <div class="panel-title-wrap">
+              <h3>Donor Directory & Management</h3>
+              <p>Manage restaurants, supermarkets, hotels, catering partners, and individual donors</p>
+            </div>
+            <button type="button" class="btn-primary-cta" id="btn-add-donor-trigger">+ Add Donor Account</button>
+          </div>
+
+          <div class="panel-controls" style="margin-bottom: 16px;">
+            <div class="table-search-box">
+              <span class="search-icon-left">🔍</span>
+              <input type="text" class="table-search-input" id="donor-search-input" placeholder="Search donor name, business type...">
+            </div>
+            <select class="select-filter" id="donor-type-filter">
+              <option value="all">All Business Types</option>
+              <option value="restaurant">Restaurants</option>
+              <option value="supermarket">Supermarkets</option>
+              <option value="catering">Catering & Events</option>
+              <option value="bakery">Bakeries & Cafes</option>
+            </select>
+          </div>
+
+          <div class="table-responsive">
+            <table class="admin-data-table">
+              <thead>
+                <tr>
+                  <th>Donor Name</th>
+                  <th>Category</th>
+                  <th>Contact Email / Phone</th>
+                  <th>City / Address</th>
+                  <th>Donations Posted</th>
+                  <th>Account Status</th>
+                  <th>Joined Date</th>
+                  <th style="text-align: right;">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="donors-table-body">
+                <!-- Injected Donors -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+
+      <!-- ============================================================
+           SECTION 5: PICKUP & DELIVERY MONITORING (#pickups)
+           ============================================================ -->
+      <section class="dashboard-section" id="sec-pickups">
+        <!-- Live Stat Counters -->
+        <div class="kpi-grid" style="margin-bottom: 24px;">
+          <div class="kpi-card" style="padding:16px;">
+            <div class="kpi-label">Pending Pickups</div>
+            <div class="kpi-number" style="font-size:1.6rem; color:#ea580c;">18</div>
+          </div>
+          <div class="kpi-card" style="padding:16px;">
+            <div class="kpi-label">Assigned Pickups</div>
+            <div class="kpi-number" style="font-size:1.6rem; color:#2563eb;">24</div>
+          </div>
+          <div class="kpi-card" style="padding:16px;">
+            <div class="kpi-label">In-Progress Deliveries</div>
+            <div class="kpi-number" style="font-size:1.6rem; color:#ca8a04;">31</div>
+          </div>
+          <div class="kpi-card" style="padding:16px;">
+            <div class="kpi-label">Completed Today</div>
+            <div class="kpi-number" style="font-size:1.6rem; color:#166534;">142</div>
+          </div>
+          <div class="kpi-card" style="padding:16px; border-color:#fecaca;">
+            <div class="kpi-label">Delayed Pickups</div>
+            <div class="kpi-number" style="font-size:1.6rem; color:#dc2626;">3</div>
+          </div>
+        </div>
+
+        <div class="card-panel">
+          <div class="panel-header">
+            <div class="panel-title-wrap">
+              <h3>Live Pickup & Delivery Monitoring</h3>
+              <p>Real-time operational timeline tracking from Donor ➔ Partner NGO ➔ Community Distribution</p>
+            </div>
+            <button type="button" class="btn-primary-cta" id="btn-assign-partner-modal-trigger">+ Dispatch Partner NGO</button>
+          </div>
+
+          <div class="ops-grid" id="pickup-timeline-cards-container">
+            <!-- Timeline Cards injected here -->
+          </div>
+        </div>
+      </section>
+
+
+      <!-- ============================================================
+           SECTION 7: REPORTS & ANALYTICS (#analytics)
+           ============================================================ -->
+      <section class="dashboard-section" id="sec-analytics">
+        <div class="panel-header" style="margin-bottom: 24px;">
+          <div class="panel-title-wrap">
+            <h3>Analytics & Impact Reports</h3>
+            <p>Comprehensive visualizations of food rescue operations and sustainability KPIs</p>
+          </div>
+          <div class="panel-controls">
+            <button type="button" class="btn-secondary" id="btn-generate-pdf-report">📄 Generate PDF Summary</button>
+          </div>
+        </div>
+
+        <div class="analytics-grid">
+          <!-- Chart 1: Food Donations Over Time -->
+          <div class="chart-card">
+            <div class="chart-card-header">
+              <span class="chart-card-title">Food Donations Over Time (2026)</span>
+            </div>
+            <div class="chart-container">
+              <canvas id="chart-donations-over-time"></canvas>
+            </div>
+          </div>
+
+          <!-- Chart 2: Food Rescued by Month -->
+          <div class="chart-card">
+            <div class="chart-card-header">
+              <span class="chart-card-title">Food Rescued by Month (kg)</span>
+            </div>
+            <div class="chart-container">
+              <canvas id="chart-rescued-by-month"></canvas>
+            </div>
+          </div>
+
+          <!-- Chart 3: Donations by Food Category -->
+          <div class="chart-card">
+            <div class="chart-card-header">
+              <span class="chart-card-title">Donations by Food Category</span>
+            </div>
+            <div class="chart-container">
+              <canvas id="chart-donations-category"></canvas>
+            </div>
+          </div>
+
+          <!-- Chart 4: Successful vs Expired/Cancelled -->
+          <div class="chart-card">
+            <div class="chart-card-header">
+              <span class="chart-card-title">Rescue Outcome Breakdown</span>
+            </div>
+            <div class="chart-container">
+              <canvas id="chart-outcome-breakdown"></canvas>
+            </div>
+          </div>
+        </div>
+      </section>
+
+
+      <!-- ============================================================
+           SECTION 8: ALERTS & NOTIFICATIONS PANEL (#notifications)
+           ============================================================ -->
+      <section class="dashboard-section" id="sec-notifications">
+        <div class="card-panel">
+          <div class="panel-header">
+            <div class="panel-title-wrap">
+              <h3>Admin Alert & Notification Center</h3>
+              <p>Critical, high, medium, and low priority system alerts requiring administrator attention</p>
+            </div>
+            <div class="panel-controls">
+              <button type="button" class="btn-secondary" id="btn-mark-all-notifications-read">Mark All as Read</button>
+              <button type="button" class="btn-primary-cta" id="btn-broadcast-notif-trigger">Broadcast Alert</button>
+            </div>
+          </div>
+
+          <div class="panel-controls" style="margin-bottom: 20px;">
+            <select class="select-filter" id="alert-priority-filter">
+              <option value="all">All Priority Levels</option>
+              <option value="critical">Critical Only</option>
+              <option value="high">High Only</option>
+              <option value="medium">Medium Only</option>
+              <option value="low">Low Only</option>
+            </select>
+          </div>
+
+          <div class="alert-feed-list" id="alert-feed-list">
+            <!-- Dynamic alerts injected here -->
+          </div>
+        </div>
+      </section>
+
+
+      <!-- ============================================================
+           SECTION 9: ADMIN ACTIVITY LOG (#activity-logs)
+           ============================================================ -->
+      <section class="dashboard-section" id="sec-activity-logs">
+        <div class="card-panel">
+          <div class="panel-header">
+            <div class="panel-title-wrap">
+              <h3>Admin & Audit Activity Log</h3>
+              <p>Immutable event audit log recording all administrator actions and system state changes</p>
+            </div>
+            <button type="button" class="btn-secondary" id="btn-export-audit-log">Export Audit Log</button>
+          </div>
+
+          <div class="log-timeline" id="full-activity-log-container">
+            <!-- Dynamic activity items -->
+          </div>
+        </div>
+      </section>
+
+
+      <!-- ============================================================
+           SECTION 10: QUICK ACTIONS (#quick-actions)
+           ============================================================ -->
+      <section class="dashboard-section" id="sec-quick-actions">
+        <div class="card-panel">
+          <div class="panel-header">
+            <div class="panel-title-wrap">
+              <h3>Quick Administrative Actions</h3>
+              <p>Shortcuts for rapid platform management</p>
+            </div>
+          </div>
+          <div class="quick-actions-grid">
+            <div class="quick-action-card" id="qa-add-donation">
+              <div class="qa-icon-circle">🍲</div>
+              <strong>Add Donation</strong>
+            </div>
+            <div class="quick-action-card" id="qa-verify-ngo">
+              <div class="qa-icon-circle" style="background:#eff6ff; color:#2563eb;">🏢</div>
+              <strong>Verify NGO</strong>
+            </div>
+            <div class="quick-action-card" id="qa-manage-users">
+              <div class="qa-icon-circle" style="background:#fefce8; color:#a16207;">👥</div>
+              <strong>Manage Users</strong>
+            </div>
+            <div class="quick-action-card" id="qa-assign-vol">
+              <div class="qa-icon-circle" style="background:#ecfdf5; color:#059669;">🚚</div>
+              <strong>Dispatch Partner NGO</strong>
+            </div>
+            <div class="quick-action-card" id="qa-view-reports">
+              <div class="qa-icon-circle" style="background:#f3e8ff; color:#9333ea;">📊</div>
+              <strong>View Reports</strong>
+            </div>
+            <div class="quick-action-card" id="qa-broadcast-notif">
+              <div class="qa-icon-circle" style="background:#fef2f2; color:#dc2626;">📢</div>
+              <strong>Send Notification</strong>
+            </div>
+          </div>
+        </div>
+      </section>
+
+
+      <!-- ============================================================
+           SECTION 11: SETTINGS (#settings)
+           ============================================================ -->
+      <section class="dashboard-section" id="sec-settings">
+        <div class="card-panel">
+          <div class="panel-header">
+            <div class="panel-title-wrap">
+              <h3>Platform Settings & Configuration</h3>
+              <p>Adjust system operational parameters, API settings, and notifications</p>
+            </div>
+          </div>
+          <form id="system-settings-form" style="max-width: 680px;">
+            <div class="form-group">
+              <label>Platform Name</label>
+              <input type="text" class="form-input" value="Food Rescue Portal">
+            </div>
+            <div class="form-group">
+              <label>Auto-Expiry Threshold (Hours)</label>
+              <input type="number" class="form-input" value="24">
+            </div>
+            <div class="form-group">
+              <label>Default Search Radius (Kilometers)</label>
+              <input type="number" class="form-input" value="25">
+            </div>
+            <div class="form-group">
+              <label>Admin Notification Email</label>
+              <input type="email" class="form-input" autocomplete="email" placeholder="alerts@your-organization.org">
+            </div>
+            <button type="submit" class="btn-primary-cta">Save System Settings</button>
+          </form>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- 12. FOOTER -->
+    <footer class="admin-footer">
+      <div>
+        <strong>Food Rescue Admin Portal</strong> &bull; <span class="footer-slogan">Food Saved &bull; Lives Supported &bull; Waste Reduced</span>
+      </div>
+      <div>
+        <span>● System Status: Operational</span> &bull; <span>Version 2.4.0</span>
+      </div>
+    </footer>
+  </div>
+
+  <!-- ============================================================
+       MODALS & DIALOGS
+       ============================================================ -->
+  
+  <!-- 1. Add Donation Modal -->
+  <div class="modal-backdrop" id="modal-add-donation">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 class="modal-title">+ Add New Food Donation</h3>
+        <button type="button" class="modal-close-btn">&times;</button>
+      </div>
+      <form id="form-add-donation">
+        <div class="modal-body">
+          <div class="form-group">
+            <label>Food Item Name</label>
+            <input type="text" class="form-input" id="input-food-name" placeholder="e.g. Fresh Baked Bread & Pastries" required>
+          </div>
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px;">
+            <div class="form-group">
+              <label>Food Category</label>
+              <select class="form-select" id="input-food-category">
+                <option value="cooked_meals">Cooked Meals</option>
+                <option value="fresh_produce">Fresh Produce</option>
+                <option value="bakery">Bakery & Dairy</option>
+                <option value="packaged">Packaged Goods</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Quantity</label>
+              <input type="text" class="form-input" id="input-quantity" placeholder="e.g. 50 kg / 120 meals" required>
+            </div>
+          </div>
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px;">
+            <div class="form-group">
+              <label>Donor Business Name</label>
+              <input type="text" class="form-input" id="input-donor-name" placeholder="e.g. Metro Supermarket" required>
+            </div>
+            <div class="form-group">
+              <label>Pickup Location / City</label>
+              <input type="text" class="form-input" id="input-pickup-location" placeholder="e.g. Downtown, Main St" required>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Expiry Time Window (Hours)</label>
+            <input type="number" class="form-input" id="input-expiry-hours" value="6" required>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn-secondary modal-close-btn">Cancel</button>
+          <button type="submit" class="btn-primary-cta">Publish Donation</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 2. NGO Profile & Verification Modal -->
+  <div class="modal-backdrop" id="modal-ngo-profile">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 class="modal-title">NGO Profile & Verification Review</h3>
+        <button type="button" class="modal-close-btn">&times;</button>
+      </div>
+      <div class="modal-body" id="ngo-profile-modal-body">
+        <!-- Injected details -->
+      </div>
+      <div class="modal-footer" id="ngo-profile-modal-footer">
+        <!-- Actions -->
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. Assign Partner NGO Modal -->
+  <div class="modal-backdrop" id="modal-assign-partner">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 class="modal-title">Assign Partner NGO to Pickup</h3>
+        <button type="button" class="modal-close-btn">&times;</button>
+      </div>
+      <form id="form-assign-partner">
+        <div class="modal-body">
+          <div class="form-group">
+            <label>Select Unassigned Donation</label>
+            <select class="form-select" id="select-unassigned-donation">
+              <option value="FB-9402">#FB-9402 - Fresh Produce (80 kg) - Metro Supermarket</option>
+              <option value="FB-9405">#FB-9405 - Surplus Buffet Meals (150 meals) - Grand Plaza Hotel</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Select Available Partner NGO Fleet / Driver</label>
+            <select class="form-select" id="select-available-partner">
+              <option value="ngo-1">Hope Haven Shelter (NGO Rescue Van - 1.2 km away)</option>
+              <option value="ngo-2">Community Kitchen NGO (NGO Transport - 2.8 km away)</option>
+              <option value="ngo-3">City Harvest Shelter (NGO Truck - 4.1 km away)</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn-secondary modal-close-btn">Cancel</button>
+          <button type="submit" class="btn-primary-cta">Dispatch Partner NGO</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 4. Broadcast Notification Modal -->
+  <div class="modal-backdrop" id="modal-broadcast-notif">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 class="modal-title">📢 Broadcast Push Notification</h3>
+        <button type="button" class="modal-close-btn">&times;</button>
+      </div>
+      <form id="form-broadcast-notif">
+        <div class="modal-body">
+          <div class="form-group">
+            <label>Target Recipient Audience</label>
+            <select class="form-select" id="broadcast-target">
+              <option value="all">All Platform Users</option>
+              <option value="ngos">Verified Partner NGOs Only</option>
+              <option value="donors">Donors (Restaurants, Hotels, etc.) Only</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Notification Title</label>
+            <input type="text" class="form-input" id="broadcast-title" placeholder="e.g. Urgent Surplus Rescue Needed" required>
+          </div>
+          <div class="form-group">
+            <label>Message Content</label>
+            <textarea class="form-textarea" id="broadcast-body" rows="3" placeholder="Enter broadcast details..." required></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn-secondary modal-close-btn">Cancel</button>
+          <button type="submit" class="btn-primary-cta">Send Broadcast</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 5. Toast Notification Container -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- Scripts -->
+  <script type="module" src="../js/app.js"></script>
+  <script type="module" src="../js/admin-portal.js"></script>
+</body>
+</html>

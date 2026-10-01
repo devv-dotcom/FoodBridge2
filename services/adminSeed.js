@@ -3,22 +3,30 @@ const pool = require('../config/database');
 
 async function seedAdminAccount() {
   try {
-    const adminEmail = process.env.ADMIN_EMAIL || 'admin@foodbridge.org';
-    const adminPass = process.env.ADMIN_PASSWORD || 'AdminPassword123!';
+    const adminEmail = process.env.ADMIN_EMAIL;
+    const adminPass = process.env.ADMIN_PASSWORD;
+    if (!adminEmail || !adminPass) {
+      console.warn('[Admin Seed] Skipped: ADMIN_EMAIL and ADMIN_PASSWORD must be configured to provision an administrator.');
+      return;
+    }
     const adminName = 'System Administrator';
     // The users table requires a complete contact record even for system
     // accounts. Deployments may override these default seed values.
     const adminProfile = {
       mobile: process.env.ADMIN_MOBILE || '0000000000',
-      address: process.env.ADMIN_ADDRESS || 'FoodBridge System Office',
+      address: process.env.ADMIN_ADDRESS || 'Food Rescue System Office',
       city: process.env.ADMIN_CITY || 'System',
       state: process.env.ADMIN_STATE || 'System',
       pincode: process.env.ADMIN_PINCODE || '000000'
     };
 
-    // 0. Ensure login_otp columns exist in users table
+    // 0. Ensure login_otp and location columns exist in users table
     try {
       await pool.execute("ALTER TABLE users ADD COLUMN login_otp VARCHAR(255) NULL, ADD COLUMN login_otp_expires_at DATETIME NULL");
+    } catch (_) { /* columns already exist */ }
+
+    try {
+      await pool.execute("ALTER TABLE users ADD COLUMN latitude DECIMAL(10,7) NULL, ADD COLUMN longitude DECIMAL(10,7) NULL");
     } catch (_) { /* columns already exist */ }
 
     // 1. Check if user with adminEmail exists

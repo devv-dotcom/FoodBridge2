@@ -5,8 +5,41 @@ const User = require('../models/User');
 const NGO = require('../models/NGO');
 const Donation = require('../models/Donation');
 const AcceptedDonation = require('../models/AcceptedDonation');
+const { sendNotification, awardPoints } = require('../utils/notify');
 
 const tokenFor = user => jwt.sign({ sub: user.id, role: 'ngo' }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRES_IN || '7d' });
+
+const enrichWithCountdown = (d, userLat = null, userLon = null) => {
+  if (!d) return d;
+  const now = Date.now();
+  const expiry = new Date(d.expiry_time).getTime();
+  const diffMs = expiry - now;
+  const diffHours = diffMs / (1000 * 60 * 60);
+  const diffMins = Math.max(0, Math.floor(diffMs / (1000 * 60)));
+  const hrs = Math.floor(diffMins / 60);
+  const mins = diffMins % 60;
+
+  let distanceKm = null;
+  if (userLat && userLon && d.latitude && d.longitude) {
+    const R = 6371;
+    const dLat = (d.latitude - userLat) * Math.PI / 180;
+    const dLon = (d.longitude - userLon) * Math.PI / 180;
+    const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+              Math.cos(userLat * Math.PI / 180) * Math.cos(d.latitude * Math.PI / 180) *
+              Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    distanceKm = Number((R * c).toFixed(1));
+  }
+  
+  return {
+    ...d,
+    distance_km: distanceKm,
+    hours_remaining: Number(diffHours.toFixed(1)),
+    is_urgent: diffHours <= 2.5 && diffHours > 0,
+    is_expired: diffMs <= 0,
+    countdown_text: diffMs <= 0 ? 'Expired' : `${hrs}h ${mins}m left`
+  };
+};
 
 exports.registerNGO = async (req, res, next) => {
   const connection = await pool.getConnection();
@@ -47,7 +80,36 @@ exports.updateProfile = async (req, res, next) => {
     return res.json({ success: true, message: 'NGO profile updated successfully.', profile: await NGO.findByUserId(req.user.id) });
   } catch (error) { await connection.rollback(); next(error); } finally { connection.release(); }
 };
-exports.browseDonations = async (req, res, next) => { try { return res.json({ success: true, donations: await Donation.list({ where: "WHERE d.status = 'available'", limit: req.query.limit || 20, offset: req.query.offset || 0 }) }); } catch (error) { next(error); } };
+
+exports.browseDonations = async (req, res, next) => {
+  try {
+    const userLat = Number(req.query.latitude) || null;
+    const userLon = Number(req.query.longitude) || null;
+    const radiusKm = Number(req.query.radiusKm) || 50;
+
+    let where = "WHERE d.status = 'available' AND d.expiry_time > NOW()";
+    const values = [];
+
+    if (userLat && userLon) {
+      where += ' AND d.latitude IS NOT NULL AND d.longitude IS NOT NULL AND (6371 * ACOS(COS(RADIANS(?)) * COS(RADIANS(d.latitude)) * COS(RADIANS(d.longitude) - RADIANS(?)) + SIN(RADIANS(?)) * SIN(RADIANS(d.latitude)))) <= ?';
+      values.push(userLat, userLon, userLat, radiusKm);
+    }
+
+    const donations = await Donation.list({ where, values, limit: req.query.limit || 50, offset: req.query.offset || 0 });
+    let mapped = donations.map(d => enrichWithCountdown(d, userLat, userLon));
+
+    // Sort: urgent first, then distance or date
+    mapped.sort((a, b) => {
+      if (a.is_urgent && !b.is_urgent) return -1;
+      if (!a.is_urgent && b.is_urgent) return 1;
+      if (a.distance_km !== null && b.distance_km !== null) return a.distance_km - b.distance_km;
+      return new Date(a.expiry_time) - new Date(b.expiry_time);
+    });
+
+    return res.json({ success: true, donations: mapped });
+  } catch (error) { next(error); }
+};
+
 exports.acceptDonation = async (req, res, next) => {
   const connection = await pool.getConnection();
   try {
@@ -56,11 +118,45 @@ exports.acceptDonation = async (req, res, next) => {
     await connection.beginTransaction();
     const accepted = await AcceptedDonation.accept(connection, req.params.id, ngo.id);
     if (!accepted) { await connection.rollback(); return res.status(409).json({ success: false, message: 'This donation is no longer available.' }); }
+    
+    // Fetch donation and donor info
+    const [dRows] = await connection.execute('SELECT business_user_id, food_name, quantity FROM donations WHERE id = ?', [req.params.id]);
+    const dInfo = dRows[0];
+
+    // Award 50 points to NGO for accepting
+    await awardPoints(req.user.id, 50, connection);
+
+    // Notify donor
+    if (dInfo) {
+      await sendNotification({
+        recipientUserId: dInfo.business_user_id,
+        title: '🤝 Donation Accepted by NGO!',
+        message: `Your donation "${dInfo.food_name}" has been accepted by ${ngo.ngo_name || 'an NGO'}. A pickup volunteer will be assigned shortly.`,
+        connection
+      });
+    }
+
+    // Broadcast to online volunteers
+    await sendNotification({
+      targetRole: 'volunteer',
+      title: '🚚 New Pickup Route Available',
+      message: `Pickup available for ${ngo.ngo_name || 'an NGO'}: "${dInfo?.food_name || 'Food rescue'}". Accept pickup in your portal!`,
+      connection
+    });
+
     await connection.commit();
-    return res.json({ success: true, message: 'Donation accepted successfully.' });
+    return res.json({ success: true, message: 'Donation accepted successfully! Points awarded.' });
   } catch (error) { await connection.rollback(); next(error); } finally { connection.release(); }
 };
-exports.history = async (req, res, next) => { try { const ngo = await NGO.findByUserId(req.user.id); return res.json({ success: true, donations: ngo ? await AcceptedDonation.history(ngo.id) : [] }); } catch (error) { next(error); } };
+
+exports.history = async (req, res, next) => {
+  try {
+    const ngo = await NGO.findByUserId(req.user.id);
+    const history = ngo ? await AcceptedDonation.history(ngo.id) : [];
+    return res.json({ success: true, donations: history.map(d => enrichWithCountdown(d)) });
+  } catch (error) { next(error); }
+};
+
 exports.confirmDelivery = async (req, res, next) => {
   const connection = await pool.getConnection();
   try {
@@ -79,7 +175,39 @@ exports.confirmDelivery = async (req, res, next) => {
       return res.status(400).json({ success: false, message: 'Donation delivery cannot be confirmed at this stage or does not belong to your NGO.' });
     }
     await connection.execute(`UPDATE pickup_requests SET status = 'completed' WHERE donation_id = ?`, [req.params.id]);
+
+    // Fetch volunteer & donor user IDs
+    const [pRows] = await connection.execute(
+      `SELECT pr.volunteer_id, v.user_id AS volunteer_user_id, d.business_user_id, d.food_name, d.number_of_meals
+       FROM pickup_requests pr
+       JOIN donations d ON d.id = pr.donation_id
+       LEFT JOIN volunteers v ON v.id = pr.volunteer_id
+       WHERE pr.donation_id = ?`,
+      [req.params.id]
+    );
+    const pInfo = pRows[0];
+
+    // Award completion points:
+    // NGO: 100 points
+    await awardPoints(req.user.id, 100, connection);
+    if (pInfo) {
+      // Donor: 50 completion bonus points
+      await awardPoints(pInfo.business_user_id, 50, connection);
+      // Volunteer: 100 points
+      if (pInfo.volunteer_user_id) {
+        await awardPoints(pInfo.volunteer_user_id, 100, connection);
+      }
+
+      // Notify donor
+      await sendNotification({
+        recipientUserId: pInfo.business_user_id,
+        title: '🎉 Rescue Completed & Certificate Ready!',
+        message: `Your donation "${pInfo.food_name}" was safely distributed to beneficiaries! You earned 50 impact points and your digital certificate is ready in your dashboard.`,
+        connection
+      });
+    }
+
     await connection.commit();
-    return res.json({ success: true, message: 'Delivery confirmed successfully! Donation marked as completed.' });
+    return res.json({ success: true, message: 'Delivery confirmed successfully! Donation marked as completed and impact points credited.' });
   } catch (error) { await connection.rollback(); next(error); } finally { connection.release(); }
 };

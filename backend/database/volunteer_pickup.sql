@@ -1,4 +1,4 @@
--- FoodBridge Modules 6 and 7: run after schema.sql and donation_ngo.sql.
+-- Food Rescue Modules 6 and 7: run after schema.sql and donation_ngo.sql.
 USE foodbridge;
 
 CREATE TABLE IF NOT EXISTS volunteers (

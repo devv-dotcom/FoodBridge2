@@ -84,16 +84,8 @@ exports.login = async (req, res, next) => {
     const user = await User.findByEmail(email);
     const valid = user && await bcrypt.compare(req.body.password, user.password);
     if (!valid) return res.status(401).json({ success: false, message: 'Invalid email or password.' });
-
-    // Administrators authenticate directly
     if (user.role === 'admin') {
-      await pool.execute('UPDATE admins SET last_login_at = CURRENT_TIMESTAMP WHERE user_id = ?', [user.id]).catch(() => {});
-      return res.json({
-        success: true,
-        message: 'Administrator signed in successfully.',
-        token: signAccessToken(user),
-        user: serializeUser(user)
-      });
+      return res.status(403).json({ success: false, message: 'Administrators must use the administrator sign-in page.' });
     }
 
     const isDonorUser = BUSINESS_ROLES.includes(user.role);
@@ -113,15 +105,9 @@ exports.login = async (req, res, next) => {
     }
 
     const isDev = process.env.NODE_ENV !== 'production';
-
-    // In development mode, sign in directly with valid credentials
-    if (isDev) {
-      return res.json({
-        success: true,
-        message: 'Signed in successfully. Welcome back to Food Rescue.',
-        token: signAccessToken(user),
-        user: serializeUser(user)
-      });
+    // Volunteer login is outside the current Food Rescue authentication rollout.
+    if (isDev && user.role === 'volunteer') {
+      return res.json({ success: true, message: 'Signed in successfully.', token: signAccessToken(user), user: serializeUser(user) });
     }
 
     const otp = crypto.randomInt(100000, 1000000).toString();
@@ -135,7 +121,7 @@ exports.login = async (req, res, next) => {
       console.warn('Login OTP email delivery notice:', mailError.message || mailError);
     }
 
-    if (mailFailed && !isDev) {
+    if (mailFailed) {
       await User.clearLoginOtp(user.id);
       return res.status(503).json({ success: false, message: 'We could not deliver a sign-in code. Please try again later.' });
     }
@@ -145,10 +131,7 @@ exports.login = async (req, res, next) => {
       requiresOtp: true,
       email: user.email,
       role: user.role,
-      devOtp: isDev ? otp : undefined,
-      message: mailFailed
-        ? `Development mode: Sign-in code is ${otp}`
-        : 'We sent a 6-digit sign-in code to your email. Enter it to finish signing in.'
+      message: 'We sent a 6-digit sign-in code to your email. Enter it to finish signing in.'
     });
   } catch (error) { next(error); }
 };
@@ -156,15 +139,14 @@ exports.login = async (req, res, next) => {
 exports.verifyLoginOtp = async (req, res, next) => {
   try {
     const user = await User.findByEmail(req.body.email);
-    const isDev = process.env.NODE_ENV !== 'production';
-    const isMasterDevCode = isDev && (req.body.otp === '123456' || req.body.otp === '000000');
     const expired = !user?.login_otp_expires_at || new Date(user.login_otp_expires_at) < new Date();
-    const isValidOtp = isMasterDevCode || (user?.login_otp && !expired && otpHash(req.body.otp) === user.login_otp);
-
-    if (!user || !isValidOtp) {
+    const candidateHash = otpHash(req.body.otp);
+    if (!user || !user.login_otp || expired || candidateHash !== user.login_otp) {
       return res.status(400).json({ success: false, message: 'The sign-in code is invalid or has expired.' });
     }
-    await Promise.all([User.clearLoginOtp(user.id), User.markEmailVerified(user.id)]);
+    const consumed = await User.consumeLoginOtp(user.id, candidateHash);
+    if (!consumed) return res.status(400).json({ success: false, message: 'The sign-in code is invalid or has expired.' });
+    await User.markEmailVerified(user.id);
     if (user.role === 'admin') await pool.execute('UPDATE admins SET last_login_at = CURRENT_TIMESTAMP WHERE user_id = ?', [user.id]);
     const publicUser = await User.findPublicById(user.id);
     return res.json({ success: true, message: 'Email verified. Welcome back to Food Rescue.', token: signAccessToken(publicUser), user: serializeUser(publicUser) });
@@ -178,8 +160,17 @@ exports.resendLoginOtp = async (req, res, next) => {
     if (!user) return res.json({ success: true, message: 'If that account is eligible, a new sign-in code has been sent.' });
     const otp = crypto.randomInt(100000, 1000000).toString();
     await User.saveLoginOtp(user.email, otpHash(otp), new Date(Date.now() + loginOtpLifetimeMs));
-    await sendLoginOtp({ email: user.email, fullName: user.full_name, otp });
-    return res.json({ success: true, message: 'If that account is eligible, a new sign-in code has been sent.' });
+    try {
+      await sendLoginOtp({ email: user.email, fullName: user.full_name, otp });
+    } catch (mailError) {
+      await User.clearLoginOtp(user.id);
+      console.warn('Login OTP resend delivery failed.', { code: mailError.code || 'MAIL_DELIVERY_FAILED' });
+      return res.status(503).json({ success: false, message: 'We could not deliver a sign-in code. Please try again later.' });
+    }
+    return res.json({
+      success: true,
+      message: 'If that account is eligible, a new sign-in code has been sent.'
+    });
   } catch (error) { next(error); }
 };
 

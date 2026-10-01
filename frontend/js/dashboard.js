@@ -1,5 +1,24 @@
 import { fetchProfile, notifyError, request } from './api.js';
-import { $, $$, escapeHtml, renderList } from './utils.js';
+import { $, $$, escapeHtml, renderList, toast, setLoading } from './utils.js';
+import { downloadCertificate } from './certificate.js';
+import { openLiveTracker } from './liveTracking.js';
+import { openSmartMatchModal } from './smartMatch.js';
+import { openLeaderboardModal } from './leaderboard.js';
+import { initExpiryCountdowns } from './features.js';
+
+let userCoords = null;
+const acquireCoords = () => new Promise(resolve => {
+  if (userCoords) return resolve(userCoords);
+  if (!navigator.geolocation) return resolve(null);
+  navigator.geolocation.getCurrentPosition(
+    pos => {
+      userCoords = { latitude: pos.coords.latitude, longitude: pos.coords.longitude };
+      resolve(userCoords);
+    },
+    () => resolve(null),
+    { timeout: 8000 }
+  );
+});
 
 const setValues = (data, root = document) => $$('[data-api-value]', root).forEach(element => {
   const value = element.dataset.apiValue.split('.').reduce((current, key) => current?.[key], data);
@@ -11,136 +30,337 @@ const formatStatus = status => {
   return `<span class="status-pill status-${status}">${escapeHtml(formatted)}</span>`;
 };
 
-const donationRow = donation => {
-  const item = document.createElement('article');
-  item.className = 'donation-card';
-  item.innerHTML = `<div><div style="display:flex; justify-content:space-between; align-items:flex-start;"><h3>${escapeHtml(donation.food_name || 'Food Item')}</h3>${formatStatus(donation.status)}</div><p><strong>Quantity:</strong> ${escapeHtml(donation.quantity || '—')} &bull; <strong>Address:</strong> ${escapeHtml(donation.pickup_address || donation.city || '')}</p></div>`;
-  return item;
-};
+/**
+ * Universal Action Handler: Delegated clicks for Smart Match, Tracking, Certificates, Leaderboards
+ */
+document.addEventListener('click', async event => {
+  // Download Certificate
+  const certBtn = event.target.closest('[data-action="download-cert"]');
+  if (certBtn) {
+    event.preventDefault();
+    await downloadCertificate(certBtn.dataset.id);
+    return;
+  }
 
-const ngoAvailableRow = donation => {
-  const card = document.createElement('article');
-  card.className = 'donation-card';
-  card.innerHTML = `
-    <div style="display:flex; justify-content:space-between; align-items:flex-start;">
-      <h3>${escapeHtml(donation.food_name || 'Surplus Food')}</h3>
-      <span class="card-badge">🛡️ Safety Verified</span>
-    </div>
-    <p>
-      <strong>Quantity:</strong> ${escapeHtml(donation.quantity || '—')} &bull; 
-      <strong>Type:</strong> ${escapeHtml(donation.food_type === 'non_veg' ? 'Non-Veg' : 'Veg')}
-      ${donation.number_of_meals ? ` &bull; <strong>Serves:</strong> ~${escapeHtml(donation.number_of_meals)} people` : ''}
-    </p>
-    <p><strong>Donor / Location:</strong> ${escapeHtml(donation.business_name || '')} &bull; ${escapeHtml(donation.pickup_address || donation.city || '')}</p>
-    <button type="button" class="btn-accept" data-action="accept-donation" data-id="${donation.id}">Accept Donation</button>
-  `;
-  return card;
-};
+  // Open Live Tracker
+  const trackBtn = event.target.closest('[data-action="track-pickup"]');
+  if (trackBtn) {
+    event.preventDefault();
+    await openLiveTracker(trackBtn.dataset.id);
+    return;
+  }
 
-const ngoHistoryRow = donation => {
-  const card = document.createElement('article');
-  card.className = 'donation-card';
-  const showConfirm = donation.status === 'delivered' || donation.status === 'picked_up' || donation.status === 'accepted';
-  const actionBtn = showConfirm && donation.status !== 'completed'
-    ? `<button type="button" class="btn-confirm" data-action="confirm-delivery" data-id="${donation.id}">Confirm Delivery</button>`
-    : formatStatus(donation.status);
-  
-  card.innerHTML = `
-    <div style="display:flex; justify-content:space-between; align-items:flex-start;">
-      <h3>${escapeHtml(donation.food_name || 'Rescued Food')}</h3>
-      ${formatStatus(donation.status)}
-    </div>
-    <p><strong>Quantity:</strong> ${escapeHtml(donation.quantity || '—')} &bull; <strong>Address:</strong> ${escapeHtml(donation.pickup_address || donation.city || '')}</p>
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px;">
-      ${actionBtn}
-    </div>
-  `;
-  return card;
-};
+  // Open Smart Match
+  const matchBtn = event.target.closest('[data-action="smart-match"]');
+  if (matchBtn) {
+    event.preventDefault();
+    await openSmartMatchModal(matchBtn.dataset.id);
+    return;
+  }
 
+  // Open Leaderboard
+  const leaderBtn = event.target.closest('[data-action="open-leaderboard"]');
+  if (leaderBtn) {
+    event.preventDefault();
+    await openLeaderboardModal();
+    return;
+  }
+
+  // Accept Pickup Mission
+  const acceptPickupBtn = event.target.closest('[data-action="accept-pickup"]');
+  if (acceptPickupBtn) {
+    event.preventDefault();
+    const id = acceptPickupBtn.dataset.id;
+    try {
+      setLoading(acceptPickupBtn, true, 'Accepting…');
+      await request(`/api/pickups/accept/${id}`, { method: 'POST' });
+      toast('🎉 Mission Accepted! Pickup route added to active assignments.');
+      setTimeout(() => location.reload(), 700);
+    } catch (err) {
+      notifyError(err);
+      setLoading(acceptPickupBtn, false);
+    }
+    return;
+  }
+
+  // Advance Pickup Stage
+  const advanceBtn = event.target.closest('[data-action="advance-stage"]');
+  if (advanceBtn) {
+    event.preventDefault();
+    const { id, nextStage } = advanceBtn.dataset;
+    try {
+      setLoading(advanceBtn, true, 'Updating…');
+      await request(`/api/pickups/${nextStage}/${id}`, { method: 'PUT' });
+      toast(`Stage updated successfully!`);
+      setTimeout(() => location.reload(), 600);
+    } catch (err) {
+      notifyError(err);
+      setLoading(advanceBtn, false);
+    }
+    return;
+  }
+
+  // Accept Donation (NGO)
+  const acceptDonationBtn = event.target.closest('[data-action="accept-donation"]');
+  if (acceptDonationBtn) {
+    event.preventDefault();
+    const id = acceptDonationBtn.dataset.id;
+    try {
+      setLoading(acceptDonationBtn, true, 'Claiming…');
+      await request(`/api/ngo/accept/${id}`, { method: 'POST' });
+      toast('🎉 Donation claimed! NGO pickup scheduled.');
+      setTimeout(() => location.reload(), 700);
+    } catch (err) {
+      notifyError(err);
+      setLoading(acceptDonationBtn, false);
+    }
+    return;
+  }
+
+  // Confirm Delivery / Distribution (NGO)
+  const confirmDeliveryBtn = event.target.closest('[data-action="confirm-delivery"]');
+  if (confirmDeliveryBtn) {
+    event.preventDefault();
+    const id = confirmDeliveryBtn.dataset.id;
+    try {
+      setLoading(confirmDeliveryBtn, true, 'Confirming…');
+      await request(`/api/ngo/confirm-delivery/${id}`, { method: 'POST', body: { numberOfPeopleFed: 25 } });
+      toast('✅ Delivery confirmed! Impact points recorded.');
+      setTimeout(() => location.reload(), 700);
+    } catch (err) {
+      notifyError(err);
+      setLoading(confirmDeliveryBtn, false);
+    }
+    return;
+  }
+});
+
+/**
+ * Business Dashboard
+ */
 export const initBusinessDashboard = async () => {
   if (!document.body.matches('[data-dashboard="business"]')) return;
   try {
-    const [dashboard, donations] = await Promise.all([request('/api/business/dashboard'), request('/api/donations')]);
+    const [dashboard, donations, rewards] = await Promise.all([
+      request('/api/business/dashboard'),
+      request('/api/donations'),
+      request('/api/rewards/my-points').catch(() => ({ points: 0, badge: 'Bronze Hero' }))
+    ]);
+
     setValues(dashboard.dashboard);
-    renderList($('#donation-history'), donations.donations, donationRow, '<div class="dash-empty-state"><div class="dash-empty-icon">🍲</div><strong>No donations listed yet.</strong><p>Your published food donations will appear here.</p></div>');
+
+    // Set Impact Points & Badge
+    const ptsEl = document.querySelector('[data-metric="my-points"]');
+    const badgeEl = document.querySelector('[data-metric="my-badge"]');
+    if (ptsEl) ptsEl.textContent = `${rewards.points || 0} pts`;
+    if (badgeEl) badgeEl.textContent = rewards.badge || 'Bronze Hero';
+
+    renderList($('#donation-history'), donations.donations, d => {
+      const item = document.createElement('article');
+      item.className = 'api-list-item';
+      const isCompleted = d.status === 'completed' || d.status === 'delivered';
+      const certAction = isCompleted
+        ? `<button type="button" class="btn-cert" data-action="download-cert" data-id="${d.id}">📜 Get Certificate</button>`
+        : '';
+      const smartAction = d.status === 'available'
+        ? `<button type="button" class="btn-smart-sm" data-action="smart-match" data-id="${d.id}">🤖 AI Dispatch</button>`
+        : '';
+
+      item.innerHTML = `
+        <div style="display:flex; flex-direction:column; gap:4px;">
+          <strong>${escapeHtml(d.food_name || 'Food Listing')}</strong>
+          <span style="font-size:.82rem; color:#657166;">
+            ${escapeHtml(d.quantity || '')} &bull; ${escapeHtml(d.pickup_address || d.city || '')}
+          </span>
+          <span data-expiry-time="${d.expiry_time}">${d.countdown_text || ''}</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:8px;">
+          ${smartAction}
+          ${formatStatus(d.status)}
+          ${certAction}
+        </div>
+      `;
+      return item;
+    }, 'No donations listed yet.');
+
+    initExpiryCountdowns();
   } catch (error) { notifyError(error); }
 };
 
+/**
+ * NGO Dashboard
+ */
 export const initNgoDashboard = async () => {
   if (!document.body.matches('[data-dashboard="ngo"]')) return;
   try {
-    const [profile, donations, history] = await Promise.all([fetchProfile('/api/ngo/profile'), request('/api/ngo/donations'), request('/api/ngo/history')]);
+    const coords = await acquireCoords();
+    const queryParams = coords ? `?latitude=${coords.latitude}&longitude=${coords.longitude}&radiusKm=35` : '';
+
+    const [profile, donations, history, rewards] = await Promise.all([
+      fetchProfile('/api/ngo/profile'),
+      request(`/api/ngo/donations${queryParams}`),
+      request('/api/ngo/history'),
+      request('/api/rewards/my-points').catch(() => ({ points: 0, badge: 'Active Partner' }))
+    ]);
+
     setValues(profile.profile);
 
-    const availableList = donations.donations || [];
-    const historyList = history.donations || [];
+    const ptsEl = document.querySelector('[data-metric="my-points"]');
+    if (ptsEl) ptsEl.textContent = `${rewards.points || 0} pts`;
 
-    // Compute NGO metrics
-    const countAvailable = availableList.length;
-    const countActive = historyList.filter(d => ['accepted', 'pending_pickup', 'volunteer_assigned', 'pickup_started', 'food_collected'].includes(d.status)).length;
-    const countCompleted = historyList.filter(d => d.status === 'completed' || d.status === 'delivered').length;
-    const countImpact = historyList.reduce((acc, curr) => acc + Number(curr.number_of_meals || 25), 0);
+    const availItems = donations.donations || [];
+    const histItems = history.donations || [];
 
-    const elAvail = $('#count-ngo-available');
-    const elAct = $('#count-ngo-active');
-    const elComp = $('#count-ngo-completed');
-    const elImp = $('#count-ngo-impact');
-    const elHeroCount = $('#hero-ngo-count');
+    const setTxt = (id, val) => { const el = $(`#${id}`); if (el) el.textContent = val; };
+    setTxt('count-ngo-available', availItems.length);
+    setTxt('count-ngo-active', histItems.filter(d => ['accepted','volunteer_assigned','in_transit'].includes(d.status)).length);
+    setTxt('count-ngo-completed', histItems.filter(d => ['delivered','completed'].includes(d.status)).length);
+    const totalImpact = histItems.reduce((sum, d) => sum + (Number(d.number_of_meals) || 25), 0);
+    setTxt('count-ngo-impact', totalImpact > 0 ? `${totalImpact.toLocaleString()} meals` : '0');
 
-    if (elAvail) elAvail.textContent = countAvailable;
-    if (elAct) elAct.textContent = countActive;
-    if (elComp) elComp.textContent = countCompleted;
-    if (elImp) elImp.textContent = countImpact > 0 ? `${countImpact}+` : '0';
-    if (elHeroCount) elHeroCount.textContent = countAvailable;
+    // Available Donations Card Renderer
+    const renderAvailableDonation = d => {
+      const card = document.createElement('article');
+      card.className = `donation-card ${d.is_urgent ? 'urgent-border' : ''}`;
+      const distBadge = d.distance_km !== null
+        ? `<span class="badge-distance">📍 ${d.distance_km} km away</span>`
+        : '';
+      const urgentBadge = d.is_urgent
+        ? `<span class="badge-urgent-tag">🚨 Urgent (<2h)</span>`
+        : '';
 
-    const ngoEmptyAvailable = '<div class="dash-empty-state"><div class="dash-empty-icon">🍲</div><strong>No Food Donations Right Now</strong><p>New donation opportunities will appear here when food becomes available.</p></div>';
-    const ngoEmptyHistory = '<div class="dash-empty-state"><div class="dash-empty-icon">📦</div><strong>No donation history yet.</strong><p>Accepted food rescues will appear here.</p></div>';
+      card.innerHTML = `
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px;">
+          <div>
+            <h3 style="margin:0 0 4px;">${escapeHtml(d.food_name)}</h3>
+            <div style="display:flex; gap:6px; align-items:center; flex-wrap:wrap;">
+              ${distBadge}
+              ${urgentBadge}
+              <span class="badge-verified">🛡️ Safety Verified</span>
+            </div>
+          </div>
+          <span data-expiry-time="${d.expiry_time}">${d.countdown_text || ''}</span>
+        </div>
+        <p style="margin:6px 0 12px; font-size:.86rem; color:#475549;">
+          <strong>Quantity:</strong> ${escapeHtml(d.quantity)} &bull; 
+          <strong>Type:</strong> ${escapeHtml(d.food_type === 'veg' ? '🥦 Veg' : '🍗 Non-Veg')} &bull; 
+          <strong>Location:</strong> ${escapeHtml(d.pickup_address || d.city || '')}
+        </p>
+        <div style="display:flex; gap:8px;">
+          <button type="button" class="btn-accept" data-action="accept-donation" data-id="${d.id}">Accept Donation</button>
+          <button type="button" class="btn-smart-sm" data-action="smart-match" data-id="${d.id}">🤖 Smart Match</button>
+        </div>
+      `;
+      return card;
+    };
 
-    renderList($('#available-donations'), availableList, ngoAvailableRow, ngoEmptyAvailable);
-    renderList($('#ngo-history'), historyList, ngoHistoryRow, ngoEmptyHistory);
+    const availTarget = $('#available-donations-list') || $('#available-donations');
+    renderList(availTarget, availItems, renderAvailableDonation, 'No food donations are currently available in your radius.');
+
+    // History Card Renderer
+    renderList($('#ngo-history'), history.donations, d => {
+      const card = document.createElement('article');
+      card.className = 'donation-card';
+      const showConfirm = d.status === 'delivered' || d.status === 'picked_up' || d.status === 'accepted';
+      const actionBtn = showConfirm && d.status !== 'completed'
+        ? `<button type="button" class="btn-confirm" data-action="confirm-delivery" data-id="${d.id}">Confirm Delivery</button>`
+        : formatStatus(d.status);
+
+      card.innerHTML = `
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <div>
+            <h3 style="margin:0;">${escapeHtml(d.food_name)}</h3>
+            <small style="color:#666;">${escapeHtml(d.quantity)} &bull; ${escapeHtml(d.pickup_address || '')}</small>
+          </div>
+          <div style="display:flex; gap:8px; align-items:center;">
+            ${formatStatus(d.status)}
+            ${actionBtn}
+          </div>
+        </div>
+      `;
+      return card;
+    }, 'No donation history yet.');
+
+    initExpiryCountdowns();
   } catch (error) { notifyError(error); }
 };
 
-export const initVolunteerDashboard = async () => {
-  if (!document.body.matches('[data-dashboard="volunteer"]')) return;
-  try {
-    const [profile, assigned, history] = await Promise.all([fetchProfile('/api/volunteer/profile'), request('/api/volunteer/pickups'), request('/api/volunteer/history')]);
-    setValues(profile.profile);
 
-    const assignedList = assigned.pickups || [];
-    const historyList = history.pickups || [];
-
-    // Compute Volunteer metrics
-    const countAvailable = assignedList.filter(p => p.status === 'pending' || p.status === 'available').length;
-    const countActive = assignedList.filter(p => ['volunteer_assigned', 'pickup_started', 'food_collected'].includes(p.status)).length;
-    const countCompleted = historyList.length;
-    const countImpact = countCompleted * 35;
-
-    const elAvail = $('#count-vol-available');
-    const elAct = $('#count-vol-active');
-    const elComp = $('#count-vol-completed');
-    const elImp = $('#count-vol-impact');
-    const elHeroCount = $('#hero-vol-count');
-
-    if (elAvail) elAvail.textContent = countAvailable;
-    if (elAct) elAct.textContent = countActive;
-    if (elComp) elComp.textContent = countCompleted;
-    if (elImp) elImp.textContent = countImpact > 0 ? `${countImpact}+` : '0';
-    if (elHeroCount) elHeroCount.textContent = countAvailable;
-
-    const volEmptyAssigned = '<div class="dash-empty-state"><div class="dash-empty-icon">🤝</div><strong>No Rescue Opportunities Right Now</strong><p>Take a break — we’ll show new opportunities here when food donations become available.</p></div>';
-    const volEmptyHistory = '<div class="dash-empty-state"><div class="dash-empty-icon">🏆</div><strong>No pickup history yet.</strong><p>Completed food rescue tasks will be recorded here.</p></div>';
-
-    renderList($('#assigned-pickups'), assignedList, donationRow, volEmptyAssigned);
-    renderList($('#pickup-history'), historyList, donationRow, volEmptyHistory);
-  } catch (error) { notifyError(error); }
-};
-
+/**
+ * Admin Dashboard & Live Operations Command Center
+ */
 export const initAdminDashboard = async () => {
   if (!document.body.matches('[data-dashboard="admin"]')) return;
   try {
-    const dashboard = await request('/api/admin/dashboard');
+    const [dashboard, analytics, businesses, ngos, volunteers] = await Promise.all([
+      request('/api/admin/dashboard'),
+      request('/api/admin/analytics'),
+      request('/api/admin/businesses?limit=5'),
+      request('/api/admin/ngos?limit=5'),
+      request('/api/admin/volunteers?limit=5')
+    ]);
+
     setValues(dashboard.dashboard);
+
+    // Live Operations status cards
+    const liveStats = analytics.analytics?.liveStatus || {};
+    const setStat = (sel, val) => {
+      const el = document.querySelector(sel);
+      if (el) el.textContent = val ?? 0;
+    };
+
+    setStat('[data-metric="urgent-donations"]', liveStats.urgent_donations || 0);
+    setStat('[data-metric="available-donations"]', liveStats.available_donations || 0);
+    setStat('[data-metric="active-operations"]', liveStats.active_operations || 0);
+    setStat('[data-metric="completed-donations"]', liveStats.completed_donations || 0);
+
+    // Dynamic environmental stats
+    const a = analytics.analytics || {};
+    setStat('[data-metric="kg-food-saved"]', `${a.kgFoodSaved || 0} kg`);
+    setStat('[data-metric="co2-avoided"]', `${a.co2AvoidedKg || 0} kg`);
+    setStat('[data-metric="beneficiaries"]', a.beneficiariesReached || 0);
+
+    // Moderation queue table: Pending Verification
+    const modContainer = document.getElementById('pending-moderation-list');
+    if (modContainer) {
+      const allPending = [
+        ...(businesses.businesses || []).map(b => ({ id: b.id, name: b.business_name || b.full_name, role: 'business', status: b.account_status })),
+        ...(ngos.ngos || []).map(n => ({ id: n.id, name: n.ngo_name || n.full_name, role: 'ngo', status: n.account_status })),
+        ...(volunteers.volunteers || []).map(v => ({ id: v.id, name: v.full_name, role: 'volunteer', status: v.account_status }))
+      ].filter(x => x.status === 'pending');
+
+      renderList(modContainer, allPending, item => {
+        const row = document.createElement('div');
+        row.className = 'moderation-row';
+        row.innerHTML = `
+          <div>
+            <strong>${escapeHtml(item.name)}</strong>
+            <span class="badge-role">${item.role.toUpperCase()}</span>
+          </div>
+          <div style="display:flex; gap:6px;">
+            <button type="button" class="btn-approve" data-mod-role="${item.role}" data-mod-id="${item.id}">Approve</button>
+            <button type="button" class="btn-reject" data-mod-role="${item.role}" data-mod-id="${item.id}">Reject</button>
+          </div>
+        `;
+        return row;
+      }, 'No pending partner verifications.');
+
+      modContainer.addEventListener('click', async e => {
+        const approveBtn = e.target.closest('.btn-approve');
+        const rejectBtn = e.target.closest('.btn-reject');
+        if (approveBtn) {
+          const { modRole, modId } = approveBtn.dataset;
+          await request(`/api/admin/${modRole}/approve/${modId}`, { method: 'PUT' });
+          toast(`${modRole} approved successfully!`);
+          approveBtn.closest('.moderation-row')?.remove();
+        } else if (rejectBtn) {
+          const { modRole, modId } = rejectBtn.dataset;
+          await request(`/api/admin/${modRole}/reject/${modId}`, { method: 'PUT' });
+          toast(`${modRole} rejected.`);
+          rejectBtn.closest('.moderation-row')?.remove();
+        }
+      });
+    }
+
   } catch (error) { notifyError(error); }
 };

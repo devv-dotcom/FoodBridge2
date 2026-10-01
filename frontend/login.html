@@ -3,8 +3,8 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Sign in to your FoodBridge account." />
-    <title>Sign in · FoodBridge</title>
+    <meta name="description" content="Sign in to your Food Rescue account." />
+    <title>Sign in · Food Rescue</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;1,600&display=swap" rel="stylesheet" />
@@ -35,8 +35,8 @@
   </head>
   <body data-guest-only="true">
     <main>
-      <section class="intro" aria-label="FoodBridge introduction">
-        <a class="brand" href="index.html"><span class="mark">FB</span>FoodBridge</a>
+      <section class="intro" aria-label="Food Rescue introduction">
+        <a class="brand" href="index.html"><span class="mark">FR</span>Food Rescue</a>
         <div><h1>Good food<br /><em>finds its way.</em></h1><p>Sign in to manage donations, coordinate pickups, and make every rescue count.</p></div>
         <small>Reducing food waste. Feeding communities.</small>
       </section>
@@ -72,7 +72,7 @@
             </div>
           </div>
 
-          <p class="note">New to FoodBridge? <a href="register.html">Create a free account.</a></p>
+          <p class="note">New to Food Rescue? <a href="register.html">Create a free account.</a></p>
           <p class="note"><a href="forgot-password.html">Forgot your password?</a></p>
         </div>
 
@@ -80,15 +80,9 @@
         <div id="step-otp" hidden>
           <h2>Check your email</h2>
           <p class="sub" id="otp-hint">We sent a 6-digit sign-in code to your email address.</p>
-          <!-- Dev-mode OTP autofill box (hidden in production, shown when devOtp is returned) -->
-          <div id="dev-otp-box" style="display:none; align-items:center; gap:8px; margin-bottom:12px; padding:10px 14px; background:#fefce8; border:1px dashed #ca8a04; border-radius:10px; font-size:0.8rem;">
-            <span>🛠️ Dev OTP:</span>
-            <strong id="dev-otp-code" style="font-size:1.1rem; letter-spacing:.2em; color:#1d6638;"></strong>
-            <button type="button" id="btn-autofill-otp" style="margin-top:0; padding:4px 10px; font-size:0.75rem; background:#1d6638; border-radius:6px;">Auto-fill</button>
-          </div>
-          <form data-api-form="verify-login-otp" novalidate>
+          <form data-api-form="verify-login-otp" autocomplete="off" novalidate>
             <input type="hidden" name="email" id="otp-email-field" />
-            <label>Sign-in code<input id="otp-input" name="otp" type="text" inputmode="numeric" pattern="\d{6}" maxlength="6" autocomplete="one-time-code" required placeholder="123456" /></label>
+            <label>Sign-in code<input id="otp-input" name="otp" type="text" inputmode="numeric" pattern="\d{6}" maxlength="6" autocomplete="off" autocapitalize="off" spellcheck="false" data-1p-ignore="true" data-lpignore="true" data-bwignore="true" required placeholder="Enter 6-digit code" /></label>
             <button type="submit" id="btn-verify">Verify &amp; Sign in</button>
           </form>
           <p class="note">

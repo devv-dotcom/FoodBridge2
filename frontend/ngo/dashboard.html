@@ -1,145 +1,249 @@
 <!doctype html>
-<html lang="en" data-api-base="http://localhost:5000">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>NGO Dashboard · FoodBridge</title>
-    
-    <!-- Google Fonts -->
+    <meta name="description" content="Food Rescue NGO Dashboard — Real-time food rescue, available meals feed, and community distribution." />
+    <title>NGO Dashboard · Food Rescue</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;1,600&display=swap" rel="stylesheet" />
-    
-    <!-- Shared Role Dashboard Styles -->
-    <link rel="stylesheet" href="../css/role-dashboard.css" />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500;700&family=Manrope:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;1,600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="../dashboard.css" />
+    <link rel="stylesheet" href="../features.css" />
+    <link rel="stylesheet" href="../css/accessibility.css" />
+    <style>
+      body {
+        margin: 0;
+        background: #f8fafc;
+        color: #0f172a;
+        font-family: 'Manrope', system-ui, sans-serif;
+      }
+      .ngo-navbar {
+        background: #ffffff;
+        border-bottom: 1px solid #e2e8f0;
+        padding: 16px 28px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+      }
+      .ngo-brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        text-decoration: none;
+        color: #14532d;
+        font-weight: 800;
+        font-size: 1.25rem;
+      }
+      .ngo-brand-badge {
+        background: #166534;
+        color: #fff;
+        font-size: 0.72rem;
+        padding: 3px 8px;
+        border-radius: 6px;
+        font-weight: 800;
+        letter-spacing: .5px;
+      }
+      .ngo-hero {
+        background: linear-gradient(135deg, #14532d 0%, #166534 50%, #052e16 100%);
+        color: #ffffff;
+        border-radius: 24px;
+        padding: 36px 40px;
+        margin: 28px 0;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 20px 40px rgba(20, 83, 45, 0.18);
+      }
+      .ngo-hero-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: rgba(255,255,255,0.15);
+        backdrop-filter: blur(10px);
+        padding: 6px 14px;
+        border-radius: 999px;
+        font-size: 0.8rem;
+        font-weight: 800;
+        margin-bottom: 14px;
+        border: 1px solid rgba(255,255,255,0.2);
+      }
+      .ngo-hero h1 {
+        margin: 0 0 10px;
+        font-size: clamp(1.8rem, 3.2vw, 2.6rem);
+        font-weight: 800;
+      }
+      .ngo-hero p {
+        margin: 0 0 20px;
+        max-width: 600px;
+        color: #dcfce7;
+        font-size: 1.05rem;
+        line-height: 1.6;
+      }
+      .ngo-grid-4 {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 18px;
+        margin-bottom: 32px;
+      }
+      .ngo-stat-card {
+        background: #ffffff;
+        border-radius: 20px;
+        padding: 22px 24px;
+        border: 1px solid #e2e8f0;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+        transition: transform .2s ease;
+      }
+      .ngo-stat-card:hover { transform: translateY(-3px); }
+      .ngo-stat-card .icon {
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        display: grid;
+        place-items: center;
+        font-size: 22px;
+        margin-bottom: 12px;
+      }
+      .ngo-stat-card .val {
+        font-size: 1.85rem;
+        font-weight: 800;
+        color: #0f172a;
+        margin-bottom: 4px;
+      }
+      .ngo-stat-card .label {
+        color: #64748b;
+        font-size: 0.86rem;
+        font-weight: 600;
+      }
+      .btn-accept {
+        background: #166534;
+        color: #fff;
+        border: none;
+        border-radius: 10px;
+        padding: 9px 16px;
+        font-weight: 800;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: background .2s ease;
+      }
+      .btn-accept:hover { background: #14532d; }
+    </style>
   </head>
-  <body class="role-dashboard-body" data-required-role="ngo" data-dashboard="ngo">
+  <body data-required-role="ngo" data-dashboard="ngo">
     <!-- Navbar Header -->
-    <header class="dash-navbar">
-      <a class="dash-brand" href="../index.html">
-        <span class="mark">FB</span>FoodBridge
+    <header class="ngo-navbar">
+      <a class="ngo-brand" href="../index.html">
+        <span style="display:inline-grid; place-items:center; width:34px; height:34px; border-radius:10px; background:#f59e0b; color:#14532d; font-weight:900;">FR</span>
+        Food Rescue
+        <span class="ngo-brand-badge">NGO PARTNER</span>
       </a>
-      <div class="dash-user-bar">
-        <span class="dash-user-name">Welcome, <span data-api-value="user.full_name">NGO Partner</span></span>
-        <button type="button" class="dash-btn-logout" data-action="logout">Logout</button>
+
+      <div style="display:flex; align-items:center; gap:12px;">
+        <span style="display:inline-flex; align-items:center; gap:6px; background:#f0fdf4; color:#15803d; border:1px solid #bbf7d0; font-weight:800; font-size:.85rem; padding:6px 14px; border-radius:999px;">
+          🏅 <span data-metric="my-badge">Community Hero</span> · <span data-metric="my-points">0 pts</span>
+        </span>
+        <button type="button" class="btn-leaderboard-nav" data-action="open-leaderboard" style="background:#f8fafc; border:1px solid #cbd5e1; border-radius:10px; padding:7px 12px; font-weight:700; cursor:pointer;">
+          🏆 Leaderboard
+        </button>
+        <button type="button" class="btn-notification" data-notification-bell aria-label="Notifications" style="background:#f8fafc; border:1px solid #cbd5e1; border-radius:10px; width:38px; height:38px; font-size:16px; cursor:pointer;">
+          🔔
+        </button>
+        <button type="button" data-action="logout" style="background:#fee2e2; color:#b91c1c; border:1px solid #fca5a5; border-radius:10px; padding:7px 14px; font-weight:700; cursor:pointer;">
+          Sign Out
+        </button>
       </div>
     </header>
 
-    <!-- Main NGO Dashboard -->
-    <main class="dash-main">
-      <!-- 1. LARGE DISTINCTIVE WELCOME BANNER -->
-      <section class="dash-banner-hero">
-        <div class="dash-hero-content">
-          <div class="dash-hero-badge">🛡️ Verified NGO Partner</div>
-          <h1>Welcome back, <em data-api-value="user.full_name">NGO Partner</em> 👋</h1>
-          <p>Your next opportunity to make an impact could be waiting right now. Connect surplus food with families in need.</p>
-          <div class="dash-hero-callout">
-            <span>🍲</span>
-            <span><strong id="hero-ngo-count">0</strong> food donations are waiting to be rescued.</span>
-          </div>
-        </div>
+    <!-- Notification Drawer -->
+    <div class="notification-drawer" data-notification-drawer>
+      <header>Live Notifications</header>
+      <ul class="notification-list" data-notification-list>
+        <li class="notification-item">Loading notifications…</li>
+      </ul>
+    </div>
 
-        <div class="dash-hero-art">
-          <div class="dash-art-card">
-            <div class="dash-art-icon">🍱</div>
-            <div class="dash-art-text">
-              <strong>12,500+ Meals Delivered</strong>
-              <small>Active NGO Network</small>
-            </div>
-          </div>
-          <div class="dash-art-card">
-            <div class="dash-art-icon">⚡</div>
-            <div class="dash-art-text">
-              <strong>Live Rescue Match</strong>
-              <small>Real-time updates</small>
-            </div>
-          </div>
+    <!-- Main Container -->
+    <main style="max-width: 1200px; margin: 0 auto; padding: 0 24px 60px;">
+      <!-- Emergency Food Alert Banner -->
+      <div id="emergency-alert-banner" class="emergency-banner" hidden style="margin-top:24px;"></div>
+
+      <!-- Welcome Hero -->
+      <section class="ngo-hero">
+        <div class="ngo-hero-badge">🛡️ Verified NGO Partner</div>
+        <h1>Welcome back, <span data-api-value="fullName">Partner</span> 👋</h1>
+        <p>Connect available surplus food with shelters, community kitchens, and people who need good meals most.</p>
+
+        <div style="display:flex; gap:12px; flex-wrap:wrap;">
+          <a href="#available-donations" style="background:#f59e0b; color:#14532d; font-weight:800; font-size:14px; padding:10px 20px; border-radius:10px; text-decoration:none;">
+            🍲 Claim Available Surplus Food
+          </a>
+          <a href="#active-rescues" style="background:rgba(255,255,255,0.15); color:#fff; font-weight:800; font-size:14px; padding:10px 20px; border-radius:10px; text-decoration:none; border:1px solid rgba(255,255,255,0.25);">
+            📦 View Active Rescues
+          </a>
         </div>
       </section>
 
-      <!-- 2. NEW STATISTICS GRID -->
-      <section class="dash-section-title-wrap">
-        <h2>Your Rescue Overview</h2>
-        <p>Real-time analytics and activity summary for your organization.</p>
+      <!-- 4 Stat Metric Cards -->
+      <section class="ngo-grid-4" aria-label="NGO metrics">
+        <div class="ngo-stat-card">
+          <div class="icon" style="background:#fefce8; color:#ca8a04;">🍱</div>
+          <div class="val" id="count-ngo-available">0</div>
+          <div class="label">Available Donations</div>
+        </div>
+
+        <div class="ngo-stat-card">
+          <div class="icon" style="background:#eff6ff; color:#2563eb;">📦</div>
+          <div class="val" id="count-ngo-active">0</div>
+          <div class="label">Active Rescues</div>
+        </div>
+
+        <div class="ngo-stat-card">
+          <div class="icon" style="background:#f0fdf4; color:#16a34a;">✓</div>
+          <div class="val" id="count-ngo-completed">0</div>
+          <div class="label">Completed Distributions</div>
+        </div>
+
+        <div class="ngo-stat-card">
+          <div class="icon" style="background:#fdf2f8; color:#db2777;">❤️</div>
+          <div class="val" id="count-ngo-impact">0</div>
+          <div class="label">Estimated Meals Served</div>
+        </div>
       </section>
 
-      <div class="dash-metrics-grid">
-        <div class="dash-metric-card">
-          <div class="dash-metric-header">
-            <div class="dash-metric-icon">🍱</div>
-          </div>
-          <div class="dash-metric-value" id="count-ngo-available">0</div>
-          <div class="dash-metric-label">Available Donations</div>
-          <div class="dash-metric-sub">Waiting for NGO action</div>
-        </div>
-
-        <div class="dash-metric-card">
-          <div class="dash-metric-header">
-            <div class="dash-metric-icon">📦</div>
-          </div>
-          <div class="dash-metric-value" id="count-ngo-active">0</div>
-          <div class="dash-metric-label">Active Rescues</div>
-          <div class="dash-metric-sub">Currently in progress</div>
-        </div>
-
-        <div class="dash-metric-card">
-          <div class="dash-metric-header">
-            <div class="dash-metric-icon">✓</div>
-          </div>
-          <div class="dash-metric-value" id="count-ngo-completed">0</div>
-          <div class="dash-metric-label">Completed</div>
-          <div class="dash-metric-sub">Successfully distributed</div>
-        </div>
-
-        <div class="dash-metric-card">
-          <div class="dash-metric-header">
-            <div class="dash-metric-icon">❤️</div>
-          </div>
-          <div class="dash-metric-value" id="count-ngo-impact">0</div>
-          <div class="dash-metric-label">Community Impact</div>
-          <div class="dash-metric-sub">Meals served to people</div>
-        </div>
-      </div>
-
-      <!-- 3. FEATURED DONATION AREA (PRIORITY DONATIONS) -->
-      <section class="dash-section">
-        <div class="dash-section-header">
+      <!-- Available Food Listings -->
+      <section id="available-donations" style="margin-bottom: 40px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
           <div>
-            <h2>Priority Food Donations</h2>
-            <p>These donations may need your attention soon.</p>
+            <h2 style="margin:0; font-size:1.35rem; font-weight:800;">Available Surplus Food for Rescue</h2>
+            <p style="margin:4px 0 0; color:#64748b; font-size:14px;">Ranked closest to your location first. Click to claim and schedule pickup.</p>
           </div>
-          <button type="button" class="dash-btn-logout" data-action="load-available-donations" style="color:var(--dash-green); border-color:#bbf7d0; background:#f0fdf4;">
-            Refresh List
+          <button type="button" class="btn-accept" style="background:#f1f5f9; color:#334155; border:1px solid #cbd5e1;" onclick="location.reload();">
+            ↻ Refresh Stream
           </button>
         </div>
-        <div id="available-donations" class="dash-cards-grid">
-          <div class="dash-empty-state">
-            <div class="dash-empty-icon">🍲</div>
-            <strong>Nothing Needs Your Attention Right Now</strong>
-            <p>New food rescue opportunities will appear here as soon as they become available.</p>
-          </div>
+
+        <div id="available-donations-list">
+          <div class="notice">Scanning for surplus food donations in your radius…</div>
         </div>
       </section>
 
-      <!-- 4. ACTIVE FOOD RESCUE TIMELINE -->
-      <section class="dash-section">
-        <div class="dash-section-header">
-          <div>
-            <h2>Active Food Rescue</h2>
-            <p>Track accepted donations and verify deliveries upon receipt.</p>
-          </div>
+      <!-- Active Food Rescue Pipeline -->
+      <section id="active-rescues" style="margin-bottom: 40px;">
+        <div style="margin-bottom:16px;">
+          <h2 style="margin:0; font-size:1.35rem; font-weight:800;">Active Rescues &amp; Delivery Tracking</h2>
+          <p style="margin:4px 0 0; color:#64748b; font-size:14px;">Track accepted food, delivery arrival, and verify distribution completion.</p>
         </div>
-        <div id="ngo-history" class="dash-cards-grid">
-          <div class="dash-empty-state">
-            <div class="dash-empty-icon">📦</div>
-            <strong>No active rescues right now</strong>
-            <p>Accepted food rescue activities will be displayed here.</p>
-          </div>
+
+        <div id="ngo-history">
+          <div class="notice">Checking for active deliveries…</div>
         </div>
       </section>
     </main>
 
-    <!-- App Module Script -->
+    <!-- App Module Scripts -->
     <script type="module" src="../js/app.js"></script>
   </body>
 </html>

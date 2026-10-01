@@ -1,5 +1,5 @@
 -- ============================================================
---  FoodBridge · Account Data Reset Script
+--  Food Rescue · Account Data Reset Script
 --  Wipes ALL user accounts and related data.
 --  The database structure (tables, indexes, constraints) and
 --  food_categories seed data are preserved.

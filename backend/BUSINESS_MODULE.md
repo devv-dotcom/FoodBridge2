@@ -1,4 +1,4 @@
-# FoodBridge Modules 2 and 3 — Business Role Management & Dashboard
+# Food Rescue Modules 2 and 3 — Business Role Management & Dashboard
 
 ## Folder additions
 

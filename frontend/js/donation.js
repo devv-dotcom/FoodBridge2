@@ -59,6 +59,35 @@ export const initDonationIntegration = () => {
       if (successId) successId.textContent = refId;
       if (successName) successName.textContent = formDetails.foodName || 'Surplus Food';
 
+      // Render Nearby Food Rescue Partners
+      const nearbyListEl = $('#nearby-partners-list');
+      if (nearbyListEl) {
+        const partners = response.nearbyNGOs || [];
+        if (partners.length > 0) {
+          nearbyListEl.innerHTML = partners.map(ngo => `
+            <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:12px; padding:14px 16px; display:flex; justify-content:space-between; align-items:center;">
+              <div>
+                <strong style="display:block; font-size:15px; color:#0f172a;">${escapeHtml(ngo.ngo_name)}</strong>
+                <span style="font-size:13px; color:#166534; font-weight:600; display:inline-flex; align-items:center; gap:4px; margin-top:2px;">
+                  📍 Approximately ${ngo.distance_km} km away
+                </span>
+                <span style="font-size:12px; color:#64748b; margin-left:8px;">(${escapeHtml(ngo.city)})</span>
+              </div>
+              <span style="background:#f0fdf4; color:#166534; border:1px solid #bbf7d0; padding:4px 10px; border-radius:20px; font-size:11px; font-weight:700;">
+                Eligible Partner
+              </span>
+            </div>
+          `).join('');
+        } else {
+          nearbyListEl.innerHTML = `
+            <div style="background:#fffbebf8; border:1px solid #fef3c7; border-radius:12px; padding:16px;">
+              <h4 style="font-size:15px; font-weight:700; color:#92400e; margin:0 0 4px;">No Nearby NGO Found Yet</h4>
+              <p style="font-size:13px; color:#b45309; margin:0;">Your donation has still been submitted, and we'll continue looking for a suitable food rescue partner.</p>
+            </div>
+          `;
+        }
+      }
+
       if (formContainer) formContainer.hidden = true;
       if (successView) {
         successView.hidden = false;

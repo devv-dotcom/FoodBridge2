@@ -1,4 +1,4 @@
-# FoodBridge Module 8: Admin Panel & System Management
+# Food Rescue Module 8: Admin Panel & System Management
 
 ## 1. Folder Structure
 
@@ -16,7 +16,7 @@ backend/
 
 Run `database/admin_module.sql` after Modules 1–7. It creates `admins`, `reports`, `analytics`, `notifications`, `contact_messages`, `reviews`, `activity_logs`, and `website_settings`. It also adds account states, donation soft deletion, and active-category support required by administration.
 
-Create a normal `users` row with `role = 'admin'`, then link it with `INSERT INTO admins (user_id) VALUES (<user id>)`. Passwords must use bcrypt, just like all existing FoodBridge accounts.
+Create a normal `users` row with `role = 'admin'`, then link it with `INSERT INTO admins (user_id) VALUES (<user id>)`. Passwords must use bcrypt, just like all existing Food Rescue accounts.
 
 ## 3. Models
 

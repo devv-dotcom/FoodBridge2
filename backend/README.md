@@ -1,4 +1,4 @@
-# FoodBridge Authentication Module
+# Food Rescue Authentication Module
 
 ## 1. Folder structure
 

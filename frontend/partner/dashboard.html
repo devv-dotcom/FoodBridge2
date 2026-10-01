@@ -1,0 +1,728 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Food Rescue Partner — Rescue food. Create impact. Connect surplus food with community partners.">
+  <title>Food Rescue Partner · Food Rescue</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500;700&family=Manrope:wght@400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,600;1,600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/partner.css">
+  <link rel="stylesheet" href="../dashboard.css">
+  <link rel="stylesheet" href="../features.css">
+  <link rel="stylesheet" href="../css/accessibility.css">
+  <script>try{const t=localStorage.getItem('foodbridge.theme')||(window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');if(t)document.documentElement.dataset.theme=t;}catch(e){}</script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" defer></script>
+</head>
+<body class="partner-body">
+
+<!-- ── Sidebar Overlay (mobile) ──────────────────────────────────── -->
+<div class="p-sidebar-overlay" id="sidebar-overlay"></div>
+
+<!-- ════════════════════════════════════════════════════════════════
+     SIDEBAR NAVIGATION (FINAL 7 ITEMS — NO MY ASSIGNMENTS)
+════════════════════════════════════════════════════════════════════ -->
+<aside class="p-sidebar" id="p-sidebar" role="navigation" aria-label="Partner navigation">
+
+  <!-- Brand -->
+  <div class="p-sidebar-brand">
+    <div class="p-sidebar-logo">🌱</div>
+    <div>
+    <div class="p-sidebar-brand-text">Food Rescue</div>
+      <div class="p-sidebar-brand-tagline">Food Rescue Partner Network</div>
+    </div>
+  </div>
+
+  <!-- Partner Identity -->
+  <div class="p-sidebar-user">
+    <div class="p-sidebar-avatar" id="sb-avatar">🙂</div>
+    <div class="p-sidebar-user-info">
+    <div class="p-sidebar-user-name" id="sb-name">Food Rescue Partner</div>
+      <div class="p-role-badge ngo" id="sb-role-badge">NGO</div>
+    </div>
+  </div>
+
+  <!-- Availability Toggle -->
+  <div class="p-avail-toggle">
+    <span class="p-avail-toggle-label">
+      <span class="avail-dot" id="avail-dot"></span>
+      <span id="avail-label">Online</span>
+    </span>
+    <label class="p-toggle-switch" title="Toggle availability">
+      <input type="checkbox" id="avail-toggle" checked>
+      <span class="p-toggle-thumb"></span>
+    </label>
+  </div>
+
+  <!-- Nav Links (7 Items) -->
+  <nav class="p-sidebar-nav">
+    <a class="p-nav-link active" href="#" data-section="dashboard" id="nav-dashboard">
+      <span class="p-nav-icon">🏠</span><span class="p-nav-label">Dashboard</span>
+    </a>
+    <a class="p-nav-link" href="#" data-section="available" id="nav-available">
+      <span class="p-nav-icon">🍲</span><span class="p-nav-label" data-compact-label="Food">Available Food</span>
+    </a>
+    <a class="p-nav-link" href="#" data-section="pickup-delivery" id="nav-pickup">
+      <span class="p-nav-icon">🚗</span><span class="p-nav-label" data-compact-label="Pickups">Pickup &amp; Distribution</span>
+    </a>
+    <a class="p-nav-link" href="#" data-section="history" id="nav-history">
+      <span class="p-nav-icon">📂</span><span class="p-nav-label">History</span>
+    </a>
+    <a class="p-nav-link" href="#" data-section="impact" id="nav-impact">
+      <span class="p-nav-icon">🌟</span><span class="p-nav-label">Impact</span>
+    </a>
+    <a class="p-nav-link" href="#" data-section="notifications" id="nav-notifications">
+      <span class="p-nav-icon">🔔</span><span class="p-nav-label" data-compact-label="Alerts">Notifications</span>
+      <span class="p-nav-notif-badge" id="nav-notif-count">0</span>
+    </a>
+    <a class="p-nav-link" href="#" data-section="leaderboard" id="nav-leaderboard">
+      <span class="p-nav-icon">🏆</span><span class="p-nav-label">Leaderboard</span>
+    </a>
+    <a class="p-nav-link" href="#" data-section="live-map" id="nav-live-map">
+      <span class="p-nav-icon">🗺️</span><span class="p-nav-label">Live Map</span>
+    </a>
+    <a class="p-nav-link" href="#" data-section="profile" id="nav-profile">
+      <span class="p-nav-icon">👤</span><span class="p-nav-label">Profile</span>
+    </a>
+  </nav>
+
+  <div class="p-sidebar-footer">
+    <button class="p-sidebar-logout" id="btn-logout">
+      <span>🚪</span> Sign Out
+    </button>
+  </div>
+</aside>
+
+<!-- ════════════════════════════════════════════════════════════════
+     MAIN CONTENT
+════════════════════════════════════════════════════════════════════ -->
+<div class="p-main">
+
+  <!-- Glassmorphism Top Bar -->
+  <header class="p-topbar">
+    <div class="p-topbar-left">
+      <button class="p-hamburger" id="btn-hamburger" aria-label="Open menu">☰</button>
+      <h1 class="p-page-title" id="page-title">Dashboard</h1>
+    </div>
+    <div class="p-topbar-right">
+      <span class="p-user-points-badge" id="topbar-points-badge" style="display:inline-flex; align-items:center; gap:6px; background:#f0fdf4; color:#15803d; border:1px solid #bbf7d0; font-weight:700; font-size:.85rem; padding:6px 12px; border-radius:999px;">🏅 0 pts</span>
+      <button class="p-topbar-btn" id="btn-topbar-leaderboard" title="Community Leaderboard" aria-label="Leaderboard">🏆</button>
+      <button class="p-topbar-btn" id="btn-topbar-map" title="Live Operations Map" aria-label="Live Operations Map">🗺️</button>
+      <button class="p-topbar-btn" id="btn-topbar-notif" aria-label="Notifications">
+        🔔
+        <span class="p-notif-dot" id="topbar-notif-dot"></span>
+      </button>
+      <button class="p-topbar-btn" id="btn-topbar-profile" aria-label="Profile">👤</button>
+    </div>
+  </header>
+
+  <!-- Emergency Food Alert Banner -->
+  <div id="emergency-alert-banner" class="emergency-alert-banner" hidden></div>
+
+  <!-- Offline Banner -->
+  <div class="p-offline-banner" id="offline-banner">
+    ⚠️ You are offline. Using cached rescue data.
+  </div>
+
+  <!-- ════ CONTENT AREA ════ -->
+  <div class="p-content" id="p-content">
+
+    <!-- ══════════════════════════════════════════════════════════
+         SECTION 1: DASHBOARD (HERO & 3D IMPACT CARDS)
+    ══════════════════════════════════════════════════════════════ -->
+    <section class="p-section active" id="sec-dashboard">
+
+      <!-- Hero Welcome Banner with Subtle 3D Floating Element -->
+      <div class="p-welcome-banner">
+        <div>
+          <div class="p-welcome-eyebrow" id="welcome-eyebrow">🌱 Food Rescue Partner</div>
+          <div class="p-welcome-greeting" id="welcome-user-greeting">Welcome back, Partner 👋</div>
+          <h2 class="p-welcome-title">Rescue food. <em>Create impact.</em></h2>
+          <p class="p-welcome-sub">Find surplus food nearby and turn every safe pickup into meals for people who need them most.</p>
+          <div class="p-welcome-actions">
+            <button class="btn btn-primary" onclick="navigate('available')">🍲 Browse available food</button>
+            <button class="btn btn-ghost" onclick="navigate('impact')">🌟 Explore your impact</button>
+          </div>
+        </div>
+
+        <!-- Donor-style rescue visual -->
+        <div class="p-welcome-3d-visual" aria-hidden="true">
+          <img class="p-ngo-hero-image" src="../images/food_rescue_donor.jpg" alt="">
+          <span class="p-3d-badge-floating">✓ Ready to rescue</span>
+        </div>
+      </div>
+
+      <!-- Modern 3D Floating Stat Cards (Real Backend Metrics) -->
+      <div class="p-stats-grid p-3d-perspective">
+        <div class="p-stat-card">
+          <div class="p-stat-icon" style="background:#f0fdf4; color:#15803d;">🥦</div>
+          <div class="p-stat-value" id="stat-food-rescued">1,240 kg</div>
+          <div class="p-stat-label">Food Rescued</div>
+          <div class="p-stat-change" id="stat-food-change">Live total</div>
+        </div>
+        <div class="p-stat-card">
+          <div class="p-stat-icon" style="background:#eff6ff; color:#2563eb;">🍱</div>
+          <div class="p-stat-value" id="stat-meals-served">3,850</div>
+          <div class="p-stat-label">Meals Served</div>
+          <div class="p-stat-change" id="stat-meals-change">Nourished</div>
+        </div>
+        <div class="p-stat-card">
+          <div class="p-stat-icon" style="background:#fdf4ff; color:#7e22ce;">❤️</div>
+          <div class="p-stat-value" id="stat-people">2,450</div>
+          <div class="p-stat-label">People Helped</div>
+          <div class="p-stat-change" id="stat-people-change">Community</div>
+        </div>
+        <div class="p-stat-card">
+          <div class="p-stat-icon" style="background:#ecfdf5; color:#059669;">📦</div>
+          <div class="p-stat-value" id="stat-pickups">128</div>
+          <div class="p-stat-label">Successful Distributions</div>
+          <div class="p-stat-change" id="stat-pickups-change">Verified</div>
+        </div>
+      </div>
+
+      <!-- Food Available Near You Quick Stream -->
+      <div class="p-card" style="margin-bottom:28px;">
+        <div class="p-card-header">
+          <div>
+            <div class="p-card-title">🎯 Food Available Near You</div>
+            <div class="p-card-subtitle">Recommended food rescues based on location, distance &amp; urgency</div>
+          </div>
+          <button class="btn btn-outline btn-sm" onclick="navigate('available')">See All Food →</button>
+        </div>
+        <div class="p-card-body">
+          <div class="p-donations-grid" id="dash-matches-grid"></div>
+        </div>
+      </div>
+
+      <!-- Current Active Rescue Tracker Card -->
+      <div class="p-card" id="dash-active-mission-card" style="display:none;">
+        <div class="p-card-header">
+          <div>
+            <div class="p-card-title">🚗 Current Active Rescue</div>
+            <div class="p-card-subtitle">Managed directly in Pickup &amp; Distribution</div>
+          </div>
+          <button class="btn btn-primary btn-sm" onclick="navigate('pickup-delivery')">Open Tracker →</button>
+        </div>
+        <div class="p-card-body" id="dash-active-mission-body"></div>
+      </div>
+
+    </section>
+
+    <!-- ══════════════════════════════════════════════════════════
+         SECTION 2: AVAILABLE FOOD (FOOD CARDS FEED)
+    ══════════════════════════════════════════════════════════════ -->
+    <section class="p-section" id="sec-available">
+
+      <div class="p-section-intro">
+        <span class="p-section-kicker">Food rescue feed</span>
+        <h2>Food available near you</h2>
+        <p>Accept surplus food donations from hotels, restaurants, and catered events nearby.</p>
+      </div>
+
+      <!-- Filters & Search Bar -->
+      <div class="p-card" style="margin-bottom:22px;">
+        <div class="p-card-body" style="padding:18px;">
+          <div class="p-filter-bar">
+            <div class="p-search-wrap">
+              <span class="p-search-icon">🔍</span>
+              <input type="text" class="p-search-input" id="food-search" placeholder="Search by food name, donor, or location…" autocomplete="off">
+            </div>
+            <select class="p-filter-select" id="filter-category">
+              <option value="">All Categories</option>
+              <option value="cooked">Cooked Meals</option>
+              <option value="fresh">Fresh Produce</option>
+              <option value="bakery">Bakery &amp; Dairy</option>
+              <option value="packaged">Packaged Food</option>
+            </select>
+            <select class="p-filter-select" id="filter-distance">
+              <option value="">Any Distance</option>
+              <option value="2">Within 2 km</option>
+              <option value="5">Within 5 km</option>
+              <option value="10">Within 10 km</option>
+            </select>
+            <select class="p-filter-select" id="filter-sort">
+              <option value="best_match">Best Match (94% Algorithm)</option>
+              <option value="urgent">Most Urgent</option>
+              <option value="nearby">Nearest First</option>
+              <option value="newest">Recently Added</option>
+            </select>
+            <select class="p-filter-select" id="filter-veg">
+              <option value="">All Types</option>
+              <option value="veg">Vegetarian</option>
+              <option value="non-veg">Non-Vegetarian</option>
+            </select>
+            <button class="btn btn-outline btn-sm" id="btn-refresh-food">↻ Refresh</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Available Food Cards Feed -->
+      <div id="available-loading" class="p-loading-spinner">
+        <div class="p-spinner"></div> Discovering nearby food rescues…
+      </div>
+      <div class="p-donations-grid" id="available-grid" style="display:none;"></div>
+      <div id="available-empty" class="p-card" style="display:none;">
+        <div class="p-empty-state">
+          <div class="p-empty-icon">🍽️</div>
+          <div class="p-empty-title">No available food right now</div>
+          <div class="p-empty-text">New surplus food donations will appear here in real-time when posted nearby.</div>
+          <button class="btn btn-outline" id="btn-retry-food">↻ Check for new donations</button>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ══════════════════════════════════════════════════════════
+         SECTION 3: PICKUP & DISTRIBUTION (MAIN OPERATIONAL HUB)
+    ══════════════════════════════════════════════════════════════ -->
+    <section class="p-section" id="sec-pickup-delivery">
+      <div class="p-section-intro">
+        <span class="p-section-kicker">Mission control</span>
+        <h2>Pickup &amp; distribution</h2>
+        <p>Track each rescue from donor pickup to community distribution.</p>
+      </div>
+      <div id="tracker-container">
+        <!-- Dynamic operational progress tracker & cards injected by partner.js -->
+        <div class="p-card">
+          <div class="p-empty-state">
+            <div class="p-empty-icon">🚗</div>
+            <div class="p-empty-title">No active rescue mission in progress</div>
+            <div class="p-empty-text">Accept a food rescue from Available Food to start your pickup and distribution mission.</div>
+            <button class="btn btn-primary" onclick="navigate('available')">Browse available food</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════════════
+         SECTION 4: HISTORY
+    ══════════════════════════════════════════════════════════════ -->
+    <section class="p-section" id="sec-history">
+      <div class="p-section-intro">
+        <span class="p-section-kicker">Your record</span>
+        <h2>Rescue history</h2>
+        <p>Review completed food rescues and the impact your organization has created.</p>
+      </div>
+      <div class="p-card">
+        <div class="p-card-header">
+          <div>
+            <div class="p-card-title">📂 Rescue History</div>
+            <div class="p-card-subtitle">All completed and verified food rescue missions</div>
+          </div>
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <select class="p-filter-select" id="hist-filter-status">
+              <option value="all">All Status</option>
+              <option value="completed">Completed</option>
+              <option value="cancelled">Cancelled</option>
+            </select>
+            <select class="p-filter-select" id="hist-filter-type">
+              <option value="">All Food Types</option>
+              <option value="cooked">Cooked Meals</option>
+              <option value="fresh">Fresh Produce</option>
+              <option value="bakery">Bakery</option>
+            </select>
+          </div>
+        </div>
+        <div id="history-loading" class="p-loading-spinner" style="display:none;">
+          <div class="p-spinner"></div> Loading rescue history…
+        </div>
+        <div id="history-list" class="p-assignments-list" style="padding:20px;"></div>
+        <div id="history-empty" style="display:none;">
+          <div class="p-empty-state">
+            <div class="p-empty-icon">📭</div>
+            <div class="p-empty-title">No history records yet</div>
+            <div class="p-empty-text">Completed food rescues will appear here.</div>
+            <button class="btn btn-outline btn-sm" onclick="navigate('available')">Find available food</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════════════
+         SECTION 5: IMPACT (IMPACT DASHBOARD & SHAREABLE CARD)
+    ══════════════════════════════════════════════════════════════ -->
+    <section class="p-section" id="sec-impact">
+
+      <div class="p-section-intro">
+        <span class="p-section-kicker">Community outcome</span>
+        <h2>Your food-rescue impact</h2>
+        <p>See how every accepted donation becomes meaningful support for your community.</p>
+      </div>
+
+      <!-- Shareable Impact Banner -->
+      <div class="p-card" style="background:linear-gradient(135deg,#042411,#166534); border:none; margin-bottom:28px;">
+        <div class="p-card-body" style="padding:32px; color:white; text-align:center;">
+          <div style="font-size:.78rem; font-weight:800; text-transform:uppercase; letter-spacing:.09em; color:#a7f3d0; margin-bottom:8px;">Your Social Impact</div>
+          <div style="font-size:1.5rem; font-weight:800; margin-bottom:8px;">"I helped rescue 50 meals with Food Rescue ❤️"</div>
+          <div style="font-size:.88rem; color:rgba(255,255,255,.8); margin-bottom:20px;">Every rescued meal makes a difference. Share your story to inspire others.</div>
+          
+          <button class="btn btn-ghost" id="btn-share-impact-card">📢 Share Impact</button>
+        </div>
+      </div>
+
+      <!-- Impact KPI Cards -->
+      <div class="p-impact-grid">
+        <div class="p-impact-stat">
+          <div class="p-impact-icon" style="background:#f0fdf4; color:#15803d;">🥦</div>
+          <div>
+            <div class="p-impact-val" id="impact-food">1,240 kg</div>
+            <div class="p-impact-lbl">Food Rescued</div>
+          </div>
+        </div>
+        <div class="p-impact-stat">
+          <div class="p-impact-icon" style="background:#fff7ed; color:#c2410c;">🍱</div>
+          <div>
+            <div class="p-impact-val" id="impact-meals">3,850</div>
+            <div class="p-impact-lbl">Meals Served</div>
+          </div>
+        </div>
+        <div class="p-impact-stat">
+          <div class="p-impact-icon" style="background:#fdf4ff; color:#7e22ce;">❤️</div>
+          <div>
+            <div class="p-impact-val" id="impact-people">2,450</div>
+            <div class="p-impact-lbl">People Helped</div>
+          </div>
+        </div>
+        <div class="p-impact-stat">
+          <div class="p-impact-icon" style="background:#ecfdf5; color:#059669;">✅</div>
+          <div>
+            <div class="p-impact-val" id="impact-distributions">128</div>
+            <div class="p-impact-lbl">Distributions Completed</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Animated Progress Charts -->
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:22px;">
+        <div class="p-chart-card">
+          <div class="p-chart-title">Monthly Food Rescued (kg)</div>
+          <div class="p-chart-canvas"><canvas id="chart-monthly-kg"></canvas></div>
+        </div>
+        <div class="p-chart-card">
+          <div class="p-chart-title">Monthly People Served</div>
+          <div class="p-chart-canvas"><canvas id="chart-monthly-people"></canvas></div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ══════════════════════════════════════════════════════════
+         SECTION 6: NOTIFICATIONS
+    ══════════════════════════════════════════════════════════════ -->
+    <section class="p-section" id="sec-notifications">
+      <div class="p-section-intro">
+        <span class="p-section-kicker">Stay informed</span>
+        <h2>Notifications</h2>
+        <p>Important updates about food availability, pickups, and your organization.</p>
+      </div>
+      <div class="p-card">
+        <div class="p-card-header">
+          <div>
+            <div class="p-card-title">🔔 Notification Center</div>
+            <div class="p-card-subtitle" id="notif-unread-label">0 unread alerts</div>
+          </div>
+          <button class="btn btn-outline btn-sm" id="btn-mark-all-read">Mark notifications as read</button>
+        </div>
+        <div id="notif-list" class="p-notif-list"></div>
+        <div id="notif-empty" style="display:none;">
+          <div class="p-empty-state">
+            <div class="p-empty-icon">🔕</div>
+            <div class="p-empty-title">All caught up!</div>
+            <div class="p-empty-text">No unread notifications.</div>
+            <button class="btn btn-outline btn-sm" onclick="navigate('available')">Check available food</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════════════
+         SECTION: COMMUNITY LEADERBOARD (OLYMPIC PODIUM & RANKINGS)
+    ══════════════════════════════════════════════════════════════ -->
+    <section class="p-section" id="sec-leaderboard">
+      <div class="p-section-intro">
+        <span class="p-section-kicker">Hero recognition</span>
+        <h2>Community rescue leaderboard</h2>
+        <p>Celebrate top donors and NGOs fighting hunger and food waste.</p>
+      </div>
+      <div class="p-card">
+        <div class="p-card-header">
+          <div>
+            <div class="p-card-title">🏆 Top Rescue Champions</div>
+            <div class="p-card-subtitle">Real-time points, impact badges, and podium rankings</div>
+          </div>
+          <div class="leaderboard-tabs" style="display:flex; gap:8px;">
+            <button type="button" class="btn btn-outline btn-sm active" data-board-tab="donors">🏢 Donors</button>
+            
+            <button type="button" class="btn btn-outline btn-sm" data-board-tab="ngos">🤝 NGOs</button>
+          </div>
+        </div>
+        <div class="p-card-body" id="leaderboard-sec-body">
+          <div class="p-loading-spinner"><div class="p-spinner"></div> Loading rankings…</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════════════
+         SECTION: LIVE OPERATIONS MAP & DONATION HEATMAP
+    ══════════════════════════════════════════════════════════════ -->
+    <section class="p-section" id="sec-live-map">
+      <div class="p-section-intro">
+        <span class="p-section-kicker">Real-time situational awareness</span>
+        <h2>Live operations map &amp; heatmap</h2>
+        <p>Interactive spatial view of available donations, and nearby NGOs.</p>
+      </div>
+      <div class="p-card">
+        <div class="p-card-body" style="padding:16px;">
+          <div id="partner-live-map" data-live-map style="height: 540px; width: 100%; border-radius: 12px; z-index: 1;"></div>
+          <div style="display:flex; gap:16px; margin-top:14px; flex-wrap:wrap; font-size:.82rem; font-weight:700;">
+            <span style="display:inline-flex; align-items:center; gap:6px;"><span style="width:12px; height:12px; border-radius:50%; background:#e11d48; display:inline-block;"></span> Urgent Donation (&lt;2.5h)</span>
+            <span style="display:inline-flex; align-items:center; gap:6px;"><span style="width:12px; height:12px; border-radius:50%; background:#eab308; display:inline-block;"></span> Available Donation</span>
+            <span style="display:inline-flex; align-items:center; gap:6px;"><span style="width:12px; height:12px; border-radius:50%; background:#16a34a; display:inline-block;"></span> Partner NGO</span>
+            
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════════════
+         SECTION 7: PROFILE
+    ══════════════════════════════════════════════════════════════ -->
+    <section class="p-section" id="sec-profile">
+
+      <div class="p-section-intro">
+        <span class="p-section-kicker">Organization settings</span>
+        <h2>Your NGO profile</h2>
+        <p>Keep your service area and operational information accurate for better food matches.</p>
+      </div>
+
+      <div class="p-profile-hero" id="profile-hero">
+        <div class="p-profile-avatar" id="profile-avatar">🙂</div>
+        <div>
+          <div class="p-role-badge ngo" id="profile-role-badge" style="margin-bottom:6px;">NGO</div>
+          <div class="p-profile-name" id="profile-name">Food Rescue Partner</div>
+          <div class="p-profile-trust">⭐ Trust Score: <span id="profile-trust-val">94</span>/100 &bull; Verified ✓</div>
+        </div>
+      </div>
+
+      <div id="profile-role-section" style="margin-bottom:22px;"></div>
+
+      <form id="profile-form">
+        <div class="p-card" style="margin-bottom:22px;">
+          <div class="p-card-header">
+            <div class="p-card-title">Contact &amp; Location</div>
+          </div>
+          <div class="p-card-body">
+            <div class="p-profile-grid">
+              <div class="p-profile-field">
+                <div class="p-profile-field-label">Email</div>
+                <div class="p-profile-field-value" id="profile-email">—</div>
+              </div>
+              <div class="p-profile-field">
+                <div class="p-profile-field-label">Phone</div>
+                <div class="p-profile-field-value" id="profile-phone">—</div>
+              </div>
+              <div class="p-profile-field" style="grid-column:1/-1;">
+                <div class="p-profile-field-label">Address / Service Area</div>
+                <div class="p-profile-field-value" id="profile-address">—</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="p-card" style="margin-bottom:22px;">
+          <div class="p-card-header">
+            <div class="p-card-title">Operational Settings</div>
+          </div>
+          <div class="p-card-body">
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:18px; margin-bottom:18px;">
+              <div class="p-form-group">
+                <label class="p-label" for="prof-transport">Transport Type</label>
+                <select class="p-input" id="prof-transport" name="transport_type">
+                  <option value="car">Car / Sedan</option>
+                  <option value="van">Van / Cargo Van</option>
+                  <option value="scooter">Scooter / Motorbike</option>
+                  <option value="truck">Light Truck</option>
+                  <option value="foot">Bicycle / On Foot</option>
+                </select>
+              </div>
+              <div class="p-form-group">
+                <label class="p-label" for="prof-capacity">Carrying Capacity (kg)</label>
+                <input type="number" class="p-input" id="prof-capacity" name="capacity_kg" value="50" min="1" max="2000">
+              </div>
+              <div class="p-form-group">
+                <label class="p-label" for="prof-radius">Service Radius (km)</label>
+                <input type="number" class="p-input" id="prof-radius" name="service_radius_km" value="15" min="1" max="100">
+              </div>
+              <div class="p-form-group">
+                <label class="p-label" for="prof-avail">Availability</label>
+                <select class="p-input" id="prof-avail" name="availability">
+                  <option value="online">Online &amp; Available</option>
+                  <option value="busy">Busy / On Mission</option>
+                  <option value="offline">Offline / Unavailable</option>
+                </select>
+              </div>
+            </div>
+            <button type="submit" class="btn btn-primary">Save Profile</button>
+          </div>
+        </div>
+      </form>
+
+    </section>
+
+  </div><!-- /p-content -->
+
+</div><!-- /p-main -->
+
+<!-- ════════════════════════════════════════════════════════════════
+     MOBILE BOTTOM NAVIGATION (Home | Food | Pickup | Impact | Alerts | Profile)
+════════════════════════════════════════════════════════════════════ -->
+<nav class="p-mobile-nav" aria-label="Mobile navigation">
+  <div class="p-mobile-nav-inner">
+    <button class="p-mobile-tab active" data-section="dashboard">
+      <span class="p-mobile-tab-icon">🏠</span> Home
+    </button>
+    <button class="p-mobile-tab" data-section="available">
+      <span class="p-mobile-tab-icon">🍲</span> Food
+    </button>
+    <button class="p-mobile-tab" data-section="pickup-delivery">
+      <span class="p-mobile-tab-icon">🚗</span> Pickup
+    </button>
+    <button class="p-mobile-tab" data-section="impact">
+      <span class="p-mobile-tab-icon">🌟</span> Impact
+    </button>
+    <button class="p-mobile-tab p-mobile-alert-tab" data-section="notifications" aria-label="Notifications">
+      <span class="p-mobile-tab-icon">🔔<span class="p-mobile-notif-badge" id="mobile-notif-count">0</span></span> Alerts
+    </button>
+    <button class="p-mobile-tab" data-section="profile">
+      <span class="p-mobile-tab-icon">👤</span> Profile
+    </button>
+  </div>
+</nav>
+
+<!-- ════════════════════════════════════════════════════════════════
+     MODALS
+════════════════════════════════════════════════════════════════════ -->
+
+<!-- 1. Donation Details Modal -->
+<div class="p-modal-overlay" id="modal-donation" role="dialog" aria-modal="true">
+  <div class="p-modal">
+    <div class="p-modal-header">
+      <h2 class="p-modal-title" id="modal-donation-title">Donation Details</h2>
+      <button class="p-modal-close" onclick="closeModal('modal-donation')">✕</button>
+    </div>
+    <div class="p-modal-body" id="modal-donation-body"></div>
+    <div class="p-modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modal-donation')">Cancel</button>
+      <button class="btn btn-primary" id="btn-modal-accept">Accept Food</button>
+    </div>
+  </div>
+</div>
+
+<!-- 2. Accept Confirmation Modal -->
+<div class="p-modal-overlay" id="modal-confirm-accept" role="dialog" aria-modal="true">
+  <div class="p-modal">
+    <div class="p-modal-header">
+      <h2 class="p-modal-title">Accept Donation?</h2>
+      <button class="p-modal-close" onclick="closeModal('modal-confirm-accept')">✕</button>
+    </div>
+    <div class="p-modal-body" id="modal-confirm-body"></div>
+    <div class="p-modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modal-confirm-accept')">Cancel</button>
+      <button class="btn btn-primary" id="btn-confirm-accept">Accept Food</button>
+    </div>
+  </div>
+</div>
+
+<!-- 3. OTP Verification Modal -->
+<div class="p-modal-overlay" id="modal-otp" role="dialog" aria-modal="true">
+  <div class="p-modal" style="max-width:420px;">
+    <div class="p-modal-header">
+      <h2 class="p-modal-title" id="otp-modal-title">Verify Pickup OTP</h2>
+      <button class="p-modal-close" onclick="closeModal('modal-otp')">✕</button>
+    </div>
+    <div class="p-modal-body">
+      <div class="p-otp-wrap">
+        <div class="p-otp-title" id="otp-title">Enter Pickup OTP</div>
+        <div class="p-otp-hint" id="otp-hint">Ask the donor for the 6-digit pickup verification code.</div>
+        <div class="p-otp-fields">
+          <input class="p-otp-box" maxlength="1" id="otp-1" type="text" inputmode="numeric" pattern="[0-9]" autocomplete="off" autocapitalize="off" spellcheck="false" data-1p-ignore="true" data-lpignore="true" data-bwignore="true">
+          <input class="p-otp-box" maxlength="1" id="otp-2" type="text" inputmode="numeric" pattern="[0-9]" autocomplete="off" autocapitalize="off" spellcheck="false" data-1p-ignore="true" data-lpignore="true" data-bwignore="true">
+          <input class="p-otp-box" maxlength="1" id="otp-3" type="text" inputmode="numeric" pattern="[0-9]" autocomplete="off" autocapitalize="off" spellcheck="false" data-1p-ignore="true" data-lpignore="true" data-bwignore="true">
+          <input class="p-otp-box" maxlength="1" id="otp-4" type="text" inputmode="numeric" pattern="[0-9]" autocomplete="off" autocapitalize="off" spellcheck="false" data-1p-ignore="true" data-lpignore="true" data-bwignore="true">
+          <input class="p-otp-box" maxlength="1" id="otp-5" type="text" inputmode="numeric" pattern="[0-9]" autocomplete="off" autocapitalize="off" spellcheck="false" data-1p-ignore="true" data-lpignore="true" data-bwignore="true">
+          <input class="p-otp-box" maxlength="1" id="otp-6" type="text" inputmode="numeric" pattern="[0-9]" autocomplete="off" autocapitalize="off" spellcheck="false" data-1p-ignore="true" data-lpignore="true" data-bwignore="true">
+        </div>
+        <div id="otp-error" style="color:#b91c1c; font-size:.82rem; font-weight:700; display:none; margin-top:-12px; margin-bottom:12px;"></div>
+      </div>
+    </div>
+    <div class="p-modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modal-otp')">Cancel</button>
+      <button class="btn btn-primary btn-full" id="btn-verify-otp">Verify &amp; Confirm</button>
+    </div>
+  </div>
+</div>
+
+<!-- 4. Distribution Form Modal -->
+<div class="p-modal-overlay" id="modal-distribution" role="dialog" aria-modal="true">
+  <div class="p-modal">
+    <div class="p-modal-header">
+      <h2 class="p-modal-title">Confirm Distribution</h2>
+      <button class="p-modal-close" onclick="closeModal('modal-distribution')">✕</button>
+    </div>
+    <div class="p-modal-body">
+      <div class="p-form-group">
+        <label class="p-label" for="dist-qty">Quantity Distributed</label>
+        <input type="text" class="p-input" id="dist-qty" placeholder="e.g. 50 plates / 48 meal boxes">
+      </div>
+      <div class="p-form-group">
+        <label class="p-label" for="dist-people">Number of People Served</label>
+        <input type="number" class="p-input" id="dist-people" placeholder="e.g. 42" min="0">
+      </div>
+      <div class="p-form-group">
+        <label class="p-label" for="dist-notes">Distribution Notes (Optional)</label>
+        <textarea class="p-input p-textarea" id="dist-notes" placeholder="Notes on location, distribution flow..."></textarea>
+      </div>
+      <div class="p-form-group">
+        <label class="p-label">Distribution Photo Proof</label>
+        <label class="p-proof-upload" for="dist-photo-input">
+          <input type="file" id="dist-photo-input" accept="image/*">
+          <div class="p-proof-icon">📷</div>
+          <div class="p-proof-text">Tap to add distribution photo</div>
+          <div class="p-proof-sub">PNG, JPG or WEBP · Max 5MB</div>
+          <img class="p-proof-preview" id="dist-photo-preview" alt="Distribution proof preview">
+        </label>
+      </div>
+    </div>
+    <div class="p-modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modal-distribution')">Cancel</button>
+      <button class="btn btn-primary" id="btn-confirm-distribution">Confirm Distribution</button>
+    </div>
+  </div>
+</div>
+
+<!-- 5. Success Screen Modal with Subtle Celebration -->
+<div class="p-modal-overlay" id="modal-success" role="dialog" aria-modal="true">
+  <div class="p-modal" style="max-width:440px;">
+    <div class="p-modal-body">
+      <div class="p-success-screen">
+        <div class="p-success-icon">🎉</div>
+        <div class="p-success-title" id="success-title">Food Successfully Distributed ❤️</div>
+        <div class="p-success-sub" id="success-sub">Your food rescue mission is complete.</div>
+        <div class="p-success-stats" id="success-stats-grid"></div>
+        <div style="display:flex; gap:12px; flex-wrap:wrap; justify-content:center;">
+          <button class="btn btn-primary" onclick="closeModal('modal-success'); navigate('impact');">Review rescue impact</button>
+          <button class="btn btn-outline" onclick="closeModal('modal-success'); navigate('dashboard');">Return to overview</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Toast Container -->
+<div id="partner-toasts" role="status" aria-live="polite"></div>
+
+<!-- Application Script -->
+<script type="module" src="../js/partner.js"></script>
+</body>
+</html>

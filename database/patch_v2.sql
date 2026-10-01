@@ -1,4 +1,4 @@
--- FoodBridge Database Patch V2
+-- Food Rescue Database Patch V2
 -- Safe, non-destructive migration additions
 USE foodbridge;
 

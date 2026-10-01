@@ -1,6 +1,7 @@
 const { body, validationResult } = require('express-validator');
+const { ALL_ROLES, BUSINESS_ROLES } = require('../config/roles');
 
-const ROLES = ['admin', 'restaurant', 'hotel', 'bakery', 'supermarket', 'catering', 'marriage_hall', 'ngo', 'volunteer'];
+const ROLES = ALL_ROLES;
 const mobileRule = /^[0-9+()\-\s]{10,20}$/;
 const pincodeRule = /^[A-Za-z0-9\-\s]{4,12}$/;
 
@@ -40,7 +41,7 @@ const businessProfileValidation = [
   body('email').trim().isEmail().withMessage('A valid email is required.').normalizeEmail(),
   body('mobile').trim().matches(mobileRule).withMessage('A valid phone number is required.'),
   body('businessName').trim().notEmpty().withMessage('Business name is required.').isLength({ max: 160 }),
-  body('businessType').trim().isIn(['restaurant', 'hotel', 'bakery', 'supermarket', 'catering', 'marriage_hall']).withMessage('A valid business type is required.'),
+  body('businessType').trim().isIn(BUSINESS_ROLES).withMessage('A valid business type is required.'),
   body('address').trim().notEmpty().withMessage('Address is required.').isLength({ max: 255 }),
   body('city').trim().notEmpty().withMessage('City is required.').isLength({ max: 100 }),
   body('state').trim().notEmpty().withMessage('State is required.').isLength({ max: 100 }),

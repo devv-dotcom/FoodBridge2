@@ -1,4 +1,4 @@
--- FoodBridge Module 8: run after Modules 1-7 schemas.
+-- Food Rescue Module 8: run after Modules 1-7 schemas.
 USE foodbridge;
 
 ALTER TABLE business_profiles

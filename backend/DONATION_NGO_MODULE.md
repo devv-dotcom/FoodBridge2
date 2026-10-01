@@ -1,4 +1,4 @@
-# FoodBridge Modules 4 and 5 — Donations & NGOs
+# Food Rescue Modules 4 and 5 — Donations & NGOs
 
 ## Database
 

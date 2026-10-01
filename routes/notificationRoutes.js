@@ -12,7 +12,8 @@ router.get('/', authenticate, (req, res) => {
   try {
     const userId = String(req.user.id);
     if (req.query.all === 'true') {
-      return res.json({ success: true, notifications: notifStore.getRecent(50) });
+      const userNotifs = notifStore.getForUser(userId, 50);
+      return res.json({ success: true, notifications: userNotifs });
     }
     const unread = notifStore.getUnread(userId, 30);
     return res.json({ success: true, notifications: unread, count: unread.length });
@@ -35,12 +36,30 @@ router.post('/:id/read', authenticate, (req, res) => {
     return res.status(500).json({ success: false, message: 'Could not mark notification as read.' });
   }
 });
+router.patch('/:id/read', authenticate, (req, res) => {
+  try {
+    const ok = notifStore.markRead(req.params.id, String(req.user.id));
+    return res.json({ success: true, marked: ok });
+  } catch (err) {
+    console.error('[notifications] mark-read error:', err);
+    return res.status(500).json({ success: false, message: 'Could not mark notification as read.' });
+  }
+});
 
 /**
- * POST /api/notifications/read-all
+ * POST /api/notifications/read-all & PATCH /api/notifications/read-all
  * Mark ALL notifications as read for the authenticated user.
  */
 router.post('/read-all', authenticate, (req, res) => {
+  try {
+    notifStore.markAllRead(String(req.user.id));
+    return res.json({ success: true, message: 'All notifications marked as read.' });
+  } catch (err) {
+    console.error('[notifications] mark-all-read error:', err);
+    return res.status(500).json({ success: false, message: 'Could not mark all as read.' });
+  }
+});
+router.patch('/read-all', authenticate, (req, res) => {
   try {
     notifStore.markAllRead(String(req.user.id));
     return res.json({ success: true, message: 'All notifications marked as read.' });

@@ -5,6 +5,7 @@ const User = require('../models/User');
 const Business = require('../models/Business');
 const BusinessProfile = require('../models/BusinessProfile');
 const BusinessImage = require('../models/BusinessImage');
+const Donation = require('../models/Donation');
 
 const buildProfile = async userId => {
   const [user, profile, images] = await Promise.all([
@@ -73,6 +74,20 @@ exports.getDashboard = async (req, res, next) => {
         }
       }
     });
+  } catch (error) { next(error); }
+};
+
+// Donations are scoped on the server so a business never receives another
+// business's operational data from its dashboard.
+exports.getDonations = async (req, res, next) => {
+  try {
+    const donations = await Donation.list({
+      where: 'WHERE d.business_user_id = ?',
+      values: [req.user.id],
+      limit: 50,
+      offset: 0
+    });
+    return res.json({ success: true, donations });
   } catch (error) { next(error); }
 };
 

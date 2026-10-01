@@ -30,7 +30,7 @@ document.querySelector('.impact-panel')?.insertAdjacentElement('afterend', insig
 
 const modal = document.createElement('div');
 modal.className = 'enhance-modal';
-modal.innerHTML = `<section class="enhance-modal-card" role="dialog" aria-modal="true" aria-labelledby="delete-title"><h3 id="delete-title">Delete this draft?</h3><p>This removes the saved information from this device. Published FoodBridge donations are not affected.</p><div class="enhance-modal-actions"><button class="cancel" type="button" data-cancel-delete>Keep draft</button><button class="danger" type="button" data-confirm-delete>Delete draft</button></div></section>`;
+modal.innerHTML = `<section class="enhance-modal-card" role="dialog" aria-modal="true" aria-labelledby="delete-title"><h3 id="delete-title">Delete this draft?</h3><p>This removes the saved information from this device. Published Food Rescue donations are not affected.</p><div class="enhance-modal-actions"><button class="cancel" type="button" data-cancel-delete>Keep draft</button><button class="danger" type="button" data-confirm-delete>Delete draft</button></div></section>`;
 document.body.append(modal);
 
 function drafts() { return read(draftKey); }

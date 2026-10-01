@@ -1,0 +1,25 @@
+const express = require('express');
+const analyticsController = require('../controllers/analyticsController');
+const leaderboardController = require('../controllers/leaderboardController');
+const certificateController = require('../controllers/certificateController');
+const notificationController = require('../controllers/notificationController');
+const { authenticate } = require('../middleware/auth');
+
+const router = express.Router();
+
+// Public Impact & Live Map
+router.get('/analytics/public', analyticsController.getPublicAnalytics);
+router.get('/analytics/map-data', analyticsController.getMapData);
+
+// Leaderboard
+router.get('/leaderboard', leaderboardController.getLeaderboard);
+
+// Digital Donation Certificate (for completed donations)
+router.get('/certificate/:id', certificateController.getDonationCertificate);
+
+// User-authenticated endpoints
+router.get('/rewards/my-points', authenticate, leaderboardController.getMyRewards);
+router.get('/notifications', authenticate, notificationController.listForUser);
+router.put('/notifications/:id/read', authenticate, notificationController.markRead);
+
+module.exports = router;

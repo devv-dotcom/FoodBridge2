@@ -14,7 +14,7 @@ requestForm.addEventListener('submit', async event => {
 });
 verifyForm.addEventListener('submit', async event => {
   event.preventDefault(); const submit = verifyForm.querySelector('[type="submit"]');
-  try { setLoading(submit, true, 'Verifying…'); const response = await request('/api/auth/verify-otp', { method: 'POST', body: { email, otp: verifyForm.elements.otp.value.trim() }, auth: false }); resetToken = response.resetToken; verifyForm.hidden = true; resetForm.hidden = false; copy.textContent = 'Choose a strong new password for your FoodBridge account.'; resetForm.elements.newPassword.focus(); }
+  try { setLoading(submit, true, 'Verifying…'); const response = await request('/api/auth/verify-otp', { method: 'POST', body: { email, otp: verifyForm.elements.otp.value.trim() }, auth: false }); resetToken = response.resetToken; verifyForm.hidden = true; resetForm.hidden = false; copy.textContent = 'Choose a strong new password for your Food Rescue account.'; resetForm.elements.newPassword.focus(); }
   catch (error) { notifyError(error); } finally { setLoading(submit, false); }
 });
 resetForm.addEventListener('submit', async event => {

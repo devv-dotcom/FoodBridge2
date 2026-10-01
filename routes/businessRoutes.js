@@ -8,6 +8,7 @@ const router = express.Router();
 
 router.use(authenticate, authorizeBusiness, requireActiveAccount);
 router.get('/dashboard', controller.getDashboard);
+router.get('/donations', controller.getDonations);
 router.get('/profile', controller.getProfile);
 router.put('/profile', businessProfileValidation, controller.updateProfile);
 router.post('/logo', uploadLogo, controller.uploadLogo);

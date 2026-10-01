@@ -15,13 +15,14 @@ const Donation = {
   },
 
   async create(connection, businessUserId, data) {
+    const isEmergency = Boolean(data.isEmergency) || (data.expiryTime && (new Date(data.expiryTime).getTime() - Date.now() <= 2.5 * 3600000));
     const [result] = await connection.execute(
       `INSERT INTO donations (business_user_id, category_id, food_name, food_type, quantity, number_of_meals,
-        preparation_time, expiry_time, pickup_date, pickup_time, pickup_address, latitude, longitude, description)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        preparation_time, expiry_time, pickup_date, pickup_time, pickup_address, city, latitude, longitude, description, is_emergency)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [businessUserId, data.categoryId, data.foodName, data.foodType, data.quantity, data.numberOfMeals || 0,
-        data.preparationTime, data.expiryTime, data.pickupDate, data.pickupTime, data.pickupAddress,
-        data.latitude || null, data.longitude || null, data.description || null]
+        data.preparationTime, data.expiryTime, data.pickupDate, data.pickupTime, data.pickupAddress, data.city || null,
+        data.latitude || null, data.longitude || null, data.description || null, isEmergency ? 1 : 0]
     );
     return result.insertId;
   },

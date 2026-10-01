@@ -1,4 +1,4 @@
-# FoodBridge Frontend Integration
+# Food Rescue Frontend Integration
 
 ## 1. Project Structure
 
@@ -6,7 +6,7 @@ The new browser modules live in `js/`: `api.js`, `auth.js`, `dashboard.js`, `don
 
 ## 2. API Helper
 
-`api.js` is the single Fetch client. It parses JSON, attaches bearer tokens, normalizes errors, and safely manages session storage. Configure a different server with `<html data-api-base="http://localhost:5000">`.
+`api.js` is the single Fetch client. It parses JSON, attaches bearer tokens, normalizes errors, applies a request timeout, and safely manages session storage. It defaults to same-origin APIs in production. When a local static server is used, it safely targets the Express development API on port `5000`; development overrides use `window.FOODBRIDGE_API_BASE` or an optional `data-api-base` supplied by the deployment configuration.
 
 ## 3. Authentication Integration
 

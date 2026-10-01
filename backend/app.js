@@ -28,7 +28,7 @@ app.use(express.static(path.join(__dirname, '..')));
 app.get('/health', async (_req, res, next) => {
   try {
     await pool.query('SELECT 1');
-    res.json({ success: true, message: 'FoodBridge authentication API is healthy.' });
+    res.json({ success: true, message: 'Food Rescue authentication API is healthy.' });
   } catch (error) { next(error); }
 });
 
@@ -53,4 +53,4 @@ app.use((error, _req, res, _next) => {
   res.status(500).json({ success: false, message: 'Something went wrong. Please try again later.' });
 });
 
-app.listen(port, () => console.log(`FoodBridge auth API listening on port ${port}`));
+app.listen(port, () => console.log(`Food Rescue auth API listening on port ${port}`));
