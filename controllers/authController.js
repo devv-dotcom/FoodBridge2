@@ -145,15 +145,16 @@ exports.login = async (req, res, next) => {
     const otp = crypto.randomInt(100000, 1000000).toString();
     await User.saveLoginOtp(user.email, otpHash(otp), new Date(Date.now() + loginOtpLifetimeMs));
     
-    let mailFailed = false;
+    let mailError;
     try {
       await sendLoginOtp({ email: user.email, fullName: user.full_name, otp });
-    } catch (mailError) {
-      mailFailed = true;
-      console.warn('Login OTP email delivery notice:', mailError.message || mailError);
+    } catch (error) {
+      mailError = error;
+      // Avoid logging provider response bodies or recipient data in production.
+      console.warn('Login OTP email delivery failed.', { code: error.code || 'MAIL_DELIVERY_FAILED' });
     }
 
-    if (mailFailed) {
+    if (mailError) {
       await User.clearLoginOtp(user.id);
       return res.status(503).json({ success: false, message: deliveryFailureMessage(mailError) });
     }
